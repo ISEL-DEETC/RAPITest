@@ -16,6 +16,7 @@ using System.Linq;
 using RAPITest.Models;
 using System;
 using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace DataAnnotation.Controllers
 {
@@ -23,9 +24,9 @@ namespace DataAnnotation.Controllers
 	[ApiController]
 	[Route("[controller]/[action]")]
 	//[GenerateAntiforgeryTokenCookie]
-	public class UploadApiSpecificationController : Controller
+	public class SetupTestController : Controller
 	{
-		private readonly ILogger<UploadApiSpecificationController> _logger;
+		private readonly ILogger<SetupTestController> _logger;
 		private readonly string _targetFilePath;
 		private readonly long _fileSizeLimit;
 		private readonly string[] _permittedExtensions;
@@ -33,12 +34,12 @@ namespace DataAnnotation.Controllers
 		private static readonly HttpClient _httpClient;
 		private static readonly FormOptions _defaultFormOptions;
 
-		static UploadApiSpecificationController()
+		static SetupTestController()
 		{
 			_httpClient = new HttpClient();
 			_defaultFormOptions = new FormOptions();
 		}
-		public UploadApiSpecificationController(ILogger<UploadApiSpecificationController> logger, IConfiguration config)
+		public SetupTestController(ILogger<SetupTestController> logger, IConfiguration config)
 		{
 			_logger = logger;
 			_targetFilePath = config.GetValue<string>("TargetFilePath");
@@ -50,7 +51,7 @@ namespace DataAnnotation.Controllers
 		[DisableRequestSizeLimit]
 		[DisableFormValueModelBinding]
 		//[ValidateAntiForgeryToken]
-		public async Task<IActionResult> UploadFile()
+		public async Task<IActionResult> UploadFile([FromForm] JObject body)
 		{
 			if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
 			{
@@ -138,10 +139,7 @@ namespace DataAnnotation.Controllers
 				section = await reader.ReadNextSectionAsync();
 			}
 
-
-			//check file validity
-
-			return Created(nameof(UploadApiSpecificationController), null);
+			return Created(nameof(SetupTestController), null);
 		}
 
 	}
