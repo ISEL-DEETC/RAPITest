@@ -1,22 +1,17 @@
-﻿using RAPITest.Utilities;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System.IO;
-using System.Net;
-using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using RAPITest.Attributes;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
-using RAPITest.Models;
-using System;
 using System.Net.Http;
-using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System;
 
 namespace DataAnnotation.Controllers
 {
@@ -51,94 +46,77 @@ namespace DataAnnotation.Controllers
 		[DisableRequestSizeLimit]
 		[DisableFormValueModelBinding]
 		//[ValidateAntiForgeryToken]
-		public async Task<IActionResult> UploadFile([FromForm] JObject body)
+		public async Task<IActionResult> UploadFile(IFormCollection data)
 		{
-			if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
+			List<IFormFile> files = data.Files.ToList();
+			
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			var userPath = Path.Combine(_targetFilePath, userId);
+			Directory.CreateDirectory(userPath);
+			var testDirectory = Path.Combine(userPath, data["name"]);
+
+			if (Directory.Exists(testDirectory))
 			{
-				ModelState.AddModelError("File", $"The request couldn't be processed (Error 1).");  // Log error
-				return BadRequest(ModelState);
+				return BadRequest("This API is already being tested! Give a different title or delete the old one first.");
 			}
 
-			var boundary = MultipartRequestHelper.GetBoundary(
-				MediaTypeHeaderValue.Parse(Request.ContentType),
-				_defaultFormOptions.MultipartBoundaryLengthLimit);
-			var reader = new MultipartReader(boundary, HttpContext.Request.Body);
-			var section = await reader.ReadNextSectionAsync();
+			Directory.CreateDirectory(testDirectory);
 
-			while (section != null)
+			var pathReports = Path.Combine(testDirectory, "Reports");
+			Directory.CreateDirectory(pathReports);
+
+			foreach (var formFile in files)
 			{
-				var hasContentDispositionHeader =
-					ContentDispositionHeaderValue.TryParse(
-						section.ContentDisposition, out var contentDisposition);
-
-				if (hasContentDispositionHeader)
+				if (formFile.Length > 0)
 				{
-					// This check assumes that there's a file
-					// present without form data. If form data
-					// is present, this method immediately fails
-					// and returns the model error.
-					if (!MultipartRequestHelper
-						.HasFileContentDisposition(contentDisposition))
+					var path = Path.Combine(testDirectory, formFile.Name);
+					
+					using (var stream = System.IO.File.Create(path+".yaml"))
 					{
-						ModelState.AddModelError("File",
-							$"The request couldn't be processed (Error 2).");
-						// Log error
-
-						return BadRequest(ModelState);
-					}
-					else
-					{
-						// Don't trust the file name sent by the client. To display
-						// the file name, HTML-encode the value.
-						var trustedFileNameForDisplay = WebUtility.HtmlEncode(
-								contentDisposition.FileName.Value);
-						var trustedFileNameForFileStorage = Path.GetRandomFileName();
-
-						// **WARNING!**
-						// In the following example, the file is saved without
-						// scanning the file's contents. In most production
-						// scenarios, an anti-virus/anti-malware scanner API
-						// is used on the file before making the file available
-						// for download or for use by other systems. 
-						// For more information, see the topic that accompanies 
-						// this sample.
-
-						var streamedFileContent = await FileHelpers.ProcessStreamedFile(
-							section, contentDisposition, ModelState,
-							_permittedExtensions, _fileSizeLimit);
-
-						if (!ModelState.IsValid)
-						{
-							return BadRequest(ModelState);
-						}
-						var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-						var userPath = Path.Combine(_targetFilePath, userId);
-						Directory.CreateDirectory(userPath);
-
-						var fileFolderPath = Path.Combine(userPath, trustedFileNameForFileStorage);
-						Directory.CreateDirectory(fileFolderPath);
-
-						var filePath = Path.Combine(fileFolderPath, trustedFileNameForFileStorage);
-
-						using (var targetStream = System.IO.File.Create(filePath))
-						{
-							await targetStream.WriteAsync(streamedFileContent);
-
-							_logger.LogInformation(
-								"Uploaded file '{TrustedFileNameForDisplay}' saved to " +
-								"'{TargetFilePath}' as {TrustedFileNameForFileStorage}",
-								trustedFileNameForDisplay, _targetFilePath,
-								trustedFileNameForFileStorage);
-						}
-
+						await formFile.CopyToAsync(stream);
 					}
 				}
-
-				// Drain any remaining section body that hasn't been consumed and
-				// read the headers for the next section.
-				section = await reader.ReadNextSectionAsync();
 			}
 
+			var pathInterval = Path.Combine(testDirectory, "NextTest.txt");
+			using (StreamWriter outputFile = new StreamWriter(pathInterval))
+			{
+				string nextTest = "";
+				string nextInterval = "";
+				//radioButtons: [button1H, button12H, button24H, button1W, button1M, buttonNever] 
+				switch (data["interval"])
+				{
+					case "1 hour":
+						nextTest = DateTime.Now.AddHours(1).ToString();
+						nextInterval = "1 hour";
+						break;
+					case "12 hours":
+						nextTest = DateTime.Now.AddHours(12).ToString();
+						nextInterval = "12 hours";
+						break;
+					case "24 hours":
+						nextTest = DateTime.Now.AddDays(1).ToString();
+						nextInterval = "24 hours";
+						break;
+					case "1 week":
+						nextTest = DateTime.Now.AddDays(7).ToString();
+						nextInterval = "1 week";
+						break;
+					case "1 month":
+						nextTest = DateTime.Now.AddMonths(1).ToString();
+						nextInterval = "1 month";
+						break;
+					default:  //Never
+						break;
+				}
+				outputFile.WriteLine(nextTest);
+				outputFile.WriteLine(nextInterval);
+			}
+
+			if (data["runimmediately"] == "true")
+			{
+				//run
+			}
 			return Created(nameof(SetupTestController), null);
 		}
 

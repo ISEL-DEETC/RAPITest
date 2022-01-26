@@ -1,0 +1,7 @@
+﻿div.tab-content {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 80px;
+    padding: 50px;
+    font-size: 20px;
+}

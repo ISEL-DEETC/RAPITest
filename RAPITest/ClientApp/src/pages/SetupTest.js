@@ -21,7 +21,8 @@ export class SetupTest extends Component {
             name: "",
             apiSpecification: null,
             testSpecification: null,
-            timeSpecification: null
+            timeSpecification: null,
+            errorMessage: ""
         }
 
         this.handlerName = this.handlerName.bind(this)
@@ -29,6 +30,7 @@ export class SetupTest extends Component {
         this.handlerTest = this.handlerTest.bind(this)
         this.handlerTime = this.handlerTime.bind(this)
         this.sendTestSetup = this.sendTestSetup.bind(this)
+        this.restartCallback = this.restartCallback.bind(this)
     }
 
     handlerName(nameTest) {
@@ -62,7 +64,11 @@ export class SetupTest extends Component {
 
         let data = new FormData();
         data.append('apiSpecification', this.state.apiSpecification);
-        data.append('TSL', this.state.testSpecification);
+        let i = 1
+        for (const file of this.state.testSpecification) {
+            data.append("tsl_"+i, file)
+            i++
+        }
         data.append('name', this.state.name);
         data.append('runimmediately', this.state.timeSpecification.runimmediately);
         data.append('interval', this.state.timeSpecification.interval);
@@ -73,10 +79,17 @@ export class SetupTest extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
             body: data
         }).then(res => {
-            console.log(res)
-            this.setState({step:5})
+            if (!res.ok) {
+                res.text().then(text => this.setState({ step: 6, errorMessage: text}))
+            } else {
+                this.setState({ step: 5 })
+            }
         })
    
+    }
+
+    restartCallback() {
+        this.setState({ step: 1 })
     }
 
     renderSwitch() {
@@ -89,8 +102,10 @@ export class SetupTest extends Component {
                 return <UploadTestSpecification handlerTest={this.handlerTest}/>;
             case 4:
                 return <TimeLoop handlerTime={this.handlerTime} />;
+            case 5:
+                return <h3>Success! Go over to <a href="/monitorTests">Monitor Tests</a> to check the results or  <button type="button" className="btn btn-outline-primary" onClick={this.restartCallback}>press here</button> to setup another test.</h3>
             default:
-                return <h3>Success! Go over to <a href="/monitorTests">Monitor Tests</a> to check the results</h3>
+                return <div><h3>Error!</h3> <h4>{this.state.errorMessage}</h4> <button type="button" className="btn btn-outline-primary" onClick={this.restartCallback}>Restart</button> </div>
         }
     }
 
@@ -98,7 +113,7 @@ export class SetupTest extends Component {
     render() {
         return (
             <div>    
-                <h1>Step {this.state.step}</h1>
+                {this.state.step < 5 && <h1>Step {this.state.step}</h1>}
                 {this.renderSwitch()}
             </div>
         );

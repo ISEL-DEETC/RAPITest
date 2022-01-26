@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
 import Form from 'react-bootstrap/Form';
 import RadioComp from '../../components/RadioComp'
-
+import { warningMessage } from '../../components/AlertComp'
 
 export class TimeLoop extends Component {
 
@@ -15,12 +15,14 @@ export class TimeLoop extends Component {
             runimmediately: true,
             selectedRadioLabel: "1 hour",
             radioButtons: [],
-            group: "group1"
+            group: "group1",
+            showWarning: false
         }
 
         this.finalizeCallback = this.finalizeCallback.bind(this)
         this.changeSelectedRadio = this.changeSelectedRadio.bind(this)
         this.handleCheck = this.handleCheck.bind(this)
+        this.closeWarning = this.closeWarning.bind(this)
     }
 
     componentDidMount() {
@@ -70,6 +72,10 @@ export class TimeLoop extends Component {
     }
 
     finalizeCallback() {
+        if (this.state.selectedRadioLabel === "Never" && !this.state.runimmediately) {
+            this.setState({ showWarning: true })
+            return
+        }
         let ret = {
             runimmediately: this.state.runimmediately,
             interval: this.state.selectedRadioLabel
@@ -86,9 +92,14 @@ export class TimeLoop extends Component {
         this.setState({ runimmediately: newrun })
     }
 
+    closeWarning() {
+        this.setState({ showWarning: false })
+    }
+
     render() {
         return (
             <div>
+                {this.state.showWarning ? warningMessage("Please select either run immediately or one of the intervals", this.closeWarning) : <div></div>}
                 <Form>
                     <div key={`checkbox`} className="mb-3">
                         <Form.Check
