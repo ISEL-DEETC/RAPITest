@@ -12,6 +12,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Collections.Generic;
 using System;
+using RAPITest.RunTests;
 
 namespace DataAnnotation.Controllers
 {
@@ -115,7 +116,7 @@ namespace DataAnnotation.Controllers
 
 			if (data["runimmediately"] == "true")
 			{
-				//run
+				//SetupTestRun.Run(testDirectory);
 			}
 			return Created(nameof(SetupTestController), null);
 		}
