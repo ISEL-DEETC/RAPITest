@@ -6,15 +6,8 @@ using System.Threading.Tasks;
 
 namespace RAPITest.Models.AppSpecific
 {
-	public abstract class Verification 
+	public interface Verification 
 	{
-		protected readonly HttpResponse Response;
-
-		public Verification(HttpResponse response)
-		{
-			Response = response;
-		}
-
-		protected abstract Result Verify();
+		Result Verify(HttpResponse Response);
 	}
 }

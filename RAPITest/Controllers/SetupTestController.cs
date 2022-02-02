@@ -65,14 +65,35 @@ namespace DataAnnotation.Controllers
 
 			var pathReports = Path.Combine(testDirectory, "Reports");
 			Directory.CreateDirectory(pathReports);
+			var pathTestInformation = Path.Combine(testDirectory, "TestInformation");
+			Directory.CreateDirectory(pathTestInformation);
+			var pathDLL = Path.Combine(pathTestInformation, "DLLs");
+			Directory.CreateDirectory(pathDLL);
+			var pathDictionary = Path.Combine(pathTestInformation, "Dictionary");
+			Directory.CreateDirectory(pathDictionary);
 
 			foreach (var formFile in files)
 			{
 				if (formFile.Length > 0)
 				{
-					var path = Path.Combine(testDirectory, formFile.Name);
-					
-					using (var stream = System.IO.File.Create(path+".yaml"))
+					var path = "";
+					if (formFile.Name.Contains("tsl_"))
+					{
+						path = Path.Combine(pathTestInformation, formFile.Name);
+					}
+					else if(formFile.Name.Contains("apiSpecification"))
+					{
+						path = Path.Combine(testDirectory, formFile.Name);
+					}
+					else if(formFile.Name.Contains("dictionary"))
+					{
+						path = Path.Combine(pathDictionary, formFile.Name);
+					}
+					else
+					{
+						path = Path.Combine(pathDLL, formFile.Name);
+					}
+					using (var stream = System.IO.File.Create(path))
 					{
 						await formFile.CopyToAsync(stream);
 					}

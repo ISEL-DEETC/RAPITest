@@ -21,6 +21,8 @@ export class SetupTest extends Component {
             name: "",
             apiSpecification: null,
             testSpecification: null,
+            dictionary: null,
+            dllFiles: null,
             timeSpecification: null,
             errorMessage: ""
         }
@@ -47,9 +49,11 @@ export class SetupTest extends Component {
         })
     }
 
-    handlerTest(test) {
+    handlerTest(tsl,dictionary,dll) {
         this.setState({
-            testSpecification: test,
+            testSpecification: tsl,
+            dictionary: dictionary,
+            dllFiles: dll,
             step:4
         })
     }
@@ -63,11 +67,16 @@ export class SetupTest extends Component {
     async sendTestSetup() {
 
         let data = new FormData();
-        data.append('apiSpecification', this.state.apiSpecification);
+        data.append('apiSpecification.yaml', this.state.apiSpecification);
+        data.append('dictionary.txt', this.state.dictionary);
         let i = 1
         for (const file of this.state.testSpecification) {
-            data.append("tsl_"+i, file)
+            data.append("tsl_"+i+".yaml", file)
             i++
+        }
+        for (const file of this.state.dllFiles) {
+            console.log(file)
+            data.append(file.name, file)
         }
         data.append('name', this.state.name);
         data.append('runimmediately', this.state.timeSpecification.runimmediately);

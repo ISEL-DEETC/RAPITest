@@ -10,5 +10,6 @@ namespace RAPITest.Models
 		public int Code { get; set; }
 		public string JsonSchema { get; set; }
 		public string JsonMatch { get; set; }
+		public List<string> Custom { get; set; }
 	}
 }

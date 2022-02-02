@@ -11,19 +11,19 @@ namespace RAPITest.Models.AppSpecific.Verifications
 		private readonly int TargetCode;
 		private const string failString = "Validation failed! Expected code: {0}, Actual code: {1}";
 
-		public Code(HttpResponse response, int targetCode) : base(response)
+		public Code(int targetCode)
 		{
 			this.TargetCode = targetCode;
 		}
 
-		protected override Result Verify()
+		public Result Verify(HttpResponse Response)
 		{
 			Result res = new Result();
-			res.Success = TargetCode == base.Response.StatusCode;
+			res.Success = TargetCode == Response.StatusCode;
 
 			if (!res.Success)
 			{
-				res.Description = String.Format(failString, TargetCode, base.Response.StatusCode);
+				res.Description = String.Format(failString, TargetCode, Response.StatusCode);
 			}
 			return res;
 		}

@@ -14,7 +14,7 @@ namespace RAPITest
 	{
 		public static void Main(string[] args)
 		{
-			//SetupTestRun.Run("D:\\isel\\2022INVERNO\\TESE\\APPUsers\\58cf744f-4daf-42a3-ba80-6b5b9bc7b438\\PetStore");
+			SetupTestRun.Run("D:\\isel\\2022INVERNO\\TESE\\APPUsers\\58cf744f-4daf-42a3-ba80-6b5b9bc7b438\\Amazon");
 			CreateHostBuilder(args).Build().Run();
 		}
 
