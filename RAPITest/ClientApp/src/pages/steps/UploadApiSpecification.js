@@ -36,10 +36,10 @@ export class UploadApiSpecification extends Component {
     render() {
         return (
             <div>
-                {this.state.showWarning ? warningMessage("Please upload only one yaml file", this.closeWarning) : <div></div> }
+                {this.state.showWarning ? warningMessage("Please upload only one yaml or json file", this.closeWarning) : <div></div> }
                 <div className="root-dropzone">
                     <Dropzone
-                        accept=".yaml"
+                        accept=".yaml, .json"
                         onDrop={this.onDrop}
                         history={this.props.history}
                         text={

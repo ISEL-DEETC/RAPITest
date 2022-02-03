@@ -8,6 +8,7 @@ namespace RAPITest.Models
 	public class Test_D
 	{
 		public string TestID { get; set; }
+		public string Server { get; set; }
 		public string Path { get; set; }
 		public string Method { get; set; }
 		public string Consumes { get; set; }

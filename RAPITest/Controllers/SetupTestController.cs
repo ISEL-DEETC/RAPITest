@@ -12,7 +12,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Collections.Generic;
 using System;
-using RAPITest.RunTests;
+using RAPITest.SetupTests;
 
 namespace DataAnnotation.Controllers
 {
@@ -23,12 +23,17 @@ namespace DataAnnotation.Controllers
 	public class SetupTestController : Controller
 	{
 		private readonly ILogger<SetupTestController> _logger;
-		private readonly string _targetFilePath;
 		private readonly long _fileSizeLimit;
 		private readonly string[] _permittedExtensions;
 
 		private static readonly HttpClient _httpClient;
 		private static readonly FormOptions _defaultFormOptions;
+
+		private readonly string _targetFilePath;
+		private readonly string _ReportsPath;
+		private readonly string _TestInformationPath;
+		private readonly string _DLLsPath;
+		private readonly string _DictionaryPath;
 
 		static SetupTestController()
 		{
@@ -39,6 +44,10 @@ namespace DataAnnotation.Controllers
 		{
 			_logger = logger;
 			_targetFilePath = config.GetValue<string>("TargetFilePath");
+			_ReportsPath = config.GetValue<string>("ReportsPath");
+			_TestInformationPath = config.GetValue<string>("TestInformationPath");
+			_DLLsPath = config.GetValue<string>("DLLsPath");
+			_DictionaryPath = config.GetValue<string>("DictionaryPath");
 			_fileSizeLimit = config.GetValue<long>("FileSizeLimit");
 			_permittedExtensions = config.GetSection("PermittedExtensionsApiSpecification").GetChildren().ToArray().Select(v => v.Value).ToArray();
 		}
@@ -63,13 +72,13 @@ namespace DataAnnotation.Controllers
 
 			Directory.CreateDirectory(testDirectory);
 
-			var pathReports = Path.Combine(testDirectory, "Reports");
+			var pathReports = Path.Combine(testDirectory, _ReportsPath);
 			Directory.CreateDirectory(pathReports);
-			var pathTestInformation = Path.Combine(testDirectory, "TestInformation");
+			var pathTestInformation = Path.Combine(testDirectory, _TestInformationPath);
 			Directory.CreateDirectory(pathTestInformation);
-			var pathDLL = Path.Combine(pathTestInformation, "DLLs");
+			var pathDLL = Path.Combine(pathTestInformation, _DLLsPath);
 			Directory.CreateDirectory(pathDLL);
-			var pathDictionary = Path.Combine(pathTestInformation, "Dictionary");
+			var pathDictionary = Path.Combine(pathTestInformation, _DictionaryPath);
 			Directory.CreateDirectory(pathDictionary);
 
 			foreach (var formFile in files)

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using RAPITest.RunTests;
+using RAPITest.SetupTests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -25,11 +25,13 @@ namespace RAPITest.Controllers
 	{
 		private readonly ILogger<MonitorTestController> _logger;
 		private readonly string _targetFilePath;
+		private readonly string _ReportsPath;
 
 		public MonitorTestController(ILogger<MonitorTestController> logger, IConfiguration config)
 		{
 			_logger = logger;
 			_targetFilePath = config.GetValue<string>("TargetFilePath");
+			_ReportsPath = config.GetValue<string>("ReportsPath");
 		}
 
 		[HttpGet]
@@ -57,7 +59,7 @@ namespace RAPITest.Controllers
 					userRet.NextTest = DateTime.Parse(nextTest);
 				}
 
-				string reportsPath = Path.Combine(dir, "Reports");
+				string reportsPath = Path.Combine(dir, _ReportsPath);
 				DirectoryInfo directory = new DirectoryInfo(reportsPath);
 				FileInfo newestReport = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
 				if (newestReport != null)

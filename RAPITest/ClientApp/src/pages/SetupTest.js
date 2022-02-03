@@ -67,7 +67,7 @@ export class SetupTest extends Component {
     async sendTestSetup() {
 
         let data = new FormData();
-        data.append('apiSpecification.yaml', this.state.apiSpecification);
+        data.append('apiSpecification', this.state.apiSpecification);
         data.append('dictionary.txt', this.state.dictionary);
         let i = 1
         for (const file of this.state.testSpecification) {

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace RAPITest.Models.AppSpecific
 {
+	[Serializable]
 	public class Workflow
 	{
 		public string WorkflowID { get; set; }
