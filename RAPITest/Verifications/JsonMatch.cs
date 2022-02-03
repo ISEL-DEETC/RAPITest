@@ -7,13 +7,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using RAPITest.Models.AppSpecific;
+using System.Net.Http;
 
 namespace RAPITest.Verifications
 {
 	public class JsonMatch : Verification
 	{
-		readonly string jsonPath;
-		readonly string targetValue;
+		public readonly string jsonPath;
+		public readonly string targetValue;
 		private const string failString = "Validation failed! Expected value: {0}, Actual value: {1}";
 
 		public JsonMatch(string jsonPath, string targetValue)
@@ -22,12 +23,13 @@ namespace RAPITest.Verifications
 			this.targetValue = targetValue;
 		}
 
-		public Result Verify(HttpResponse Response)
+		public Result Verify(HttpResponseMessage Response)
 		{
 			Result res = new Result();
+			res.TestName = "JsonMatch";
 			res.Success = false;
 
-			if (Response.ContentType != "application/json")
+			/*if (Response.Content != "application/json")
 			{
 				res.Description = "Content type wasn't in json, actual content type: " + Response.ContentType;
 			}
@@ -65,7 +67,7 @@ namespace RAPITest.Verifications
 					}
 				}
 				
-			}
+			}*/
 			return res;
 		}
 	}

@@ -11,6 +11,7 @@ namespace RAPITest.Models
 		public DateTime LatestReport { get; set; }
 		public int Errors { get; set; }
 		public int Warnings { get; set; }
-		public DateTime NextTest { get; set; } 
+		public DateTime NextTest { get; set; }
+		public List<string> ErrorMessages { get; set; }
 	}
 }

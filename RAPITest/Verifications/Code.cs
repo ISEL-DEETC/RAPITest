@@ -3,6 +3,7 @@ using RAPITest.Models.AppSpecific;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace RAPITest.Verifications
@@ -12,15 +13,16 @@ namespace RAPITest.Verifications
 		public readonly int TargetCode;
 		private const string failString = "Validation failed! Expected code: {0}, Actual code: {1}";
 
-		public Code(int targetCode)
+		public Code(int TargetCode)
 		{
-			this.TargetCode = targetCode;
+			this.TargetCode = TargetCode;
 		}
 
-		public Result Verify(HttpResponse Response)
+		public Result Verify(HttpResponseMessage Response)
 		{
 			Result res = new Result();
-			res.Success = TargetCode == Response.StatusCode;
+			res.TestName = "Code";
+			res.Success = TargetCode == (int)Response.StatusCode;
 
 			if (!res.Success)
 			{

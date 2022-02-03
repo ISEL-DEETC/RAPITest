@@ -82,7 +82,7 @@ namespace RAPITest.SetupTests
 				{
 					if (!firstTestSetup.ExternalVerifications.TryGetValue(key, out dynamic value))
 					{
-						firstTestSetup.Errors.Add("DLL reference in TSL file not found the file name must be exact, case sensitive");
+						firstTestSetup.Errors.Add("DLL reference in TSL file not found, the file name must be exact, case sensitive");
 						return null;
 					}
 					allVerifications.Add(value);

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using NJsonSchema.Infrastructure;
+using RAPITest.Models.AppSpecific;
 
-namespace RAPITest.SetupTests
+namespace RAPITest.Utils
 {
     /// <summary>
     /// Functions for performing common Json Serialization operations.
@@ -30,7 +33,7 @@ namespace RAPITest.SetupTests
             TextWriter writer = null;
             try
             {
-                var contentsToWriteToFile = Newtonsoft.Json.JsonConvert.SerializeObject(objectToWrite);
+                var contentsToWriteToFile = JsonConvert.SerializeObject(objectToWrite, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto});
                 writer = new StreamWriter(filePath, append);
                 writer.Write(contentsToWriteToFile);
             }
@@ -55,7 +58,7 @@ namespace RAPITest.SetupTests
             {
                 reader = new StreamReader(filePath);
                 var fileContents = reader.ReadToEnd();
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(fileContents);
+                return JsonConvert.DeserializeObject<T>(fileContents, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
             }
             finally
             {
@@ -63,6 +66,33 @@ namespace RAPITest.SetupTests
                     reader.Close();
             }
         }
-    }
-}
 
+		internal static void WriteToJsonFileModed<T>(string filePath, T objectToWrite, bool append = false) where T : new()
+        {
+            TextWriter writer = null;
+            try
+            {
+                var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
+                jsonResolver.IgnoreProperty(typeof(Test), "Server");
+                jsonResolver.IgnoreProperty(typeof(Test), "Path");
+                jsonResolver.IgnoreProperty(typeof(Test), "Method");
+                jsonResolver.IgnoreProperty(typeof(Test), "Consumes");
+                jsonResolver.IgnoreProperty(typeof(Test), "Produces");
+                jsonResolver.IgnoreProperty(typeof(Test), "Body");
+                jsonResolver.IgnoreProperty(typeof(Test), "NativeVerifications");
+                jsonResolver.IgnoreProperty(typeof(Test), "ExternalVerifications");
+
+                JsonSerializerSettings j = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+                j.ContractResolver = jsonResolver;
+                var contentsToWriteToFile = JsonConvert.SerializeObject(objectToWrite, j);
+                writer = new StreamWriter(filePath, append);
+                writer.Write(contentsToWriteToFile);
+            }
+            finally
+            {
+                if (writer != null)
+                    writer.Close();
+            }
+        }
+	}
+}

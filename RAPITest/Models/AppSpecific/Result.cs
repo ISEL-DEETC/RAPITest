@@ -7,6 +7,7 @@ namespace RAPITest.Models.AppSpecific
 {
 	public class Result
 	{
+		public string TestName { get; set; }
 		public bool Success { get; set; }
 		public string Description { get; set; }
 	}

@@ -22,17 +22,26 @@
     <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.2.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
+    <PackageReference Include="NJsonSchema" Version="10.6.7" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
-    <Compile Remove="NewFolder\**" />
+    <Compile Remove="Models\NewFolder1\**" />
+    <Compile Remove="Models\NewFolder\**" />
+    <Compile Remove="Models\Results\**" />
     <Content Remove="$(SpaRoot)**" />
-    <Content Remove="NewFolder\**" />
-    <EmbeddedResource Remove="NewFolder\**" />
+    <Content Remove="Models\NewFolder1\**" />
+    <Content Remove="Models\NewFolder\**" />
+    <Content Remove="Models\Results\**" />
+    <EmbeddedResource Remove="Models\NewFolder1\**" />
+    <EmbeddedResource Remove="Models\NewFolder\**" />
+    <EmbeddedResource Remove="Models\Results\**" />
     <None Remove="$(SpaRoot)**" />
-    <None Remove="NewFolder\**" />
+    <None Remove="Models\NewFolder1\**" />
+    <None Remove="Models\NewFolder\**" />
+    <None Remove="Models\Results\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 

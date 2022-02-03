@@ -35,13 +35,19 @@ namespace RAPITest.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult GetUserAPIs() //list all user csv files
+		public IActionResult GetUserAPIs() 
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			var userPath = Path.Combine(_targetFilePath, userId);
 			List<UserInfoAPI> allAPIS = new List<UserInfoAPI>();
-
-			string[] apis = Directory.GetDirectories(userPath);
+			string[] apis;
+			try
+			{
+				apis = Directory.GetDirectories(userPath);
+			}catch(DirectoryNotFoundException e)
+			{
+				return Ok(allAPIS);
+			}
 
 			foreach(string dir in apis)
 			{
@@ -62,7 +68,11 @@ namespace RAPITest.Controllers
 				string reportsPath = Path.Combine(dir, _ReportsPath);
 				DirectoryInfo directory = new DirectoryInfo(reportsPath);
 				FileInfo newestReport = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
-				if (newestReport != null)
+				if(newestReport != null && newestReport.Name == "error.txt")
+				{
+					userRet.ErrorMessages = System.IO.File.ReadAllLines(newestReport.FullName).ToList();
+				}
+				else if(newestReport != null)
 				{
 					var myJsonString = System.IO.File.ReadAllText(newestReport.FullName);
 					Report report = JsonSerializer.Deserialize<Report>(myJsonString);
@@ -75,6 +85,36 @@ namespace RAPITest.Controllers
 			}
 
 			return Ok(allAPIS);
+		}
+
+		[HttpGet]
+		public IActionResult DownloadReport([FromQuery] string apiTitle)   
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			var userPath = Path.Combine(_targetFilePath, userId);
+			var apiPath = Path.Combine(userPath, apiTitle);
+			string reportsPath = Path.Combine(apiPath, _ReportsPath);
+
+			DirectoryInfo directory = new DirectoryInfo(reportsPath);
+			FileInfo newestReport = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
+
+			FileStream fileStream = System.IO.File.OpenRead(newestReport.FullName);
+			return File(fileStream, "application/octet-stream");
+		}
+
+		[HttpGet]
+		public IActionResult ReturnReport([FromQuery] string apiTitle) 
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			var userPath = Path.Combine(_targetFilePath, userId);
+			var apiPath = Path.Combine(userPath, apiTitle);
+			string reportsPath = Path.Combine(apiPath, _ReportsPath);
+
+			DirectoryInfo directory = new DirectoryInfo(reportsPath);
+			FileInfo newestReport = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
+
+			string file = System.IO.File.ReadAllText(newestReport.FullName);
+			return Ok(file);
 		}
 	}
 }

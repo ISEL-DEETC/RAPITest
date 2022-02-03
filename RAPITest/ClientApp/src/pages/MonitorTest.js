@@ -106,14 +106,16 @@ export class MonitorTest extends Component {
 
     //redirect to Analysis
     async visualizeReport(apiTitle) {
-        this.props.history.push(`/workspace/analysis/${apiTitle}`)
+        this.props.history.push(`/monitorTests/report/${apiTitle}`)
     }
 
     //callback for download analysis button
-    async DownloadReport(apiTitle) {
+    async DownloadReport(apiTitle, latestReportDate) {
         const token = await authService.getAccessToken();
 
-        fetch(`Workspace/DownloadAnalysis?fileId=${apiTitle}`, {
+        fetch(`MonitorTest/DownloadReport?` + new URLSearchParams({
+            apiTitle: apiTitle,
+        }), {
             method: 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(response => {
@@ -121,7 +123,7 @@ export class MonitorTest extends Component {
                 let url = window.URL.createObjectURL(blob);
                 let a = document.createElement('a');
                 a.href = url;
-                a.download = apiTitle.split('.')[0] + '_analysis' + '.json';
+                a.download = apiTitle + '_' + latestReportDate+'.json';
                 a.click();
             });
         });
@@ -146,15 +148,42 @@ export class MonitorTest extends Component {
     }
 
     renderTestButtons(item) {
+
+        if (item.errorMessages !== null) return <div></div>
         if (item.latestReport === "-") {
             return <div className="row" style={{ marginLeft: 10, marginRight: 10 }}><div style={{ marginRight: 10 }}>Running Tests..</div><Loader type="Grid" color="#00BFFF" height={35} width={35} /></div>
         }
         return (
             <div>
-                <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.visualizeReport(item.apitTitle)}>Latest Report</button>
-                <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.DownloadReport(item.apiTitle)}>Download Latest Report</button>
-                <button type="button" className="btn btn-outline-danger" style={{marginTop:"8px", marginLeft: "8px" }} onClick={() => this.enableDeleteModal(item.apiTitle)}>Delete</button>
+                <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.visualizeReport(item.apiTitle)}>Latest Report</button>
+                <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.DownloadReport(item.apiTitle, item.latestReport)}>Download Latest Report</button>
+                <button type="button" className="btn btn-outline-danger" style={{ marginTop: "8px", marginLeft: "8px" }} onClick={() => this.enableDeleteModal(item.apiTitle)}>Delete</button>
             </div>
+        )
+    }
+
+    renderMetaData(item) {
+        if (item.errorMessages !== null) {
+            return (
+                <div>
+                    <h4>The Validation and Compilation failed with the following errors:</h4>
+                    <ul className="list-group">
+                        {item.errorMessages.map((item,i) => {
+                            return <li key={i} className="list-group-item">{item}</li>
+                        })}
+                    </ul>
+                </div>
+            )
+        }
+        return (
+            <table className="table table-striped">
+                <tbody>
+                    <tr><th>Errors</th><td>{item.errors}</td></tr>
+                    <tr><th>Warnings</th><td>{item.warnings}</td></tr>
+                    <tr><th>Latest Report</th><td>{item.latestReport}</td></tr>
+                    <tr><th>Next Test</th><td>{item.nextTest}</td></tr>
+                </tbody>
+            </table>
         )
     }
 
@@ -185,7 +214,7 @@ export class MonitorTest extends Component {
                     <div className="row">
                         <div className="col-sm-6">
                             <div className="list-group" id="list-tab" role="tablist">
-                                {Array.from(this.state.apis).map(([key, item]) => {console.log(item)
+                                {Array.from(this.state.apis).map(([key, item]) => {
                                     if (item.apiTitle.toLowerCase().includes(this.state.searchByName.toLowerCase()))
                                         return <a key={key} className="list-group-item list-group-item-action" id={'list-' + item.apiTitle} data-toggle="list" href={'#details-' + item.apiTitle} role="tab" >
                                             <div className="row" style={{ height: 30 }}>
@@ -204,14 +233,8 @@ export class MonitorTest extends Component {
                             <div className="tab-content" id="nav-tabContent" >
                                 {Array.from(this.state.apis).map(([key, item]) => {
                                     return <div key={key} style={{ borderColor: "#45ABD1", borderStyle: "solid", borderRadius: "20px", padding: 7 }} className="tab-pane fade" id={'details-' + item.apiTitle} role="tabpanel" aria-labelledby={'list-' + item.apiTitle}>
-                                        <table className="table table-striped">
-                                            <tbody>
-                                                <tr><th>Errors</th><td>{item.errors}</td></tr>
-                                                <tr><th>Warnings</th><td>{item.warnings}</td></tr>
-                                                <tr><th>Latest Report</th><td>{item.latestReport}</td></tr>
-                                                <tr><th>Next Test</th><td>{item.nextTest}</td></tr>
-                                            </tbody>
-                                        </table>
+                                        
+                                        {this.renderMetaData(item)}
                                         <div className="row" style={{ paddingLeft: "24px" }}>
                                             {this.renderTestButtons(item)}
                                         </div>
@@ -221,8 +244,8 @@ export class MonitorTest extends Component {
                         </div>
                     </div>
                     <ModalComp
-                        title="Delete File"
-                        body="Are you sure you want to delete this file. This will delete every analysis (if any) as well as the file itself."
+                        title="Delete Test"
+                        body="Are you sure you want to delete this test. This will delete everything related to the test."
                         okButtonText="Delete"
                         okButtonFunc={this.Remove}
                         cancelButtonFunc={this.disableDeleteModal}

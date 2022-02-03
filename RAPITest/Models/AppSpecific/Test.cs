@@ -17,5 +17,6 @@ namespace RAPITest.Models.AppSpecific
 		public string Body { get; set; }
 		public List<Verification> NativeVerifications { get; set; }
 		public List<dynamic> ExternalVerifications { get; set; }
+		public List<Result> TestResults { get; set; }
 	}
 }

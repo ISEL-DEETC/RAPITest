@@ -67,7 +67,11 @@ export class UploadTestSpecification extends Component {
     }
 
     continueCallback() {
-        this.props.handlerTest(this.state.acceptTSL, this.state.acceptDIC[0], this.state.acceptDLL)
+        if (this.state.acceptDIC === null) {
+            this.props.handlerTest(this.state.acceptTSL, null, this.state.acceptDLL)
+        } else {
+            this.props.handlerTest(this.state.acceptTSL, this.state.acceptDIC[0], this.state.acceptDLL)
+        }
     }
 
     toShow(file) {
@@ -76,7 +80,6 @@ export class UploadTestSpecification extends Component {
 
     renderFiles() {
         let fileList = [...this.state.acceptTSL || [], ...this.state.acceptDIC || [], ...this.state.acceptDLL || []]
-        console.log(fileList)
         if (fileList.length === 1) {
             return
         }

@@ -1,7 +1,9 @@
 ﻿using RAPITest.Models;
+using RAPITest.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace RAPITest.SetupTests
 {
@@ -41,11 +43,6 @@ namespace RAPITest.SetupTests
 			//step 8 - Persisting model objects, so verifications and parsing isnt required for future tests
 			JsonSerialization.WriteToJsonFile<FirstTestSetup>(Path.Combine(firstTestSetup.ApiPath,"FirstSetup.json"), firstTestSetup);
 
-			//step 9 - Run tests
-			FirstTestSetup person = JsonSerialization.ReadFromJsonFile<FirstTestSetup>(Path.Combine(firstTestSetup.ApiPath, "FirstSetup.json"));
-			Console.WriteLine("Run Tests");
-
-
 			//using var outputString = new StringWriter();
 			//firstTestSetup.ApiSpecification.SerializeAsV3(new OpenApiJsonWriter(outputString));
 			//firstTestSetup.JsonApiSpecification = outputString.ToString();
@@ -54,6 +51,7 @@ namespace RAPITest.SetupTests
 
 		private static void WriteErrorFile(FirstTestSetup firstTestSetup)
 		{
+			firstTestSetup.Errors = firstTestSetup.Errors.Distinct().ToList();
 			string reportsPath = Path.Combine(firstTestSetup.ApiPath, "Reports");
 			using (StreamWriter sw = File.CreateText(Path.Combine(reportsPath, "error.txt")))
 			{

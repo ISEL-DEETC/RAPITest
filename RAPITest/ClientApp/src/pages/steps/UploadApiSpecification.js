@@ -45,7 +45,7 @@ export class UploadApiSpecification extends Component {
                         text={
                             <div align="center">
                                 <p>Drop your API specification here, or click to select it.</p>
-                                <p>Only .yaml files will be accepted</p>
+                                <p>Only .yaml or .json files will be accepted</p>
                             </div>}
                     />
                 </div>

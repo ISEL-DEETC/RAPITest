@@ -7,9 +7,10 @@ import { MonitorTest } from './pages/MonitorTest';
 import AuthorizeRoute from './pages/api-authorization/AuthorizeRoute';
 import ApiAuthorizationRoutes from './pages/api-authorization/ApiAuthorizationRoutes';
 import { ApplicationPaths } from './pages/api-authorization/ApiAuthorizationConstants';
-
+import { VisualizeReport } from './pages/VisualizeReport';
 
 import './custom.css'
+
 
 export default class App extends Component {
   static displayName = App.name;
@@ -18,8 +19,9 @@ export default class App extends Component {
     return (
       <Layout>
         <Route exact path='/' component={Home} />
-        <AuthorizeRoute path='/setupTest' component={SetupTest} />
-        <AuthorizeRoute path='/monitorTests' component={MonitorTest} />
+            <AuthorizeRoute exact path='/setupTest' component={SetupTest} />
+            <AuthorizeRoute exact path='/monitorTests' component={MonitorTest} />
+            <AuthorizeRoute exact path='/monitorTests/report/:apiTitle' component={VisualizeReport} />
         <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
       </Layout>
     );

@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace RAPITest.Models.AppSpecific
 {
 	public interface Verification 
 	{
-		Result Verify(HttpResponse Response);
+		Result Verify(HttpResponseMessage Response);
 	}
 }

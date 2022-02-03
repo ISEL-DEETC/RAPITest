@@ -13,7 +13,7 @@ namespace RAPITest.SetupTests
 	{
 		public static void Parse(FirstTestSetup firstTestSetup)
 		{
-			using (FileStream fs = File.OpenRead(Path.Combine(firstTestSetup.ApiPath, "petstorev3.json")))
+			using (FileStream fs = File.OpenRead(Path.Combine(firstTestSetup.ApiPath, "apiSpecification")))
 			{
 				firstTestSetup.ApiSpecification = new OpenApiStreamReader().Read(fs, out var diagnostic);
 			}
