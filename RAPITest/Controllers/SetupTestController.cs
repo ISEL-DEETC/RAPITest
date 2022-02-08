@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Collections.Generic;
 using System;
 using RAPITest.SetupTests;
+using RAPITest.Models.EFModels;
 
 namespace DataAnnotation.Controllers
 {
@@ -28,26 +29,17 @@ namespace DataAnnotation.Controllers
 
 		private static readonly HttpClient _httpClient;
 		private static readonly FormOptions _defaultFormOptions;
-
-		private readonly string _targetFilePath;
-		private readonly string _ReportsPath;
-		private readonly string _TestInformationPath;
-		private readonly string _DLLsPath;
-		private readonly string _DictionaryPath;
+		private readonly RAPITestDBContext _context;
 
 		static SetupTestController()
 		{
 			_httpClient = new HttpClient();
 			_defaultFormOptions = new FormOptions();
 		}
-		public SetupTestController(ILogger<SetupTestController> logger, IConfiguration config)
+		public SetupTestController(ILogger<SetupTestController> logger, RAPITestDBContext context, IConfiguration config)
 		{
 			_logger = logger;
-			_targetFilePath = config.GetValue<string>("TargetFilePath");
-			_ReportsPath = config.GetValue<string>("ReportsPath");
-			_TestInformationPath = config.GetValue<string>("TestInformationPath");
-			_DLLsPath = config.GetValue<string>("DLLsPath");
-			_DictionaryPath = config.GetValue<string>("DictionaryPath");
+			_context = context;
 			_fileSizeLimit = config.GetValue<long>("FileSizeLimit");
 			_permittedExtensions = config.GetSection("PermittedExtensionsApiSpecification").GetChildren().ToArray().Select(v => v.Value).ToArray();
 		}

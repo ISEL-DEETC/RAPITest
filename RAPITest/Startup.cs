@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RAPITest.Data;
 using RAPITest.Models;
+using RAPITest.Models.EFModels;
 
 namespace RAPITest
 {
@@ -28,6 +29,10 @@ namespace RAPITest
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddDbContext<ApplicationDbContext>(options =>
+				options.UseSqlServer(
+					Configuration.GetConnectionString("DefaultConnection")));
+
+			services.AddDbContext<RAPITestDBContext>(options =>
 				options.UseSqlServer(
 					Configuration.GetConnectionString("DefaultConnection")));
 
