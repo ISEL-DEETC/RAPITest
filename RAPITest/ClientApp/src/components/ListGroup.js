@@ -1,4 +1,4 @@
-﻿﻿import React, { Component } from 'react'
+﻿import React, { Component } from 'react'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap';
 
@@ -15,7 +15,7 @@ export default class ListGroup extends Component {
                 <h4>{title}</h4>
                 <ul className="list-group">
                     {
-                        files.map((f,i) => <li key={i} className="list-group-item">
+                        files.map((f, i) => <li key={i} className="list-group-item">
                             <div className="row">
                                 <div className="column">
                                     {symbol}

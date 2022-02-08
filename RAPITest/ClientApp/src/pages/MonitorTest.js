@@ -1,8 +1,7 @@
 ﻿import React, { Component } from 'react';
-import { Container } from 'reactstrap';
 import authService from './api-authorization/AuthorizeService'
 import 'bootstrap/dist/css/bootstrap.css'
-import { Form, Col, InputGroup, FormControl } from 'react-bootstrap'
+import { Container, Row, Col, InputGroup, FormControl, Tab , Nav} from 'react-bootstrap'
 import 'bootstrap';
 import './MonitorTest.css'
 import ModalComp from '../components/ModalComp.js'
@@ -106,7 +105,7 @@ export class MonitorTest extends Component {
 
     //redirect to Analysis
     async visualizeReport(apiTitle) {
-        this.props.history.push(`/monitorTests/report/${apiTitle}`)
+        this.props.history.push(`monitorTests/report/${apiTitle}`)
     }
 
     //callback for download analysis button
@@ -149,7 +148,7 @@ export class MonitorTest extends Component {
 
     renderTestButtons(item) {
 
-        if (item.errorMessages !== null) return <div></div>
+        if (item.errorMessages !== null) return <div><button type="button" className="btn btn-outline-danger" style={{ marginTop: "8px" }} onClick={() => this.enableDeleteModal(item.apiTitle)}>Delete</button></div>
         if (item.latestReport === "-") {
             return <div className="row" style={{ marginLeft: 10, marginRight: 10 }}><div style={{ marginRight: 10 }}>Running Tests..</div><Loader type="Grid" color="#00BFFF" height={35} width={35} /></div>
         }
@@ -157,7 +156,7 @@ export class MonitorTest extends Component {
             <div>
                 <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.visualizeReport(item.apiTitle)}>Latest Report</button>
                 <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.DownloadReport(item.apiTitle, item.latestReport)}>Download Latest Report</button>
-                <button type="button" className="btn btn-outline-danger" style={{ marginTop: "8px", marginLeft: "8px" }} onClick={() => this.enableDeleteModal(item.apiTitle)}>Delete</button>
+                <button type="button" className="btn btn-outline-danger" style={{  marginLeft: "8px" }} onClick={() => this.enableDeleteModal(item.apiTitle)}>Delete</button>
             </div>
         )
     }
@@ -196,53 +195,44 @@ export class MonitorTest extends Component {
                     <h4 className="row justify-content-md-center" style={{ marginTop: 25, width: "100%" }}>Search, Analyse and Visualize.</h4>
                 </div>
                 <Container style={{ marginTop: "20px" }}>
-                    <div className="row">
-                        <Col sm={6}>
-                            <InputGroup className="mb-2">
-                                <InputGroup.Prepend>
-                                    <InputGroup.Text id="basic search">{
-                                        <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                            <path fillRule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z" />
-                                            <path fillRule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
-                                        </svg>
-                                    }</InputGroup.Text>
-                                </InputGroup.Prepend>
+                    <Tab.Container id="list-group-tabs-example">
+                    <Row>
+                        <Col>
+                            <InputGroup className="mb-3">
+                                <InputGroup.Text id="basic search">{
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z" />
+                                        <path fillRule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
+                                    </svg>
+                                }</InputGroup.Text>
                                 <FormControl placeholder="Search by name ..." name="searchByName" type="text" onChange={this.handleOnChange} />
                             </InputGroup>
-                        </Col>
-                    </div>
-                    <div className="row">
-                        <div className="col-sm-6">
-                            <div className="list-group" id="list-tab" role="tablist">
+                          
+                                <Nav variant="pills" className="flex-column">
                                 {Array.from(this.state.apis).map(([key, item]) => {
                                     if (item.apiTitle.toLowerCase().includes(this.state.searchByName.toLowerCase()))
-                                        return <a key={key} className="list-group-item list-group-item-action" id={'list-' + item.apiTitle} data-toggle="list" href={'#details-' + item.apiTitle} role="tab" >
-                                            <div className="row" style={{ height: 30 }}>
-                                                <div className="column">
-                                                    <svg className="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clipRule="evenodd" /><path fillRule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clipRule="evenodd" /></svg>
-                                                </div>
-                                                <div className="column">
-                                                    {item.apiTitle.length > 55 ? item.apiTitle.substring(0, 52) + '...' : item.apiTitle}
-                                                </div>
-                                            </div>
-                                        </a>
+                                        return <Nav.Item style={{ borderColor: "#dfdfdf", borderStyle: "solid", borderRadius: "7px" }}  key={key}>
+                                            <Nav.Link style={{}} eventKey={"#details-" + item.apiTitle}><svg className="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clipRule="evenodd" /><path fillRule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clipRule="evenodd" /></svg>{item.apiTitle.length > 55 ? item.apiTitle.substring(0, 52) + '...' : item.apiTitle}</Nav.Link>
+                                        </Nav.Item>
+                                    return <div key={key}></div>
                                 })}
-                            </div>
-                        </div>
-                        <div className="col-6">
-                            <div className="tab-content" id="nav-tabContent" >
+                                </Nav>
+                           
+                        </Col>
+                        <Col>
+                            <Tab.Content>
                                 {Array.from(this.state.apis).map(([key, item]) => {
-                                    return <div key={key} style={{ borderColor: "#45ABD1", borderStyle: "solid", borderRadius: "20px", padding: 7 }} className="tab-pane fade" id={'details-' + item.apiTitle} role="tabpanel" aria-labelledby={'list-' + item.apiTitle}>
-                                        
+                                    return <Tab.Pane key={key} style={{ borderColor: "#45ABD1", borderStyle: "solid", borderRadius: "20px", padding: 7 }} eventKey={"#details-" + item.apiTitle} aria-labelledby={'list-' + item.apiTitle}>
                                         {this.renderMetaData(item)}
                                         <div className="row" style={{ paddingLeft: "24px" }}>
                                             {this.renderTestButtons(item)}
                                         </div>
-                                    </div>
+                                    </Tab.Pane>
                                 })}
-                            </div>
-                        </div>
-                    </div>
+                            </Tab.Content>
+                        </Col>
+                        </Row>
+                    </Tab.Container>
                     <ModalComp
                         title="Delete Test"
                         body="Are you sure you want to delete this test. This will delete everything related to the test."
@@ -256,3 +246,9 @@ export class MonitorTest extends Component {
         )
     }
 }
+
+
+/*<ListGroup.Item key={key} id={'list-' + item.apiTitle} action href={"#details-" + item.apiTitle}>
+    <svg className="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clipRule="evenodd" /><path fillRule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clipRule="evenodd" /></svg>
+    {item.apiTitle.length > 55 ? item.apiTitle.substring(0, 52) + '...' : item.apiTitle}
+</ListGroup.Item>*/

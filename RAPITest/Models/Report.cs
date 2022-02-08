@@ -10,6 +10,7 @@ namespace RAPITest.Models
 	{
 		public int Errors { get; set; }
 		public int Warnings { get; set; }
+		public DateTime date { get; set; }
 		public List<Workflow> WorkflowResults { get; set; }
 		public List<TestCombination> MissingTests { get; set; }
 	}

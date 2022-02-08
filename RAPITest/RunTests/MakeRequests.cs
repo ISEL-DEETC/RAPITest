@@ -35,19 +35,21 @@ namespace RAPITest.RunTests
 			foreach (KeyValuePair<Test, Task<HttpResponseMessage>> entry in resultsTasks)
 			{
 				HttpResponseMessage response = await entry.Value;
-				Result r = new Result();
 				if (entry.Key.TestResults == null) entry.Key.TestResults = new List<Result>();
 				foreach (Verification verification in entry.Key.NativeVerifications)
 				{
+					Result r = new Result();
 					r = verification.Verify(response);
 					if (!r.Success) totalErrors++;
 					entry.Key.TestResults.Add(r);
 				}
 				foreach (dynamic verification in entry.Key.ExternalVerifications)
 				{
+					Result r = new Result();
 					dynamic result = verification.Verify(response);
 					r.Success = result.Success;
 					r.Description = result.Description;
+					r.TestName = result.TestName;
 					if (!r.Success) totalErrors++;
 					entry.Key.TestResults.Add(r);
 				}
@@ -96,6 +98,7 @@ namespace RAPITest.RunTests
 			report.WorkflowResults = firstTestSetup.Workflows;
 			report.Warnings = firstTestSetup.MissingTests.Count();
 			report.MissingTests = firstTestSetup.MissingTests;
+			report.date = DateTime.Now;
 
 			string reportsPath = Path.Combine(firstTestSetup.ApiPath, "Reports");
 			JsonSerialization.WriteToJsonFileModed<Report>(Path.Combine(reportsPath, "report_"+ DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss") +".json"), report);

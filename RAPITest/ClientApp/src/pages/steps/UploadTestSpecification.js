@@ -2,6 +2,7 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
 import Dropzone from '../../components/Dropzone'
+import { Container, Row,Col } from 'react-bootstrap'
 import './UploadFile.css';
 import { warningMessage } from '../../components/AlertComp'
 import ListGroup from '../../components/ListGroup'
@@ -101,10 +102,10 @@ export class UploadTestSpecification extends Component {
 
     render() {
         return (
-            <div>
+            <Container >
                 {this.state.showWarning ? warningMessage(this.state.warningMessage, this.closeWarning) : <div></div>}
-                <div className="row">
-                    <div className="col-sm-12">
+                <Row>
+                    <Col>
                         <div className="root-dropzone">
                             <Dropzone
                                 accept=".yaml"
@@ -117,10 +118,10 @@ export class UploadTestSpecification extends Component {
                                     </div>}
                             />
                         </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-sm-6">
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
                         <div className="root-dropzone">
                             <Dropzone
                                 accept=".txt"
@@ -133,8 +134,8 @@ export class UploadTestSpecification extends Component {
                                     </div>}
                             />
                         </div>
-                    </div>
-                    <div className="col-sm-6">
+                    </Col>
+                    <Col>
                         <div className="root-dropzone">
                             <Dropzone
                                 accept=".dll"
@@ -147,17 +148,17 @@ export class UploadTestSpecification extends Component {
                                     </div>}
                             />
                         </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-sm-6">
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
                         {this.renderFiles()}
-                    </div>
-                    <div className="col-sm-6">
+                    </Col>
+                    <Col>
                         <button type="button" className="btn btn-outline-primary" onClick={this.continueCallback}>Continue</button>
-                    </div>
-                </div>
-            </div>
+                    </Col>
+                </Row>
+            </Container >
 
         )
     }

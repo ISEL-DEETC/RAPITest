@@ -26,7 +26,7 @@ namespace RAPITest.Verifications
 
 			if (!res.Success)
 			{
-				res.Description = String.Format(failString, TargetCode, Response.StatusCode);
+				res.Description = String.Format(failString, TargetCode, (int)Response.StatusCode);
 			}
 			return res;
 		}
