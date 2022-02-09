@@ -20,7 +20,6 @@ namespace DataAnnotation.Controllers
 	[Authorize]
 	[ApiController]
 	[Route("[controller]/[action]")]
-	//[GenerateAntiforgeryTokenCookie]
 	public class SetupTestController : Controller
 	{
 		private readonly ILogger<SetupTestController> _logger;
@@ -47,7 +46,6 @@ namespace DataAnnotation.Controllers
 		[HttpPost]
 		[DisableRequestSizeLimit]
 		[DisableFormValueModelBinding]
-		//[ValidateAntiForgeryToken]
 		public async Task<IActionResult> UploadFile(IFormCollection data)
 		{
 			List<IFormFile> files = data.Files.ToList();
@@ -142,6 +140,6 @@ namespace DataAnnotation.Controllers
 			}
 			return Created(nameof(SetupTestController), null);
 		}
-
+		
 	}
 }

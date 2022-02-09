@@ -49,6 +49,8 @@ namespace RAPITest.Models.EFModels
 
                 entity.Property(e => e.ApiSpecification).IsRequired();
 
+                entity.Property(e => e.ApiTitle).IsRequired();
+
                 entity.Property(e => e.Tsl)
                     .IsRequired()
                     .HasColumnName("TSL");

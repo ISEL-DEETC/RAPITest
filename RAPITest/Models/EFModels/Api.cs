@@ -16,6 +16,7 @@ namespace RAPITest.Models.EFModels
         }
 
         public int ApiId { get; set; }
+        public string ApiTitle { get; set; }
         public string UserId { get; set; }
         public byte[] ApiSpecification { get; set; }
         public byte[] SerializedTests { get; set; }

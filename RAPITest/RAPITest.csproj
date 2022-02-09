@@ -29,18 +29,14 @@
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Compile Remove="Models\NewFolder1\**" />
-    <Compile Remove="Models\NewFolder\**" />
     <Compile Remove="Models\Results\**" />
     <Content Remove="$(SpaRoot)**" />
     <Content Remove="Models\NewFolder1\**" />
-    <Content Remove="Models\NewFolder\**" />
     <Content Remove="Models\Results\**" />
     <EmbeddedResource Remove="Models\NewFolder1\**" />
-    <EmbeddedResource Remove="Models\NewFolder\**" />
     <EmbeddedResource Remove="Models\Results\**" />
     <None Remove="$(SpaRoot)**" />
     <None Remove="Models\NewFolder1\**" />
-    <None Remove="Models\NewFolder\**" />
     <None Remove="Models\Results\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>

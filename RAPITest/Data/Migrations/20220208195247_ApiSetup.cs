@@ -12,6 +12,7 @@ namespace RAPITest.Data.Migrations
 				columns: table => new
 				{
 					ApiId = table.Column<int>(nullable: false).Annotation("SqlServer:Identity", "1, 1"),
+					ApiTitle = table.Column<string>(nullable: false),
 					UserId = table.Column<string>(maxLength: 450, nullable: false),
 					ApiSpecification = table.Column<byte[]>(nullable: false),
 					SerializedTests = table.Column<byte[]>(nullable: true),
