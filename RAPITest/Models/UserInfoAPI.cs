@@ -8,6 +8,7 @@ namespace RAPITest.Models
 	public class UserInfoAPI
 	{
 		public string APITitle { get; set; }
+		public int ApiId { get; set; }
 		public DateTime LatestReport { get; set; }
 		public int Errors { get; set; }
 		public int Warnings { get; set; }

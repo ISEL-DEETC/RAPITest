@@ -11,6 +11,7 @@ namespace RAPITest.Models.EFModels
     {
         public int ExternalDllId { get; set; }
         public int ApiId { get; set; }
+        public string FileName { get; set; }
         public byte[] Dll { get; set; }
 
         public virtual Api Api { get; set; }

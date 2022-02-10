@@ -193,6 +193,8 @@ namespace RAPITest.Models.EFModels
                     .IsRequired()
                     .HasColumnName("DLL");
 
+                entity.Property(e => e.FileName).IsRequired();
+
                 entity.HasOne(d => d.Api)
                     .WithMany(p => p.ExternalDll)
                     .HasForeignKey(d => d.ApiId)

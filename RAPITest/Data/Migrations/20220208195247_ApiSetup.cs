@@ -58,6 +58,7 @@ namespace RAPITest.Data.Migrations
 				{
 					ExternalDllId = table.Column<int>(nullable: false).Annotation("SqlServer:Identity", "1, 1"),
 					ApiId = table.Column<int>(nullable: false),
+					FileName = table.Column<string>(nullable: false),
 					DLL = table.Column<byte[]>(nullable: false)
 				},
 				constraints: table =>

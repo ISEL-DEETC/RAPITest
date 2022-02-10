@@ -23,22 +23,47 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
     <PackageReference Include="NJsonSchema" Version="10.6.7" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.2.3" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
+    <Compile Remove="Models\Deserialize\**" />
     <Compile Remove="Models\NewFolder1\**" />
     <Compile Remove="Models\Results\**" />
+    <Compile Remove="RunTests\**" />
+    <Compile Remove="SetupTests\**" />
+    <Compile Remove="Utils\**" />
+    <Compile Remove="Verifications\**" />
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="Models\Deserialize\**" />
     <Content Remove="Models\NewFolder1\**" />
     <Content Remove="Models\Results\**" />
+    <Content Remove="RunTests\**" />
+    <Content Remove="SetupTests\**" />
+    <Content Remove="Utils\**" />
+    <Content Remove="Verifications\**" />
+    <EmbeddedResource Remove="Models\Deserialize\**" />
     <EmbeddedResource Remove="Models\NewFolder1\**" />
     <EmbeddedResource Remove="Models\Results\**" />
+    <EmbeddedResource Remove="RunTests\**" />
+    <EmbeddedResource Remove="SetupTests\**" />
+    <EmbeddedResource Remove="Utils\**" />
+    <EmbeddedResource Remove="Verifications\**" />
     <None Remove="$(SpaRoot)**" />
+    <None Remove="Models\Deserialize\**" />
     <None Remove="Models\NewFolder1\**" />
     <None Remove="Models\Results\**" />
+    <None Remove="RunTests\**" />
+    <None Remove="SetupTests\**" />
+    <None Remove="Utils\**" />
+    <None Remove="Verifications\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\FirstTestSetup.cs" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

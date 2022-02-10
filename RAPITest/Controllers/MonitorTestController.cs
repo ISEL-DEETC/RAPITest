@@ -15,6 +15,9 @@ using RAPITest.Models;
 using System;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
+using RAPITest.Models.EFModels;
+using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace RAPITest.Controllers
 {
@@ -24,97 +27,88 @@ namespace RAPITest.Controllers
 	public class MonitorTestController : Controller
 	{
 		private readonly ILogger<MonitorTestController> _logger;
-		private readonly string _targetFilePath;
-		private readonly string _ReportsPath;
+		private readonly RAPITestDBContext _context;
 
-		public MonitorTestController(ILogger<MonitorTestController> logger, IConfiguration config)
+		public MonitorTestController(ILogger<MonitorTestController> logger, RAPITestDBContext context, IConfiguration config)
 		{
 			_logger = logger;
-			_targetFilePath = config.GetValue<string>("TargetFilePath");
-			_ReportsPath = config.GetValue<string>("ReportsPath");
+			_context = context;
 		}
 
 		[HttpGet]
 		public IActionResult GetUserAPIs() 
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			var userPath = Path.Combine(_targetFilePath, userId);
+
 			List<UserInfoAPI> allAPIS = new List<UserInfoAPI>();
-			string[] apis;
-			try
+
+			List<Api> apis = _context.Api.Where(a => a.UserId == userId).ToList();
+			foreach(Api api in apis)
 			{
-				apis = Directory.GetDirectories(userPath);
-			}catch(DirectoryNotFoundException e)
-			{
-				return Ok(allAPIS);
-			}
+				UserInfoAPI userInfoAPI = new UserInfoAPI();
+				userInfoAPI.APITitle = api.ApiTitle;
+				userInfoAPI.NextTest = api.NextTest.GetValueOrDefault();
+				userInfoAPI.ApiId = api.ApiId;
 
-			foreach(string dir in apis)
-			{
-				UserInfoAPI userRet = new UserInfoAPI();
-				userRet.APITitle = dir.Split(Path.DirectorySeparatorChar).Last();
-
-				string intervalPath = Path.Combine(dir, "NextTest.txt");
-				string nextTest = "";
-				using (StreamReader reader = new StreamReader(intervalPath))
+				Models.EFModels.Report report = _context.Report.Where(r => r.ApiId == api.ApiId).OrderByDescending(r => r.ReportDate).FirstOrDefault();
+				if(report != null)
 				{
-					nextTest = reader.ReadLine() ?? "";
-				}
-				if(nextTest != "")
-				{
-					userRet.NextTest = DateTime.Parse(nextTest);
-				}
-
-				string reportsPath = Path.Combine(dir, _ReportsPath);
-				DirectoryInfo directory = new DirectoryInfo(reportsPath);
-				FileInfo newestReport = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
-				if(newestReport != null && newestReport.Name == "error.txt")
-				{
-					userRet.ErrorMessages = System.IO.File.ReadAllLines(newestReport.FullName).ToList();
-				}
-				else if(newestReport != null)
-				{
-					var myJsonString = System.IO.File.ReadAllText(newestReport.FullName);
-					Report report = JsonSerializer.Deserialize<Report>(myJsonString);
-					userRet.Errors = report.Errors;
-					userRet.Warnings = report.Warnings;
-					userRet.LatestReport = newestReport.LastWriteTime;
+					string text = Encoding.Default.GetString(report.ReportFile);
+					if(text[0] == '{')
+					{
+						//valid report
+						Models.Report re = JsonSerializer.Deserialize<Models.Report>(text);
+						userInfoAPI.Errors = re.Errors;
+						userInfoAPI.Warnings = re.Warnings;
+						userInfoAPI.LatestReport = report.ReportDate;
+					}
+					else
+					{
+						//error report
+						userInfoAPI.ErrorMessages = text.Split('\n').ToList();
+					}
 				}
 
-				allAPIS.Add(userRet);
+				allAPIS.Add(userInfoAPI);
 			}
 
 			return Ok(allAPIS);
 		}
-
+		
 		[HttpGet]
-		public IActionResult DownloadReport([FromQuery] string apiTitle)   
+		public IActionResult DownloadReport([FromQuery] int apiId)   
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			var userPath = Path.Combine(_targetFilePath, userId);
-			var apiPath = Path.Combine(userPath, apiTitle);
-			string reportsPath = Path.Combine(apiPath, _ReportsPath);
 
-			DirectoryInfo directory = new DirectoryInfo(reportsPath);
-			FileInfo newestReport = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
+			Models.EFModels.Report report = _context.Report.Where(r => r.ApiId == apiId).OrderByDescending(r => r.ReportDate).FirstOrDefault();
+			if (report == null) return NotFound();
 
-			FileStream fileStream = System.IO.File.OpenRead(newestReport.FullName);
-			return File(fileStream, "application/octet-stream");
+			string rep = Encoding.Default.GetString(report.ReportFile);
+			return Ok(rep);
+		}
+		
+		[HttpGet]
+		public IActionResult ReturnReport([FromQuery] int apiId) 
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+
+			Models.EFModels.Report report = _context.Report.Where(r => r.ApiId == apiId).OrderByDescending(r => r.ReportDate).FirstOrDefault();
+			if (report == null) return NotFound();
+
+			string rep = Encoding.Default.GetString(report.ReportFile);
+			return Ok(rep);
 		}
 
-		[HttpGet]
-		public IActionResult ReturnReport([FromQuery] string apiTitle) 
+		[HttpDelete]
+		public IActionResult RemoveApi([FromQuery] int apiId) //remove a csv file and all its analysis if aplicable
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			var userPath = Path.Combine(_targetFilePath, userId);
-			var apiPath = Path.Combine(userPath, apiTitle);
-			string reportsPath = Path.Combine(apiPath, _ReportsPath);
+			Api api = _context.Api.Include(api => api.ExternalDll).Include(api => api.Report).Where(a => a.UserId == userId && a.ApiId == apiId).FirstOrDefault();
+			if (api == null) return NotFound();
 
-			DirectoryInfo directory = new DirectoryInfo(reportsPath);
-			FileInfo newestReport = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
-
-			string file = System.IO.File.ReadAllText(newestReport.FullName);
-			return Ok(file);
+			_context.Api.Remove(api);
+			_context.SaveChanges();
+			return Ok();
 		}
 	}
 }

@@ -12,8 +12,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Collections.Generic;
 using System;
-using RAPITest.SetupTests;
 using RAPITest.Models.EFModels;
+using System.Text;
+using RabbitMQ.Client;
 
 namespace DataAnnotation.Controllers
 {
@@ -25,16 +26,8 @@ namespace DataAnnotation.Controllers
 		private readonly ILogger<SetupTestController> _logger;
 		private readonly long _fileSizeLimit;
 		private readonly string[] _permittedExtensions;
-
-		private static readonly HttpClient _httpClient;
-		private static readonly FormOptions _defaultFormOptions;
 		private readonly RAPITestDBContext _context;
 
-		static SetupTestController()
-		{
-			_httpClient = new HttpClient();
-			_defaultFormOptions = new FormOptions();
-		}
 		public SetupTestController(ILogger<SetupTestController> logger, RAPITestDBContext context, IConfiguration config)
 		{
 			_logger = logger;
@@ -46,100 +39,147 @@ namespace DataAnnotation.Controllers
 		[HttpPost]
 		[DisableRequestSizeLimit]
 		[DisableFormValueModelBinding]
-		public async Task<IActionResult> UploadFile(IFormCollection data)
+		public IActionResult UploadFile(IFormCollection data)
 		{
 			List<IFormFile> files = data.Files.ToList();
-			
+			string apiTitle = data["name"];
+
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			var userPath = Path.Combine(_targetFilePath, userId);
-			Directory.CreateDirectory(userPath);
-			var testDirectory = Path.Combine(userPath, data["name"]);
 
-			if (Directory.Exists(testDirectory))
-			{
-				return BadRequest("This API is already being tested! Give a different title or delete the old one first.");
-			}
+			Api api = _context.Api.Where(a => a.UserId == userId && a.ApiTitle == apiTitle).FirstOrDefault();
+			if (api != null) return BadRequest("This API is already being tested! Give a different title or delete the old one first.");
 
-			Directory.CreateDirectory(testDirectory);
+			Api newApi = new Api();
+			newApi.ApiTitle = apiTitle;
+			newApi.UserId = userId;
 
-			var pathReports = Path.Combine(testDirectory, _ReportsPath);
-			Directory.CreateDirectory(pathReports);
-			var pathTestInformation = Path.Combine(testDirectory, _TestInformationPath);
-			Directory.CreateDirectory(pathTestInformation);
-			var pathDLL = Path.Combine(pathTestInformation, _DLLsPath);
-			Directory.CreateDirectory(pathDLL);
-			var pathDictionary = Path.Combine(pathTestInformation, _DictionaryPath);
-			Directory.CreateDirectory(pathDictionary);
+			List<IFormFile> tsls = new List<IFormFile>();
+			List<IFormFile> externalDlls = new List<IFormFile>();
 
 			foreach (var formFile in files)
 			{
 				if (formFile.Length > 0)
 				{
-					var path = "";
 					if (formFile.Name.Contains("tsl_"))
 					{
-						path = Path.Combine(pathTestInformation, formFile.Name);
+						tsls.Add(formFile);
 					}
 					else if(formFile.Name.Contains("apiSpecification"))
 					{
-						path = Path.Combine(testDirectory, formFile.Name);
+						using (var ms = new MemoryStream())
+						{
+							formFile.CopyTo(ms);
+							newApi.ApiSpecification = ms.ToArray();
+						}
 					}
 					else if(formFile.Name.Contains("dictionary"))
 					{
-						path = Path.Combine(pathDictionary, formFile.Name);
+						using (var ms = new MemoryStream())
+						{
+							formFile.CopyTo(ms);
+							newApi.Dictionary = ms.ToArray();
+						}
 					}
 					else
 					{
-						path = Path.Combine(pathDLL, formFile.Name);
-					}
-					using (var stream = System.IO.File.Create(path))
-					{
-						await formFile.CopyToAsync(stream);
+						externalDlls.Add(formFile);
 					}
 				}
 			}
 
-			var pathInterval = Path.Combine(testDirectory, "NextTest.txt");
-			using (StreamWriter outputFile = new StreamWriter(pathInterval))
+			string filesConcatenated = "";
+			using (var ms = new MemoryStream())
 			{
-				string nextTest = "";
-				string nextInterval = "";
-				//radioButtons: [button1H, button12H, button24H, button1W, button1M, buttonNever] 
-				switch (data["interval"])
+				foreach (IFormFile tsl in tsls)
 				{
-					case "1 hour":
-						nextTest = DateTime.Now.AddHours(1).ToString();
-						nextInterval = "1 hour";
-						break;
-					case "12 hours":
-						nextTest = DateTime.Now.AddHours(12).ToString();
-						nextInterval = "12 hours";
-						break;
-					case "24 hours":
-						nextTest = DateTime.Now.AddDays(1).ToString();
-						nextInterval = "24 hours";
-						break;
-					case "1 week":
-						nextTest = DateTime.Now.AddDays(7).ToString();
-						nextInterval = "1 week";
-						break;
-					case "1 month":
-						nextTest = DateTime.Now.AddMonths(1).ToString();
-						nextInterval = "1 month";
-						break;
-					default:  //Never
-						break;
+					using (var reader = new StreamReader(tsl.OpenReadStream()))
+					{
+						filesConcatenated += reader.ReadToEnd();
+					}
 				}
-				outputFile.WriteLine(nextTest);
-				outputFile.WriteLine(nextInterval);
 			}
+
+			newApi.Tsl = Encoding.Default.GetBytes(filesConcatenated);
+
+			//radioButtons: [button1H, button12H, button24H, button1W, button1M, buttonNever] 
+			switch (data["interval"])
+			{
+				case "1 hour":
+					newApi.NextTest = DateTime.Now.AddHours(1);
+					newApi.TestTimeLoop = 1;
+					break;
+				case "12 hours":
+					newApi.NextTest = DateTime.Now.AddHours(12);
+					newApi.TestTimeLoop = 12;
+					break;
+				case "24 hours":
+					newApi.NextTest = DateTime.Now.AddDays(1);
+					newApi.TestTimeLoop = 24;
+					break;
+				case "1 week":
+					newApi.NextTest = DateTime.Now.AddDays(7);
+					newApi.TestTimeLoop = 168;
+					break;
+				case "1 month":
+					newApi.NextTest = DateTime.Now.AddMonths(1);
+					newApi.TestTimeLoop = 720;
+					break;
+				default:  //Never
+					break;
+			}
+			int identityId;
+			using (_context)
+			{
+				_context.Api.Add(newApi);
+				_context.SaveChanges();
+
+				identityId = newApi.ApiId;
+
+				foreach (IFormFile external in externalDlls)
+				{
+					ExternalDll externalDll = new ExternalDll();
+					externalDll.ApiId = identityId;
+					using var ms = new MemoryStream();
+					external.CopyTo(ms);
+					externalDll.Dll = ms.ToArray();
+					externalDll.FileName = external.FileName;
+
+					_context.ExternalDll.Add(externalDll);
+				}
+				_context.SaveChanges();
+			}
+
 
 			if (data["runimmediately"] == "true")
 			{
-				//SetupTestRun.Run(testDirectory);
+				Sender(identityId);
 			}
 			return Created(nameof(SetupTestController), null);
 		}
-		
+
+		public void Sender(int apiId)
+		{
+			var factory = new ConnectionFactory() { HostName = "localhost" };   //as longs as it is running in the same machine
+			using (var connection = factory.CreateConnection())
+			using (var channel = connection.CreateModel())
+			{
+				channel.QueueDeclare(queue: "setup",
+									 durable: false,
+									 exclusive: false,
+									 autoDelete: false,
+									 arguments: null);
+
+				string message = apiId+"";
+				var body = Encoding.UTF8.GetBytes(message);
+
+				channel.BasicPublish(exchange: "",
+									 routingKey: "setup",
+									 basicProperties: null,
+									 body: body);
+
+				_logger.LogInformation("[x] Sent {0} ", message);
+			}
+		}
+
 	}
 }

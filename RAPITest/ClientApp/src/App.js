@@ -21,7 +21,7 @@ export default class App extends Component {
         <Route exact path='/' component={Home} />
             <AuthorizeRoute exact path='/setupTest' component={SetupTest} />
             <AuthorizeRoute exact path='/monitorTests' component={MonitorTest} />
-            <AuthorizeRoute exact path='/monitorTests/report/:apiTitle' component={VisualizeReport} />
+            <AuthorizeRoute exact path='/monitorTests/report/:apiId' component={VisualizeReport} />
         <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
       </Layout>
     );

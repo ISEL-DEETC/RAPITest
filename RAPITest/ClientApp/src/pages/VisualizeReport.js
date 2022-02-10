@@ -12,7 +12,7 @@ export class VisualizeReport extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            apiTitle: "",
+            apiTitle: "Report",
             Tests: [],
             report: null
         }
@@ -21,15 +21,15 @@ export class VisualizeReport extends Component {
 
     async componentDidMount() {
         const token = await authService.getAccessToken();
-        let apiTitle = this.props.match.params.apiTitle
+        let apiId = this.props.match.params.apiId
         
-        fetch(`MonitorTest/ReturnReport?apiTitle=${apiTitle}`, {
+        fetch(`MonitorTest/ReturnReport?apiId=${apiId}`, {
             method: 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => res.json())
             .then(report => {
                 this.setupReport(report)
-                this.setState({apiTitle:apiTitle, report: report})
+                this.setState({report: report})
             })
 
     }
@@ -155,7 +155,7 @@ export class VisualizeReport extends Component {
         return (
             <Container>
                 <Card className="text-center">
-                    <Card.Header>Report Results - {this.state.apiTitle}</Card.Header>
+                    <Card.Header>Report Results</Card.Header>
                     <Card.Body>
                         <Accordion defaultActiveKey={['0']} alwaysOpen>
                             <AccordionItemListGroup

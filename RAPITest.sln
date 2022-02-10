@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.32106.194
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RAPITest", "RAPITest\RAPITest.csproj", "{5305C047-ABA6-4DD5-BB30-C2613317CDFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetupTestsWorkerService", "SetupTestsWorkerService\SetupTestsWorkerService.csproj", "{EB557941-5977-4227-A762-EA400BBADAB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunTestsWorkerService", "RunTestsWorkerService\RunTestsWorkerService.csproj", "{3BC6981F-46B3-496B-940E-3AC706077538}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{5305C047-ABA6-4DD5-BB30-C2613317CDFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5305C047-ABA6-4DD5-BB30-C2613317CDFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5305C047-ABA6-4DD5-BB30-C2613317CDFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB557941-5977-4227-A762-EA400BBADAB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB557941-5977-4227-A762-EA400BBADAB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB557941-5977-4227-A762-EA400BBADAB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB557941-5977-4227-A762-EA400BBADAB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BC6981F-46B3-496B-940E-3AC706077538}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BC6981F-46B3-496B-940E-3AC706077538}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BC6981F-46B3-496B-940E-3AC706077538}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BC6981F-46B3-496B-940E-3AC706077538}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

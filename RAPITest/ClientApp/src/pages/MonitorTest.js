@@ -45,7 +45,7 @@ export class MonitorTest extends Component {
             if (api.nextTest === "0001-01-01T00:00:00") {
                 api.nextTest = "-"
             } else {
-                api.nextTest = api.nextTest.replace("T"," ")
+                api.nextTest = api.nextTest.replace("T", " ").substring(0, 19)
             }
             if (api.latestReport === "0001-01-01T00:00:00") {
                 api.latestReport = "-"
@@ -54,7 +54,7 @@ export class MonitorTest extends Component {
             } else {
                 api.latestReport = api.latestReport.replace("T", " ").substring(0,19)
             }
-            allAPIS.set(api.apiTitle, api)
+            allAPIS.set(api.apiId, api)
         })
         this.setState({ apis: allAPIS })
         //data.forEach(f => {
@@ -70,9 +70,9 @@ export class MonitorTest extends Component {
         })
     }
 
-    removeFile(Id) {
+    removeFile(apiId) {
         var mapAux = this.state.apis
-        mapAux.delete(Id)
+        mapAux.delete(apiId)
         this.setState({
             apis: mapAux
         })
@@ -104,16 +104,16 @@ export class MonitorTest extends Component {
     }
 
     //redirect to Analysis
-    async visualizeReport(apiTitle) {
-        this.props.history.push(`monitorTests/report/${apiTitle}`)
+    async visualizeReport(apiId) {
+        this.props.history.push(`monitorTests/report/${apiId}`)
     }
 
     //callback for download analysis button
-    async DownloadReport(apiTitle, latestReportDate) {
+    async DownloadReport(apiId, apiTitle, latestReportDate) {
         const token = await authService.getAccessToken();
 
         fetch(`MonitorTest/DownloadReport?` + new URLSearchParams({
-            apiTitle: apiTitle,
+            apiId: apiId,
         }), {
             method: 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
@@ -136,12 +136,12 @@ export class MonitorTest extends Component {
     //delete a file from workspacce
     async Remove() {
         const token = await authService.getAccessToken();
-        let id = this.state.idToRemove
-        fetch(`Workspace/RemoveFile?fileId=${id}`, {
+        let apiId = this.state.idToRemove
+        fetch(`MonitorTest/RemoveApi?apiId=${apiId}`, {
             method: 'DELETE',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => {
-            this.removeFile(id)
+            this.removeFile(apiId)
             this.disableDeleteModal()
         })
     }
@@ -154,9 +154,9 @@ export class MonitorTest extends Component {
         }
         return (
             <div>
-                <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.visualizeReport(item.apiTitle)}>Latest Report</button>
-                <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.DownloadReport(item.apiTitle, item.latestReport)}>Download Latest Report</button>
-                <button type="button" className="btn btn-outline-danger" style={{  marginLeft: "8px" }} onClick={() => this.enableDeleteModal(item.apiTitle)}>Delete</button>
+                <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.visualizeReport(item.apiId)}>Latest Report</button>
+                <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.DownloadReport(item.apiId, item.apiTitle,item.latestReport)}>Download Latest Report</button>
+                <button type="button" className="btn btn-outline-danger" style={{ marginLeft: "8px" }} onClick={() => this.enableDeleteModal(item.apiId)}>Delete</button>
             </div>
         )
     }
