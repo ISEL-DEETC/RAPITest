@@ -14,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using SetupTestsWorkerService.SetupTests;
+using SetupTestsWorkerService.Models.EFModels;
+using System.Timers;
 
 namespace SetupTestsWorkerService
 {
@@ -26,7 +28,8 @@ namespace SetupTestsWorkerService
 		{
 			_logger = logger;
 			this.options = options;
-		}
+            StartupSetupTimers();
+        }
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
@@ -59,13 +62,111 @@ namespace SetupTestsWorkerService
                 }
             }
         }
+
         private void Work(string message)
         {
-            int apiId = Int32.Parse(message);
-            SetupTestRun.Run(apiId);
-            Sender(apiId);
-            _logger.LogInformation("Message {0} - Work Complete", message);
+            int apiId = int.Parse(message.Split("|")[0]);
+            bool runNow = bool.Parse(message.Split("|")[1]);
+
+			if (runNow)
+			{
+                RunNow(apiId);
+			}
+			else
+			{
+                RAPITestDBContext _context;
+                var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
+                optionsBuilder.UseSqlServer(options.DefaultConnection);
+
+                using (_context = new RAPITestDBContext(optionsBuilder.Options))
+                {
+                    Api api = _context.Api.Find(apiId);
+                    SetupSpecificTimer(api);
+                }
+            }
         }
+
+        public void StartupSetupTimers()
+		{
+            RAPITestDBContext _context;
+            var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
+            optionsBuilder.UseSqlServer(options.DefaultConnection);
+
+            using (_context = new RAPITestDBContext(optionsBuilder.Options))
+            {
+                List<Api> apis = _context.Api.Where(api => api.NextTest != null).ToList();
+
+                foreach(Api api in apis)
+				{
+					SetupSpecificTimer(api);
+                }
+				
+            }
+        }
+
+        public void SetupSpecificTimer(Api api)
+		{
+            System.Timers.Timer aTimer = new System.Timers.Timer((api.NextTest - DateTime.Now).Value.TotalMilliseconds);
+            aTimer.Elapsed += (sender, e) => RunCallback(sender, e, api.ApiId);
+            aTimer.AutoReset = false;
+            aTimer.Enabled = true;
+        }
+
+        public void RunCallback(object sender, ElapsedEventArgs e, int apiId)
+		{
+            RAPITestDBContext _context;
+            var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
+            optionsBuilder.UseSqlServer(options.DefaultConnection);
+
+            using (_context = new RAPITestDBContext(optionsBuilder.Options))
+            {
+                if (SetupTestRun.Run(apiId, _context))
+                {
+                    Sender(apiId);
+                    Api api = _context.Api.Find(apiId);
+                    if (api.TestTimeLoop.HasValue)
+                    {
+                        SetupNextTest(api, _context);
+                    }
+                }
+            }
+
+            _logger.LogInformation("Api {0} - Work Complete", apiId);
+        }
+
+        public void RunNow(int apiId)
+        {
+            RAPITestDBContext _context;
+            var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
+            optionsBuilder.UseSqlServer(options.DefaultConnection);
+
+            using (_context = new RAPITestDBContext(optionsBuilder.Options))
+            {
+                if (SetupTestRun.Run(apiId, _context))
+                {
+                    Sender(apiId);
+                    Api api = _context.Api.Find(apiId);
+                    if (api.TestTimeLoop.HasValue) 
+                    {
+                        SetupNextTest(api, _context);
+                    }
+                }
+            }
+
+            _logger.LogInformation("Api {0} - Work Complete", apiId);
+        }
+
+        public void SetupNextTest(Api api, RAPITestDBContext _context)
+		{
+            //hours to seconds (3600) to milliseconds (1000)
+            DateTime nextTest = DateTime.Now.AddHours(api.TestTimeLoop.Value);
+            System.Timers.Timer aTimer = new System.Timers.Timer((nextTest - DateTime.Now).TotalMilliseconds);
+            aTimer.Elapsed += (sender, e) => RunCallback(sender, e, api.ApiId);
+            aTimer.AutoReset = false;
+            aTimer.Enabled = true;
+            api.NextTest = nextTest;
+            _context.SaveChanges();
+		}
 
         public void Sender(int apiId)
         {

@@ -13,55 +13,49 @@ namespace SetupTestsWorkerService.SetupTests
 {
 	public class SetupTestRun
 	{
-		public static void Run(int ApiId)
+		public static bool Run(int ApiId, RAPITestDBContext _context)
 		{
-			RAPITestDBContext _context;
-			var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
-			optionsBuilder.UseSqlServer("Data Source=DESKTOP-2S23V4T;Initial Catalog=RAPITestDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+			
+			Api api = _context.Api.Include(api => api.ExternalDll).Where(a => a.ApiId == ApiId).FirstOrDefault();
+			if (api == null) return false;
 
-			using (_context = new RAPITestDBContext(optionsBuilder.Options))
+			FirstTestSetup firstTestSetup = new FirstTestSetup();
+			firstTestSetup.ApiId = ApiId;
+			firstTestSetup.Errors = new List<string>();
+
+			//step 1 - Parse API Specification
+			ParseApiSpecification.Parse(firstTestSetup, api);
+
+			//step 2 - Parse TSL into Deserialize Models
+			ParseTSL.Parse(firstTestSetup, api);
+
+			//step 3 - Setup Dictionary
+			SetupDictionary.Setup(firstTestSetup, api);
+
+			//step 4 - Setup External DLL's
+			SetupExternalDLLs.Setup(firstTestSetup, api);
+
+			//step 5 - Parse Deserialized models into Logic Models with extra validations
+			ParseIntoApplicationLogic.Parse(firstTestSetup);
+
+			//step 6 - Check if any errors ocurred, if yes save them and return
+			if (firstTestSetup.Errors.Count > 0)
 			{
-				Api api = _context.Api.Include(api => api.ExternalDll).Where(a => a.ApiId == ApiId).FirstOrDefault();
-				if (api == null) return;
-
-				FirstTestSetup firstTestSetup = new FirstTestSetup();
-				firstTestSetup.ApiId = ApiId;
-				firstTestSetup.Errors = new List<string>();
-
-				//step 1 - Parse API Specification
-				ParseApiSpecification.Parse(firstTestSetup, api);
-
-				//step 2 - Parse TSL into Deserialize Models
-				ParseTSL.Parse(firstTestSetup, api);
-
-				//step 3 - Setup Dictionary
-				SetupDictionary.Setup(firstTestSetup, api);
-
-				//step 4 - Setup External DLL's
-				SetupExternalDLLs.Setup(firstTestSetup, api);
-
-				//step 5 - Parse Deserialized models into Logic Models with extra validations
-				ParseIntoApplicationLogic.Parse(firstTestSetup);
-
-				//step 6 - Check if any errors ocurred, if yes save them and return
-				if (firstTestSetup.Errors.Count > 0)
-				{
-					WriteErrorFile(firstTestSetup,_context);
-					_context.SaveChanges();
-					return;
-				}
-
-				//step 7 - Check if any combination of server/endpoint/input/output/code isn't beeing tested
-				CheckWarnings.Check(firstTestSetup);
-
-				//step 8 - Persisting model objects, so verifications and parsing isnt required for future tests
-				api.SerializedTests = Encoding.Default.GetBytes(JsonConvert.SerializeObject(firstTestSetup, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto }));
+				WriteErrorFile(firstTestSetup,_context);
 				_context.SaveChanges();
-				//using var outputString = new StringWriter();
-				//firstTestSetup.ApiSpecification.SerializeAsV3(new OpenApiJsonWriter(outputString));
-				//firstTestSetup.JsonApiSpecification = outputString.ToString();
+				return false;
 			}
 
+			//step 7 - Check if any combination of server/endpoint/input/output/code isn't beeing tested
+			CheckWarnings.Check(firstTestSetup);
+
+			//step 8 - Persisting model objects, so verifications and parsing isnt required for future tests
+			api.SerializedTests = Encoding.Default.GetBytes(JsonConvert.SerializeObject(firstTestSetup, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto }));
+			_context.SaveChanges();
+			return true;
+			//using var outputString = new StringWriter();
+			//firstTestSetup.ApiSpecification.SerializeAsV3(new OpenApiJsonWriter(outputString));
+			//firstTestSetup.JsonApiSpecification = outputString.ToString();
 		}
 
 
@@ -74,9 +68,6 @@ namespace SetupTestsWorkerService.SetupTests
 			report.ReportFile = firstTestSetup.Errors.SelectMany(s => System.Text.Encoding.Default.GetBytes(s + Environment.NewLine)).ToArray();
 			_context.Report.Add(report);
 		}
-
-
-		
 
 	}
 }

@@ -15,7 +15,7 @@ export class MonitorTest extends Component {
         super(props)
         this.state = {
             apis: new Map(),
-            requestLoops: [],
+            interval: null,
             onShowDeleteModal: false,
             searchByName: '',
             idToRemove: -1
@@ -25,6 +25,7 @@ export class MonitorTest extends Component {
         this.removeFile = this.removeFile.bind(this)
         this.Remove = this.Remove.bind(this)
         this.handleOnChange = this.handleOnChange.bind(this)
+        this.checkTestCompletions = this.checkTestCompletions.bind(this)
     }
 
     handleOnChange(e) {
@@ -32,9 +33,27 @@ export class MonitorTest extends Component {
             [e.target.name]: e.target.value
         })
     }
-
+    
     //get user apis
     async componentDidMount() {
+        this.checkTestCompletions();
+        this.interval = setInterval(() => this.checkTestCompletions(), 60000);
+    }
+
+    async componentWillUnmount() {
+        clearInterval(this.interval);
+    }
+
+    removeFile(apiId) {
+        var mapAux = this.state.apis
+        mapAux.delete(apiId)
+        this.setState({
+            apis: mapAux
+        })
+    }
+
+    //Interval to check with backend if the analysis is completed
+    async checkTestCompletions() {
         const token = await authService.getAccessToken();
         const response = await fetch('MonitorTest/GetUserAPIs', {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
@@ -52,55 +71,11 @@ export class MonitorTest extends Component {
                 api.warnings = "-"
                 api.errors = "-"
             } else {
-                api.latestReport = api.latestReport.replace("T", " ").substring(0,19)
+                api.latestReport = api.latestReport.replace("T", " ").substring(0, 19)
             }
             allAPIS.set(api.apiId, api)
         })
         this.setState({ apis: allAPIS })
-        //data.forEach(f => {
-        //    if (f.isAnalysing === true) {
-        //        this.checkAnalysisStatus(f.apiTitle, token)
-        //    }
-        //})
-    }
-
-    async componentWillUnmount() {
-        this.state.requestLoops.forEach(rl => {
-            clearInterval(rl)
-        })
-    }
-
-    removeFile(apiId) {
-        var mapAux = this.state.apis
-        mapAux.delete(apiId)
-        this.setState({
-            apis: mapAux
-        })
-    }
-
-    //Interval to check with backend if the analysis is completed
-    async checkAnalysisStatus(id, token) {
-        var map = this.state.apis
-        var requestLoop = setInterval(function () {
-            fetch(`Workspace/IsAnalysisComplete?fileId=${id}`, {
-                method: 'GET',
-                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-            }).then(res => {
-                if (res.status !== 204) { //204 = empty response -> not yet completed analysis
-                    res.json().then(newFile => {
-                        map.set(id, newFile)
-                        stopLoop(map)
-                    })
-                }
-            })
-        }, 5000); //5 seconds
-        this.setState({ requestLoops: this.state.requestLoops.concat(requestLoop) })
-
-        var stopLoop = (newMap) => {
-            this.setState({ apis: newMap })
-            this.forceUpdate()
-            clearInterval(requestLoop)
-        }
     }
 
     //redirect to Analysis
@@ -149,8 +124,11 @@ export class MonitorTest extends Component {
     renderTestButtons(item) {
 
         if (item.errorMessages !== null) return <div><button type="button" className="btn btn-outline-danger" style={{ marginTop: "8px" }} onClick={() => this.enableDeleteModal(item.apiTitle)}>Delete</button></div>
-        if (item.latestReport === "-") {
+        if (item.latestReport === "-" && item.nextTest === "-") {
             return <div className="row" style={{ marginLeft: 10, marginRight: 10 }}><div style={{ marginRight: 10 }}>Running Tests..</div><Loader type="Grid" color="#00BFFF" height={35} width={35} /></div>
+        }
+        if (item.latestReport === "-") {
+            return <div></div>
         }
         return (
             <div>

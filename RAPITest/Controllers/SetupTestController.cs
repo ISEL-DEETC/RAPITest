@@ -149,15 +149,12 @@ namespace DataAnnotation.Controllers
 				_context.SaveChanges();
 			}
 
+			Sender(identityId, data["runimmediately"] == "true");
 
-			if (data["runimmediately"] == "true")
-			{
-				Sender(identityId);
-			}
 			return Created(nameof(SetupTestController), null);
 		}
 
-		public void Sender(int apiId)
+		public void Sender(int apiId, bool runImmediately)
 		{
 			var factory = new ConnectionFactory() { HostName = "localhost" };   //as longs as it is running in the same machine
 			using (var connection = factory.CreateConnection())
@@ -169,7 +166,7 @@ namespace DataAnnotation.Controllers
 									 autoDelete: false,
 									 arguments: null);
 
-				string message = apiId+"";
+				string message = apiId+"|"+runImmediately;
 				var body = Encoding.UTF8.GetBytes(message);
 
 				channel.BasicPublish(exchange: "",
