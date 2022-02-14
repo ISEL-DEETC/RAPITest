@@ -6,6 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\**" />
+    <Compile Remove="Verifications\**" />
+    <Content Remove="Models\**" />
+    <Content Remove="Verifications\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <EmbeddedResource Remove="Verifications\**" />
+    <None Remove="Models\**" />
+    <None Remove="Verifications\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.21" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.21" />
@@ -24,6 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <ProjectReference Include="..\ModelsLibrary\ModelsLibrary.csproj" />
   </ItemGroup>
 </Project>

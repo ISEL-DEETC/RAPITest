@@ -1,5 +1,5 @@
-﻿using SetupTestsWorkerService.Models;
-using SetupTestsWorkerService.Models.EFModels;
+﻿using ModelsLibrary.Models;
+using ModelsLibrary.Models.EFModels;
 using System;
 using System.Collections.Generic;
 using System.IO;

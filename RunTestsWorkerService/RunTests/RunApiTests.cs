@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ModelsLibrary.Models;
+using ModelsLibrary.Models.EFModels;
 using Newtonsoft.Json;
-using RunTestsWorkerService.Models;
-using RunTestsWorkerService.Models.EFModels;
 using RunTestsWorkerService.Utils;
 using System;
 using System.Collections.Generic;

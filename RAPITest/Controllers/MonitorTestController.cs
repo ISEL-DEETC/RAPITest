@@ -15,9 +15,9 @@ using RAPITest.Models;
 using System;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
-using RAPITest.Models.EFModels;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using ModelsLibrary.Models.EFModels;
 
 namespace RAPITest.Controllers
 {
@@ -50,7 +50,7 @@ namespace RAPITest.Controllers
 				userInfoAPI.NextTest = api.NextTest.GetValueOrDefault();
 				userInfoAPI.ApiId = api.ApiId;
 
-				Models.EFModels.Report report = _context.Report.Where(r => r.ApiId == api.ApiId).OrderByDescending(r => r.ReportDate).FirstOrDefault();
+				ModelsLibrary.Models.EFModels.Report report = _context.Report.Where(r => r.ApiId == api.ApiId).OrderByDescending(r => r.ReportDate).FirstOrDefault();
 				if(report != null)
 				{
 					string text = Encoding.Default.GetString(report.ReportFile);
@@ -80,7 +80,7 @@ namespace RAPITest.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 
-			Models.EFModels.Report report = _context.Report.Where(r => r.ApiId == apiId).OrderByDescending(r => r.ReportDate).FirstOrDefault();
+			ModelsLibrary.Models.EFModels.Report report = _context.Report.Where(r => r.ApiId == apiId).OrderByDescending(r => r.ReportDate).FirstOrDefault();
 			if (report == null) return NotFound();
 
 			string rep = Encoding.Default.GetString(report.ReportFile);
@@ -92,7 +92,7 @@ namespace RAPITest.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 
-			Models.EFModels.Report report = _context.Report.Where(r => r.ApiId == apiId).OrderByDescending(r => r.ReportDate).FirstOrDefault();
+			ModelsLibrary.Models.EFModels.Report report = _context.Report.Where(r => r.ApiId == apiId).OrderByDescending(r => r.ReportDate).FirstOrDefault();
 			if (report == null) return NotFound();
 
 			string rep = Encoding.Default.GetString(report.ReportFile);

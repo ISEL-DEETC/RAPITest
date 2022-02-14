@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ModelsLibrary.Models.EFModels;
 using RAPITest.Data;
 using RAPITest.Models;
-using RAPITest.Models.EFModels;
 
 namespace RAPITest
 {

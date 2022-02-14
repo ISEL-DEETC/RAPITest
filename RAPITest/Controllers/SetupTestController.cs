@@ -12,7 +12,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Collections.Generic;
 using System;
-using RAPITest.Models.EFModels;
+using ModelsLibrary.Models.EFModels;
 using System.Text;
 using RabbitMQ.Client;
 

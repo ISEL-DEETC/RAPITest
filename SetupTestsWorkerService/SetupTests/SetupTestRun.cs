@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using SetupTestsWorkerService.Models;
-using SetupTestsWorkerService.Models.EFModels;
+using ModelsLibrary.Models;
+using ModelsLibrary.Models.EFModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -62,7 +62,7 @@ namespace SetupTestsWorkerService.SetupTests
 		private static void WriteErrorFile(FirstTestSetup firstTestSetup, RAPITestDBContext _context)
 		{
 			firstTestSetup.Errors = firstTestSetup.Errors.Distinct().ToList();
-			Models.EFModels.Report report = new Models.EFModels.Report();
+			ModelsLibrary.Models.EFModels.Report report = new ModelsLibrary.Models.EFModels.Report();
 			report.ApiId = firstTestSetup.ApiId;
 			report.ReportDate = DateTime.Now;
 			report.ReportFile = firstTestSetup.Errors.SelectMany(s => System.Text.Encoding.Default.GetBytes(s + Environment.NewLine)).ToArray();

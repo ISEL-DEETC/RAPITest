@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ModelsLibrary.Models;
+using ModelsLibrary.Models.AppSpecific;
+using ModelsLibrary.Models.EFModels;
 using Newtonsoft.Json;
-using RunTestsWorkerService.Models;
-using RunTestsWorkerService.Models.AppSpecific;
-using RunTestsWorkerService.Models.EFModels;
 using RunTestsWorkerService.Utils;
 using System;
 using System.Collections.Generic;
@@ -96,14 +96,14 @@ namespace RunTestsWorkerService.RunTests
 
 		public static void WriteReport(FirstTestSetup firstTestSetup, int totalErrors, Api api)
 		{
-			Models.Report report = new Models.Report();
+			ModelsLibrary.Models.Report report = new ModelsLibrary.Models.Report();
 			report.Errors = totalErrors;
 			report.WorkflowResults = firstTestSetup.Workflows;
 			report.Warnings = firstTestSetup.MissingTests.Count();
 			report.MissingTests = firstTestSetup.MissingTests;
 			report.date = DateTime.Now;
 
-			Models.EFModels.Report r = new Models.EFModels.Report();
+			ModelsLibrary.Models.EFModels.Report r = new ModelsLibrary.Models.EFModels.Report();
 			r.ReportFile = Encoding.Default.GetBytes(JsonSerialization.SerializeToJsonModed(report));
 			r.ReportDate = report.date;
 			r.ApiId = api.ApiId;

@@ -14,8 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using SetupTestsWorkerService.SetupTests;
-using SetupTestsWorkerService.Models.EFModels;
 using System.Timers;
+using ModelsLibrary.Models.EFModels;
 
 namespace SetupTestsWorkerService
 {
@@ -106,7 +106,12 @@ namespace SetupTestsWorkerService
 
         public void SetupSpecificTimer(Api api)
 		{
-            System.Timers.Timer aTimer = new System.Timers.Timer((api.NextTest - DateTime.Now).Value.TotalMilliseconds);
+            double timer = (api.NextTest - DateTime.Now).Value.TotalMilliseconds;
+			if (timer < 0)
+			{
+                timer = 1000;
+            }
+            System.Timers.Timer aTimer = new System.Timers.Timer(timer);
             aTimer.Elapsed += (sender, e) => RunCallback(sender, e, api.ApiId);
             aTimer.AutoReset = false;
             aTimer.Enabled = true;

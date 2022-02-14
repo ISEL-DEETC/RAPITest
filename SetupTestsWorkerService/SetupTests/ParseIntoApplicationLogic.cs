@@ -1,7 +1,7 @@
 ﻿using Microsoft.OpenApi.Models;
-using SetupTestsWorkerService.Models;
-using SetupTestsWorkerService.Models.AppSpecific;
-using SetupTestsWorkerService.Verifications;
+using ModelsLibrary.Models;
+using ModelsLibrary.Models.AppSpecific;
+using ModelsLibrary.Verifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;

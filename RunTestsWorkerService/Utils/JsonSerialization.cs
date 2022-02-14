@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ModelsLibrary.Models.AppSpecific;
 using Newtonsoft.Json;
 using NJsonSchema.Infrastructure;
-using RunTestsWorkerService.Models.AppSpecific;
 
 namespace RunTestsWorkerService.Utils
 {

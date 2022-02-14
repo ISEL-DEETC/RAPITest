@@ -1,11 +1,10 @@
-﻿using ModelsLibrary.Models;
-using ModelsLibrary.Models.AppSpecific;
+﻿using ModelsLibrary.Models.AppSpecific;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RAPITest.Models
+namespace ModelsLibrary.Models
 {
 	public class Report
 	{
