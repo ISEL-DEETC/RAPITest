@@ -18,7 +18,7 @@ namespace ModelsLibrary.Verifications
 			this.TargetCode = TargetCode;
 		}
 
-		public Result Verify(HttpResponseMessage Response)
+		public Task<Result> Verify(HttpResponseMessage Response)
 		{
 			Result res = new Result();
 			res.TestName = "Code";
@@ -28,7 +28,7 @@ namespace ModelsLibrary.Verifications
 			{
 				res.Description = String.Format(failString, TargetCode, (int)Response.StatusCode);
 			}
-			return res;
+			return Task.FromResult(res);
 		}
 	}
 }

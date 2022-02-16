@@ -30,7 +30,7 @@ namespace RunTestsWorkerService.RunTests
 					ChangeVariablePath(workflow, test);
 					Task<HttpResponseMessage> task = Request(test);
 					await task;
-					totalErrors += RunVerifications(test, task.Result);
+					totalErrors += await RunVerifications(test, task.Result);
 					Retain(workflow, test, task.Result);
 				}
 			}
@@ -69,14 +69,14 @@ namespace RunTestsWorkerService.RunTests
 			}
 		}
 
-		private static int RunVerifications(Test test, HttpResponseMessage response)
+		private async static Task<int> RunVerifications(Test test, HttpResponseMessage response)
 		{
 			int totalErrors = 0;
 			if (test.TestResults == null) test.TestResults = new List<Result>();
 			foreach (Verification verification in test.NativeVerifications)
 			{
 				Result r = new Result();
-				r = verification.Verify(response);
+				r = await verification.Verify(response);
 				if (!r.Success) totalErrors++;
 				test.TestResults.Add(r);
 			}

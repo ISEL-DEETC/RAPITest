@@ -14,6 +14,7 @@ namespace SetupTestsWorkerService.SetupTests
 		public static void Parse(CompleteTest firstTestSetup)
 		{
 			List<Workflow> workflows = new List<Workflow>();
+			if (firstTestSetup.Work == null) return;
 			foreach (Workflow_D workflow_d in firstTestSetup.Work)
 			{
 				Workflow newWork = new Workflow();
@@ -140,39 +141,63 @@ namespace SetupTestsWorkerService.SetupTests
 				allVerifications.Add(new Code(verification.Code));
 			}
 
-			if (verification.JsonMatch != null)
+			if (verification.Match != null)
 			{
-				string jsonPath = verification.JsonMatch.Split("#")[0];
-				string targetValue = verification.JsonMatch.Split("#")[1];
-				allVerifications.Add(new JsonMatch(jsonPath, targetValue));
+				string[] matchStr = verification.Match.Split("#");
+				if(matchStr.Length != 2)
+				{
+					firstTestSetup.Errors.Add("Match Verification not correctly supplied");
+				}
+				else
+				{
+					allVerifications.Add(new Match(matchStr[0], matchStr[1]));
+				}
 			}
 
-			if (verification.JsonSchema != null)
+			if (verification.Count != null)
 			{
-				if (verification.JsonSchema.StartsWith("$ref/dictionary/"))
+				string[] countStr = verification.Count.Split("#");
+				if (countStr.Length != 2)
 				{
-					string key = verification.JsonSchema.Substring(16, verification.JsonSchema.Length-16);
+					firstTestSetup.Errors.Add("Count Verification not correctly supplied");
+				}
+				else
+				{
+					allVerifications.Add(new Count(countStr[0], int.Parse(countStr[1])));
+				}
+			}
+
+			if (verification.Contains != null)
+			{
+				allVerifications.Add(new Contains(verification.Contains));
+			}
+
+			if (verification.Schema != null)
+			{
+				if (verification.Schema.StartsWith("$ref/dictionary/"))
+				{
+					string key = verification.Schema.Substring(16, verification.Schema.Length-16);
 					if (!firstTestSetup.Dictionary.TryGetValue(key, out string value))
 					{
 						firstTestSetup.Errors.Add("Dictionary reference in TSL file not found in dictionary file, the id must be exact, case sensitive");
 					}
 					try
 					{
-						allVerifications.Add(new JsonSchema(value));
+						allVerifications.Add(new Schema(value));
 					}catch(Exception e)
 					{
 						firstTestSetup.Errors.Add("Error in Json Schema validation:" +e.Message);
 					}
 				}
 				//not working
-				if (verification.JsonSchema.StartsWith("$ref/definitions/"))
+				if (verification.Schema.StartsWith("$ref/definitions/"))
 				{
-					string key = verification.JsonSchema.Substring(17, verification.JsonSchema.Length - 17);
+					string key = verification.Schema.Substring(17, verification.Schema.Length - 17);
 					if (!firstTestSetup.ApiSpecification.Components.Schemas.TryGetValue(key, out OpenApiSchema value))
 					{
 						firstTestSetup.Errors.Add("Dictionary reference in TSL file not found in dictionary file, the id must be exact, case sensitive");
 					}
-					allVerifications.Add(new JsonSchema(value.ToString()));
+					allVerifications.Add(new Schema(value.ToString()));
 				}
 			}
 

@@ -8,8 +8,10 @@ namespace ModelsLibrary.Models
 	public class Verification_D
 	{
 		public int Code { get; set; }
-		public string JsonSchema { get; set; }
-		public string JsonMatch { get; set; }
+		public string Schema { get; set; }
+		public string Match { get; set; }
+		public string Contains { get; set; }
+		public string Count { get; set; }
 		public List<string> Custom { get; set; }
 	}
 }

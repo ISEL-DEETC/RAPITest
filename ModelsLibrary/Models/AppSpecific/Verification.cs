@@ -9,6 +9,6 @@ namespace ModelsLibrary.Models.AppSpecific
 {
 	public interface Verification 
 	{
-		Result Verify(HttpResponseMessage Response);
+		Task<Result> Verify(HttpResponseMessage Response);
 	}
 }
