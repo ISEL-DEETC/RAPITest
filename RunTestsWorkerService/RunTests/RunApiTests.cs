@@ -35,7 +35,7 @@ namespace RunTestsWorkerService.RunTests
 				serializedTests = serializedTests.Replace("SetupTestsWorkerService", "RunTestsWorkerService");
 
 				//step 2 - Parse AplicationModel serialized objects
-				FirstTestSetup firstTestSetup = JsonConvert.DeserializeObject<FirstTestSetup>(serializedTests, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+				CompleteTest firstTestSetup = JsonConvert.DeserializeObject<CompleteTest>(serializedTests, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
 
 				//step 3 - Run
 				await MakeRequests.Make(firstTestSetup, api);

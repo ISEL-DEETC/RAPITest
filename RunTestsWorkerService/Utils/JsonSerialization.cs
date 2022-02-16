@@ -81,6 +81,8 @@ namespace RunTestsWorkerService.Utils
                 jsonResolver.IgnoreProperty(typeof(Test), "Body");
                 jsonResolver.IgnoreProperty(typeof(Test), "NativeVerifications");
                 jsonResolver.IgnoreProperty(typeof(Test), "ExternalVerifications");
+                jsonResolver.IgnoreProperty(typeof(Test), "Retain");
+                jsonResolver.IgnoreProperty(typeof(Workflow), "Retain");
 
                 JsonSerializerSettings j = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
                 j.ContractResolver = jsonResolver;

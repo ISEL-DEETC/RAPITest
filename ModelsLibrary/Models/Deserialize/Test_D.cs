@@ -14,6 +14,7 @@ namespace ModelsLibrary.Models
 		public string Consumes { get; set; }
 		public string Produces { get; set; }
 		public string Body { get; set; }
+		public List<string> Retain { get; set; }
 		public List<Verification_D> Verifications { get; set; }
 	}
 }

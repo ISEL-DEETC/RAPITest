@@ -13,7 +13,7 @@ namespace SetupTestsWorkerService.SetupTests
 {
 	public class SetupExternalDLLs
 	{
-		public static void Setup(FirstTestSetup firstTestSetup, Api api)
+		public static void Setup(CompleteTest firstTestSetup, Api api)
 		{
 			Dictionary<string, dynamic> externalVerirications = new Dictionary<string, dynamic>();
 

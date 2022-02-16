@@ -11,7 +11,7 @@ namespace SetupTestsWorkerService.SetupTests
 {
 	public class ParseIntoApplicationLogic
 	{
-		public static void Parse(FirstTestSetup firstTestSetup)
+		public static void Parse(CompleteTest firstTestSetup)
 		{
 			List<Workflow> workflows = new List<Workflow>();
 			foreach (Workflow_D workflow_d in firstTestSetup.Work)
@@ -20,6 +20,7 @@ namespace SetupTestsWorkerService.SetupTests
 				List<Test> tests = new List<Test>();
 
 				newWork.WorkflowID = workflow_d.WorkflowID;
+				newWork.Retain = new Dictionary<string, Retained>();
 
 				foreach (Test_D test_D in workflow_d.Tests)
 				{
@@ -28,7 +29,11 @@ namespace SetupTestsWorkerService.SetupTests
 					newTest.TestID = test_D.TestID;
 					newTest.Server = test_D.Server;
 					newTest.Path = test_D.Path;
-
+					newTest.Retain = test_D.Retain;
+					if(newTest.Retain != null)
+					{
+						SetupRetain(test_D.Retain, newWork.Retain, firstTestSetup);
+					}
 					Method method;
 					if (Enum.TryParse<Method>(test_D.Method, out method))
 					{
@@ -59,8 +64,8 @@ namespace SetupTestsWorkerService.SetupTests
 						}
 					}
 
-					newTest.NativeVerifications = setupNativeVerifications(test_D.Verifications, firstTestSetup);
-					newTest.ExternalVerifications = setupExternalVerifications(test_D.Verifications, firstTestSetup);
+					newTest.NativeVerifications = SetupNativeVerifications(test_D.Verifications, firstTestSetup);
+					newTest.ExternalVerifications = SetupExternalVerifications(test_D.Verifications, firstTestSetup);
 
 					tests.Add(newTest);
 				}
@@ -69,9 +74,42 @@ namespace SetupTestsWorkerService.SetupTests
 			}
 
 			firstTestSetup.Workflows = workflows;
+			VerifyRetains(firstTestSetup);
 		}
 
-		private static List<dynamic> setupExternalVerifications(List<Verification_D> verifications, FirstTestSetup firstTestSetup)
+		private static void VerifyRetains(CompleteTest firstTestSetup)
+		{
+			foreach(Workflow work in firstTestSetup.Workflows)
+			{
+				foreach(Test test in work.Tests)
+				{
+					List<string> foundVarPath = test.GetVariablePathKeys();
+					foreach(string str in foundVarPath)
+					{
+						if (!work.Retain.TryGetValue(str, out var retained))
+						{
+							firstTestSetup.Errors.Add("Retain reference for path in test: "+test.TestID+ " not found");
+						}
+					}
+				}
+			}
+		}
+
+		private static void SetupRetain(List<string> retain, Dictionary<string, Retained> workflowDictionary, CompleteTest firstTestSetup)
+		{
+			foreach (string str in retain)
+			{
+				string[] keyvaluepair = str.Split('#');
+				if(keyvaluepair.Length != 2)
+				{
+					firstTestSetup.Errors.Add("Retain field not correctly specified, need a unique '#' seperator");
+					return;
+				}
+				workflowDictionary.Add(keyvaluepair[0], new Retained(keyvaluepair[1]));
+			}
+		}
+
+		private static List<dynamic> SetupExternalVerifications(List<Verification_D> verifications, CompleteTest firstTestSetup)
 		{
 			List<dynamic> allVerifications = new List<dynamic>();
 			Verification_D verification = verifications[0];
@@ -92,7 +130,7 @@ namespace SetupTestsWorkerService.SetupTests
 			return allVerifications;
 		}
 
-		private static List<Verification> setupNativeVerifications(List<Verification_D> verifications, FirstTestSetup firstTestSetup)
+		private static List<Verification> SetupNativeVerifications(List<Verification_D> verifications, CompleteTest firstTestSetup)
 		{
 			List<Verification> allVerifications = new List<Verification>();
 			Verification_D verification = verifications[0];

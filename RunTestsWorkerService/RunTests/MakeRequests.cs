@@ -3,6 +3,7 @@ using ModelsLibrary.Models;
 using ModelsLibrary.Models.AppSpecific;
 using ModelsLibrary.Models.EFModels;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RunTestsWorkerService.Utils;
 using System;
 using System.Collections.Generic;
@@ -18,49 +19,78 @@ namespace RunTestsWorkerService.RunTests
 	public class MakeRequests
 	{
 		private static readonly HttpClient httpClient = new HttpClient();
-		public async static Task Make(FirstTestSetup firstTestSetup, Api api)
+		public async static Task Make(CompleteTest firstTestSetup, Api api)
 		{
-			Dictionary<Test,Task<HttpResponseMessage>> resultsTasks = new Dictionary<Test,Task<HttpResponseMessage>>();
+			int totalErrors = 0;
 
 			foreach (Workflow workflow in firstTestSetup.Workflows)
 			{
 				foreach(Test test in workflow.Tests)
 				{
+					ChangeVariablePath(workflow, test);
 					Task<HttpResponseMessage> task = Request(test);
-					resultsTasks.Add(test, task);
+					await task;
+					totalErrors += RunVerifications(test, task.Result);
+					Retain(workflow, test, task.Result);
 				}
-			}
-
-			await Task.WhenAll(resultsTasks.Values.ToList());
-
-			int totalErrors = 0;
-
-			foreach (KeyValuePair<Test, Task<HttpResponseMessage>> entry in resultsTasks)
-			{
-				HttpResponseMessage response = await entry.Value;
-				if (entry.Key.TestResults == null) entry.Key.TestResults = new List<Result>();
-				foreach (Verification verification in entry.Key.NativeVerifications)
-				{
-					Result r = new Result();
-					r = verification.Verify(response);
-					if (!r.Success) totalErrors++;
-					entry.Key.TestResults.Add(r);
-				}
-				foreach (dynamic verification in entry.Key.ExternalVerifications)
-				{
-					Result r = new Result();
-					dynamic result = verification.Verify(response);
-					r.Success = result.Success;
-					r.Description = result.Description;
-					r.TestName = result.TestName;
-					if (!r.Success) totalErrors++;
-					entry.Key.TestResults.Add(r);
-				}
-				
-				
 			}
 
 			 WriteReport(firstTestSetup,totalErrors, api);
+		}
+
+		private static void ChangeVariablePath(Workflow workflow, Test test)
+		{
+			List<string> foundVarPath = test.GetVariablePathKeys();
+			foreach(string var in foundVarPath)
+			{
+				test.Path = test.Path.Replace("{" + var + "}", workflow.Retain.GetValueOrDefault(var).Value);
+			}
+		}
+
+		private async static void Retain(Workflow workflow, Test test, HttpResponseMessage response)
+		{
+			if (test.Retain == null) return;
+			foreach (string key in test.Retain)
+			{
+				Retained retained = workflow.Retain.GetValueOrDefault(key.Split('#')[0]);
+				string body = await response.Content.ReadAsStringAsync();
+
+				//support json and xml but for now only support json
+				JObject obj = JObject.Parse(body);
+				JToken val = obj.SelectToken(retained.Path);
+				if (val == null)
+				{
+					retained.Value = "";
+				}
+				else
+				{
+					retained.Value = val.ToString();
+				}
+			}
+		}
+
+		private static int RunVerifications(Test test, HttpResponseMessage response)
+		{
+			int totalErrors = 0;
+			if (test.TestResults == null) test.TestResults = new List<Result>();
+			foreach (Verification verification in test.NativeVerifications)
+			{
+				Result r = new Result();
+				r = verification.Verify(response);
+				if (!r.Success) totalErrors++;
+				test.TestResults.Add(r);
+			}
+			foreach (dynamic verification in test.ExternalVerifications)
+			{
+				Result r = new Result();
+				dynamic result = verification.Verify(response);
+				r.Success = result.Success;
+				r.Description = result.Description;
+				r.TestName = result.TestName;
+				if (!r.Success) totalErrors++;
+				test.TestResults.Add(r);
+			}
+			return totalErrors;
 		}
 
 		public async static Task<HttpResponseMessage> Request(Test test)
@@ -94,7 +124,7 @@ namespace RunTestsWorkerService.RunTests
 			return null;
 		}
 
-		public static void WriteReport(FirstTestSetup firstTestSetup, int totalErrors, Api api)
+		public static void WriteReport(CompleteTest firstTestSetup, int totalErrors, Api api)
 		{
 			ModelsLibrary.Models.Report report = new ModelsLibrary.Models.Report();
 			report.Errors = totalErrors;

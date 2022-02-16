@@ -12,7 +12,7 @@ namespace SetupTestsWorkerService.SetupTests
 {
 	public class ParseTSL
 	{
-		public static void Parse(FirstTestSetup firstTestSetup, Api api)
+		public static void Parse(CompleteTest firstTestSetup, Api api)
 		{
 
 			var deserializer = new DeserializerBuilder().Build();

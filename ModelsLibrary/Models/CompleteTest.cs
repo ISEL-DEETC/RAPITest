@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ModelsLibrary.Models
 {
-	public class FirstTestSetup
+	public class CompleteTest
 	{
 		public int ApiId { get; set; }
 

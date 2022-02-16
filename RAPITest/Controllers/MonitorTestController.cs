@@ -57,7 +57,7 @@ namespace RAPITest.Controllers
 					if(text[0] == '{')
 					{
 						//valid report
-						Models.Report re = JsonSerializer.Deserialize<Models.Report>(text);
+						ModelsLibrary.Models.Report re = JsonSerializer.Deserialize<ModelsLibrary.Models.Report>(text);
 						userInfoAPI.Errors = re.Errors;
 						userInfoAPI.Warnings = re.Warnings;
 						userInfoAPI.LatestReport = report.ReportDate;

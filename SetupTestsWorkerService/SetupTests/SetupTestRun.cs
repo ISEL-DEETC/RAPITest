@@ -19,7 +19,7 @@ namespace SetupTestsWorkerService.SetupTests
 			Api api = _context.Api.Include(api => api.ExternalDll).Where(a => a.ApiId == ApiId).FirstOrDefault();
 			if (api == null) return false;
 
-			FirstTestSetup firstTestSetup = new FirstTestSetup();
+			CompleteTest firstTestSetup = new CompleteTest();
 			firstTestSetup.ApiId = ApiId;
 			firstTestSetup.Errors = new List<string>();
 
@@ -59,7 +59,7 @@ namespace SetupTestsWorkerService.SetupTests
 		}
 
 
-		private static void WriteErrorFile(FirstTestSetup firstTestSetup, RAPITestDBContext _context)
+		private static void WriteErrorFile(CompleteTest firstTestSetup, RAPITestDBContext _context)
 		{
 			firstTestSetup.Errors = firstTestSetup.Errors.Distinct().ToList();
 			ModelsLibrary.Models.EFModels.Report report = new ModelsLibrary.Models.EFModels.Report();

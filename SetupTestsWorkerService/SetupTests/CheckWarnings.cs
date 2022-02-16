@@ -13,7 +13,7 @@ namespace SetupTestsWorkerService.SetupTests
 	{
 
 		//step 7 - Check if any combination of server/endpoint/input/output/code isn't beeing tested
-		public static void Check(FirstTestSetup firstTestSetup)
+		public static void Check(CompleteTest firstTestSetup)
 		{
 			List<TestCombination> testCombinations = new List<TestCombination>();
 
@@ -68,7 +68,7 @@ namespace SetupTestsWorkerService.SetupTests
 			RemoveTests(firstTestSetup);
 		}
 
-		private static void RemoveTests(FirstTestSetup firstTestSetup)
+		private static void RemoveTests(CompleteTest firstTestSetup)
 		{
 			foreach(Workflow worflow in firstTestSetup.Workflows)
 			{

@@ -11,7 +11,7 @@ namespace SetupTestsWorkerService.SetupTests
 {
 	public class SetupDictionary
 	{
-		public static void Setup(FirstTestSetup firstTestSetup, Api api)
+		public static void Setup(CompleteTest firstTestSetup, Api api)
 		{
 			Dictionary<string, string> dic = new Dictionary<string, string>();
 

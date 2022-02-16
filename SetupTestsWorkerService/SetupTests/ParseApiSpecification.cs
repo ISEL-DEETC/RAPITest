@@ -12,7 +12,7 @@ namespace SetupTestsWorkerService.SetupTests
 {
 	public class ParseApiSpecification
 	{
-		public static void Parse(FirstTestSetup firstTestSetup, Api api)
+		public static void Parse(CompleteTest firstTestSetup, Api api)
 		{
 			try
 			{
