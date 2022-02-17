@@ -30,11 +30,15 @@ namespace SetupTestsWorkerService.SetupTests
 					newTest.TestID = test_D.TestID;
 					newTest.Server = test_D.Server;
 					newTest.Path = test_D.Path;
+
+					newTest.Query = SetupQuery(test_D.Query, firstTestSetup);
+
 					newTest.Retain = test_D.Retain;
 					if(newTest.Retain != null)
 					{
 						SetupRetain(test_D.Retain, newWork.Retain, firstTestSetup);
 					}
+
 					Method method;
 					if (Enum.TryParse<Method>(test_D.Method, out method))
 					{
@@ -76,6 +80,26 @@ namespace SetupTestsWorkerService.SetupTests
 
 			firstTestSetup.Workflows = workflows;
 			VerifyRetains(firstTestSetup);
+		}
+
+		private static Dictionary<string, string> SetupQuery(List<string> query, CompleteTest firstTestSetup)
+		{
+			Dictionary<string, string> queries = new Dictionary<string, string>();
+			if (query == null) return queries;
+
+			foreach(string str in query)
+			{
+				string[] parameters = str.Split('=');
+				if(parameters.Length != 2)
+				{
+					firstTestSetup.Errors.Add("Query parameters not correctly supplied, must be two strings seperated by '='");
+				}
+				else
+				{
+					queries.Add(parameters[0], parameters[1]);
+				}
+			}
+			return queries;
 		}
 
 		private static void VerifyRetains(CompleteTest firstTestSetup)

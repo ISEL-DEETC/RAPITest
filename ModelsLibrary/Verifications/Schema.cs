@@ -17,7 +17,7 @@ namespace ModelsLibrary.Verifications
 	public class Schema : Verification
 	{
 		public string schema;
-		private const string failStringSchemaValidation = "Validation failed! Schemas does not comply with body: {0}";
+		private const string failStringSchemaValidation = "Validation failed! Schema does not comply with body: {0}";
 		private const string failValidationContentTypeString = "Validation failed! Expected json or xml Content Type, Actual Content Type: {0}";
 		private const string failStringXmlSchema = "Validation failed! Error in supplied schema";
 
@@ -57,8 +57,7 @@ namespace ModelsLibrary.Verifications
 					xmlDoc = XDocument.Parse(xmlContent, LoadOptions.SetLineInfo);
 				}
 
-				xmlDoc.Validate(xmlschema, (o, e) =>
-				{
+				xmlDoc.Validate(xmlschema, (o, e) =>{
 					res.Description = String.Format(failStringSchemaValidation, body);
 				});
 

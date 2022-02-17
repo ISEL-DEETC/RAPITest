@@ -16,6 +16,7 @@ namespace ModelsLibrary.Models.AppSpecific
 		public string Produces { get; set; }
 		public string Body { get; set; }
 		public List<string> Retain { get; set; }
+		public Dictionary<string, string> Query { get; set; }
 		public List<Verification> NativeVerifications { get; set; }
 		public List<dynamic> ExternalVerifications { get; set; }
 		public List<Result> TestResults { get; set; }

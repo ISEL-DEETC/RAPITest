@@ -81,9 +81,6 @@ export class UploadTestSpecification extends Component {
 
     renderFiles() {
         let fileList = [...this.state.acceptTSL || [], ...this.state.acceptDIC || [], ...this.state.acceptDLL || []]
-        if (fileList.length === 1) {
-            return
-        }
         let title = "Accepted Files"
         return (
             <div style={{ borderRadius: "20px" }}>

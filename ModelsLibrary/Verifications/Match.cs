@@ -10,6 +10,7 @@ using ModelsLibrary.Models.AppSpecific;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Xml;
+using System.Xml.XPath;
 
 namespace ModelsLibrary.Verifications
 {
@@ -46,11 +47,15 @@ namespace ModelsLibrary.Verifications
 			{
 				XmlDocument xmlDoc = new XmlDocument();
 				xmlDoc.LoadXml(body);
-				XmlNode node = xmlDoc.SelectSingleNode(path);
-				if (node != null)
+				try
 				{
-					val = node.InnerText;
+					XmlNode node = xmlDoc.SelectSingleNode(path);
+					if (node != null)
+					{
+						val = node.InnerText;
+					}
 				}
+				catch (XPathException) {}
 			}
 			else
 			{

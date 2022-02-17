@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace RunTestsWorkerService.RunTests
 {
@@ -95,9 +96,11 @@ namespace RunTestsWorkerService.RunTests
 
 		public async static Task<HttpResponseMessage> Request(Test test)
 		{
-			using (var requestMessage = new HttpRequestMessage(Convert(test.Method), test.Server+test.Path))
-			{
+			var query = test.Query;
+			var uri = QueryHelpers.AddQueryString(test.Server + test.Path, query);
 
+			using (var requestMessage = new HttpRequestMessage(Convert(test.Method), uri))
+			{
 				requestMessage.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse(test.Produces));
 				if (test.Body != null)
 				{

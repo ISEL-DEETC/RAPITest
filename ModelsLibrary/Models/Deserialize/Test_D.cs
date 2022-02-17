@@ -15,6 +15,7 @@ namespace ModelsLibrary.Models
 		public string Produces { get; set; }
 		public string Body { get; set; }
 		public List<string> Retain { get; set; }
+		public List<string> Query { get; set; }
 		public List<Verification_D> Verifications { get; set; }
 	}
 }
