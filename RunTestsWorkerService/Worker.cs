@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using RunTestsWorkerService.RunTests;
+using ModelsLibrary.Models.EFModels;
 
 namespace RunTestsWorkerService
 {
@@ -60,9 +61,9 @@ namespace RunTestsWorkerService
             }
         }
         private async void Work(string message)
-        {
+        { 
             int apiId = Int32.Parse(message);
-            await RunApiTests.RunAsync(apiId);
+            await RunApiTests.RunAsync(apiId, options.DefaultConnection);
             _logger.LogInformation("Message {0} - Work Complete", message);
         }
     }

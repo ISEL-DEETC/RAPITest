@@ -100,7 +100,7 @@ namespace RAPITest.Controllers
 		}
 
 		[HttpDelete]
-		public IActionResult RemoveApi([FromQuery] int apiId) //remove a csv file and all its analysis if aplicable
+		public IActionResult RemoveApi([FromQuery] int apiId)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			Api api = _context.Api.Include(api => api.ExternalDll).Include(api => api.Report).Where(a => a.UserId == userId && a.ApiId == apiId).FirstOrDefault();

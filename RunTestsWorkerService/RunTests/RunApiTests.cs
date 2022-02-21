@@ -15,11 +15,11 @@ namespace RunTestsWorkerService.RunTests
 {
 	public class RunApiTests
 	{
-		public static async Task RunAsync(int ApiId)
+		public static async Task RunAsync(int ApiId, string connectionString)
 		{
 			RAPITestDBContext _context;
 			var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
-			optionsBuilder.UseSqlServer("Data Source=DESKTOP-2S23V4T;Initial Catalog=RAPITestDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+			optionsBuilder.UseSqlServer(connectionString);
 
 			using (_context = new RAPITestDBContext(optionsBuilder.Options))
 			{
