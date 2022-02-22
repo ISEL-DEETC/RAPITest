@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -7,9 +7,12 @@
     <IsPackable>false</IsPackable>
     <SpaRoot>ClientApp\</SpaRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+    <UserSecretsId>72ed328c-1479-4bbc-a821-9ed9b8666be8</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="3.1.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.1.7" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.21" />
     <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="3.1.21" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.21" />
@@ -20,6 +23,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.21" />
     <PackageReference Include="Microsoft.OpenApi" Version="1.2.3" />
     <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.2.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
     <PackageReference Include="NJsonSchema" Version="10.6.8" />
@@ -30,6 +34,7 @@
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Compile Remove="Models\Deserialize\**" />
+    <Compile Remove="Models\EFModels\**" />
     <Compile Remove="Models\NewFolder1\**" />
     <Compile Remove="Models\Results\**" />
     <Compile Remove="RunTests\**" />
@@ -38,6 +43,7 @@
     <Compile Remove="Verifications\**" />
     <Content Remove="$(SpaRoot)**" />
     <Content Remove="Models\Deserialize\**" />
+    <Content Remove="Models\EFModels\**" />
     <Content Remove="Models\NewFolder1\**" />
     <Content Remove="Models\Results\**" />
     <Content Remove="RunTests\**" />
@@ -45,6 +51,7 @@
     <Content Remove="Utils\**" />
     <Content Remove="Verifications\**" />
     <EmbeddedResource Remove="Models\Deserialize\**" />
+    <EmbeddedResource Remove="Models\EFModels\**" />
     <EmbeddedResource Remove="Models\NewFolder1\**" />
     <EmbeddedResource Remove="Models\Results\**" />
     <EmbeddedResource Remove="RunTests\**" />
@@ -53,6 +60,7 @@
     <EmbeddedResource Remove="Verifications\**" />
     <None Remove="$(SpaRoot)**" />
     <None Remove="Models\Deserialize\**" />
+    <None Remove="Models\EFModels\**" />
     <None Remove="Models\NewFolder1\**" />
     <None Remove="Models\Results\**" />
     <None Remove="RunTests\**" />
@@ -92,7 +100,7 @@
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
       <DistFiles Include="$(SpaRoot)build\**" />
-      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+      <ResolvedFileToPublish Include="@(DistFiles-&gt;'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
         <RelativePath>%(DistFiles.Identity)</RelativePath>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

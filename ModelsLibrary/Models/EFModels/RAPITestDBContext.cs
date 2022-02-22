@@ -29,6 +29,7 @@ namespace ModelsLibrary.Models.EFModels
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<DeviceCodes> DeviceCodes { get; set; }
         public virtual DbSet<ExternalDll> ExternalDll { get; set; }
+        public virtual DbSet<LoginRecord> LoginRecord { get; set; }
         public virtual DbSet<PersistedGrants> PersistedGrants { get; set; }
         public virtual DbSet<Report> Report { get; set; }
 
@@ -199,6 +200,18 @@ namespace ModelsLibrary.Models.EFModels
                     .WithMany(p => p.ExternalDll)
                     .HasForeignKey(d => d.ApiId)
                     .HasConstraintName("FK_Reports_API");
+            });
+
+            modelBuilder.Entity<LoginRecord>(entity =>
+            {
+                entity.Property(e => e.UserId)
+                    .IsRequired()
+                    .HasMaxLength(450);
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.LoginRecord)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_LoginRecord_AspNetUsers_Id");
             });
 
             modelBuilder.Entity<PersistedGrants>(entity =>

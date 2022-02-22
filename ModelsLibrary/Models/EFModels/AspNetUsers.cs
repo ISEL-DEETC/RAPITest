@@ -16,6 +16,7 @@ namespace ModelsLibrary.Models.EFModels
             AspNetUserLogins = new HashSet<AspNetUserLogins>();
             AspNetUserRoles = new HashSet<AspNetUserRoles>();
             AspNetUserTokens = new HashSet<AspNetUserTokens>();
+            LoginRecord = new HashSet<LoginRecord>();
         }
 
         public string Id { get; set; }
@@ -39,5 +40,6 @@ namespace ModelsLibrary.Models.EFModels
         public virtual ICollection<AspNetUserLogins> AspNetUserLogins { get; set; }
         public virtual ICollection<AspNetUserRoles> AspNetUserRoles { get; set; }
         public virtual ICollection<AspNetUserTokens> AspNetUserTokens { get; set; }
+        public virtual ICollection<LoginRecord> LoginRecord { get; set; }
     }
 }

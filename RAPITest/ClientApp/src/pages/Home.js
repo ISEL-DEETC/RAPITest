@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import authService from './api-authorization/AuthorizeService'
 import CardComp from '../components/CardComp'
-import titleBackground from '../assets/titleBackground.jpg'
 import statsIcon from '../assets/stats.png'
 import uploadIcon from '../assets/upload.png'
 import loginIcon from '../assets/login.png'
-import { Container, Row, Col, Figure} from 'react-bootstrap'
+import {  Row, Col, Figure} from 'react-bootstrap'
 import './Home.css';
-import { Login } from './api-authorization/Login';
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 
@@ -19,14 +17,10 @@ export class Home extends Component {
         super(props)
         this.state = {
             Auth: false,
-            userName: "",
-            currentUploadedFiles: 0,
-            lastActions: [],
-            currentAnalysedFiles: 0,
-            localUploaded: 0,
-            urlUploaded: 0,
+            currentSetupTests: 0,
+            latestReports: [],
             lastLogin: "",
-            activeIndex: 0,
+            nextTests: [],
             render: false
         }
     }
@@ -41,20 +35,17 @@ export class Home extends Component {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             }).then(res => {
                 if (res.status !== 204) {
+                    console.log(res)
                     res.json().then(details => {
+                        console.log(details)
                         let lastLoginString = details.lastLogin.split('T')
                         let finalString = lastLoginString[0] + ' ' + lastLoginString[1].split('.')[0]
                         this.setState({
                             Auth: true,
-                            userName: details.userName,
-                            currentUploadedFiles: details.currentUploadedFiles,
-                            lastActions: details.lastActions,
-                            currentAnalysedFiles: details.currentAnalysedFiles,
-                            localUploaded: details.localUploaded,
-                            urlUploaded: details.urlUploaded,
+                            currentUploadedFiles: details.setupApiCount,
+                            latestReports: details.latestReports,
+                            nextTests: details.nextTests,
                             lastLogin: finalString,
-                            activeIndexAnalysed: 0,
-                            activeIndexUploaded: 0,
                             render: true
                         })
                     })
@@ -72,24 +63,9 @@ export class Home extends Component {
 
     }
 
-    onPieEnterUploaded = (data, index) => {
-        this.setState({
-            activeIndexUploaded: index,
-        });
-    };
-
-    onPieEnterAnalysed = (data, index) => {
-        this.setState({
-            activeIndexAnalysed: index,
-        });
-    };
-
-    renderLastActions(lastActions) {
-        return lastActions.map(action => {
-            if (action.Action === 'Analyze') {
-                return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/' + action.CsvFileId}>The analysis for the file {action.FileName} is finished!</a></div>
-            }
-            return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/' + action.CsvFileId + '?Version=' + action.Version}>You were working on {action.FileName} (version {action.Version})</a></div>
+    renderLastReports(latestReports) {
+        return latestReports.map(report => {
+            return <div class="row" style={{ paddingLeft: 10 }}><a href={'/monitorTests/' + report.apiId}>You were working on {action.FileName} (version {action.Version})</a></div>
         })
     }
 
@@ -107,43 +83,43 @@ export class Home extends Component {
 
         return (
             <div>
-                <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
+                <div style={{ textAlign:"center" }}>
                     <h1 class="row justify-content-md-center" style={{ width: "100%" }}>Welcome back {this.state.userName}!</h1>
                     <h4 class="row justify-content-md-center" style={{ marginTop: 25, width: "100%" }}>Here is some general data about you:</h4>
                 </div>
-                <Container style={{ fontFamily: 'Open Sans' }}>
-                    <div class="row" style={{ marginTop: 30 }}>
-                        <div class="col-6" style={{ marginLeft: 161 }}>
+                <div>
+                    <Row style={{ marginTop: 30 }}>
+                        <Col style={{ marginLeft: 161 }}>
                             <CardComp
                                 title='Previous Actions'
-                                body={this.renderLastActions(this.state.lastActions)}
+                                body={this.renderLastReports(this.state.latestReports)}
                             />
-                        </div>
-                        <div class="col-3">
-                            <div class="row">
+                        </Col>
+                        <Col>
+                            <Row>
                                 <CardComp
-                                    title='Uploaded Files'
-                                    body={this.state.currentUploadedFiles}
+                                    title='Configured APIs'
+                                    body={this.state.currentSetupTests}
                                 />
-                            </div>
-                            <div class="row" style={{ marginTop: "15px" }}>
+                            </Row>
+                            <Row style={{ marginTop: "15px" }}>
                                 <CardComp
                                     title='Previous Login'
                                     body={this.state.lastLogin}
                                 />
-                            </div>
-                        </div>
-                    </div>
+                            </Row>
+                        </Col>
+                    </Row>
 
-                </Container>
-                <div class="row" style={{ maxWidth: 1919 }}>
-                    <div class="col-6">
-                        
-                    </div>
-                    <div>
-                        
-                    </div>
                 </div>
+                <Row style={{ maxWidth: 1919 }}>
+                    <Col>
+                        
+                    </Col>
+                    <Col>
+                        
+                    </Col>
+                </Row>
             </div>
         )
     }

@@ -13,6 +13,9 @@ using Microsoft.Extensions.Hosting;
 using ModelsLibrary.Models.EFModels;
 using RAPITest.Data;
 using RAPITest.Models;
+using Microsoft.AspNetCore.Http.Features;
+using System;
+using Microsoft.VisualBasic;
 
 namespace RAPITest
 {
@@ -44,6 +47,22 @@ namespace RAPITest
 
 			services.AddAuthentication()
 				.AddIdentityServerJwt();
+
+			services.AddAuthentication()
+				.AddGoogle(options =>
+				{
+					IConfigurationSection googleAuthNSection =
+						Configuration.GetSection("Authentication:Google");
+
+					options.ClientId = googleAuthNSection["ClientId"];
+					options.ClientSecret = googleAuthNSection["ClientSecret"];
+				})
+				.AddFacebook(options =>
+				{
+					options.AppId = Configuration["Authentication:Facebook:AppId"];
+					options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+					options.AccessDeniedPath = "/AccessDeniedPathInfo";
+				});
 
 			services.AddControllersWithViews();
 			services.AddRazorPages();
