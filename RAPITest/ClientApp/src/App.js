@@ -4,6 +4,7 @@ import { Layout } from './pages/Layout';
 import { Home } from './pages/Home';
 import { SetupTest } from './pages/SetupTest';
 import { MonitorTest } from './pages/MonitorTest';
+import  About  from './pages/About';
 import AuthorizeRoute from './pages/api-authorization/AuthorizeRoute';
 import ApiAuthorizationRoutes from './pages/api-authorization/ApiAuthorizationRoutes';
 import { ApplicationPaths } from './pages/api-authorization/ApiAuthorizationConstants';
@@ -22,7 +23,8 @@ export default class App extends Component {
             <AuthorizeRoute exact path='/setupTest' component={SetupTest} />
             <AuthorizeRoute exact path='/monitorTests' component={MonitorTest} />
             <AuthorizeRoute exact path='/monitorTests/report/:apiId' component={VisualizeReport} />
-        <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
+            <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
+            <Route exact path='/about' component={About} />
       </Layout>
     );
   }
