@@ -1,13 +1,19 @@
 ﻿import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap';
-
+import { Row, Col, Figure } from 'react-bootstrap'
 import { TestName } from "./steps/TestName";
 import { UploadApiSpecification } from "./steps/UploadApiSpecification";
 import { UploadTestSpecification } from "./steps/UploadTestSpecification";
 import { TimeLoop } from "./steps/TimeLoop";
-
+import Steps from "rc-steps";
 import authService from './api-authorization/AuthorizeService';
+import "rc-steps/assets/index.css";
+import './iconfront.css';
+import successIcon from '../assets/tick.png'
+import errorIcon from '../assets/remove.png'
+import { AwesomeButton } from "react-awesome-button";
+import "react-awesome-button/dist/styles.css";
 
 
 export class SetupTest extends Component {
@@ -33,6 +39,7 @@ export class SetupTest extends Component {
         this.handlerTime = this.handlerTime.bind(this)
         this.sendTestSetup = this.sendTestSetup.bind(this)
         this.restartCallback = this.restartCallback.bind(this)
+        this.goToMonitorTests = this.goToMonitorTests.bind(this)
     }
 
     handlerName(nameTest) {
@@ -105,7 +112,40 @@ export class SetupTest extends Component {
         this.setState({ step: 1 })
     }
 
+    renderSuccess(title,message,icon) {
+        return (
+            <Row>
+                <Col sm={4}>
+                    <Row>
+                        {title}
+                    </Row>
+                    <Row>
+                        {message}
+                    </Row>
+                </Col>
+                <Col sm={8}>
+                    <Figure style={{ padding: "100px 0px 0px 250px" }}>
+                        <Figure.Image
+                            width={300}
+                            height={300}
+                            alt="300x300"
+                            src={icon}
+                        />
+                        <Figure.Caption>
+                        </Figure.Caption>
+                    </Figure>
+                </Col>
+            </Row>
+        )
+    }
+
+    goToMonitorTests() {
+        this.props.history.push(`monitorTests`)
+    }
+
     renderSwitch() {
+        let title = ""
+        let message = ""
         switch (this.state.step) {
             case 1:
                 return <TestName handlerName={this.handlerName} />;
@@ -116,18 +156,32 @@ export class SetupTest extends Component {
             case 4:
                 return <TimeLoop handlerTime={this.handlerTime} />;
             case 5:
-                return <h3>Success! Go over to <a href="/monitorTests">Monitor Tests</a> to check the results or  <button type="button" className="btn btn-outline-primary" onClick={this.restartCallback}>press here</button> to setup another test.</h3>
+                title = <div style={{ textAlign: "center", fontSize: "35px", fontWeight: "bold" }}>Success!</div>
+                message = <div style={{ paddingTop: "50px", textAlign: "center", fontSize: "30px" }}><AwesomeButton type="primary" onPress={this.goToMonitorTests}>Check Results</AwesomeButton><br></br>or<br></br><AwesomeButton type="primary" onPress={this.restartCallback}>Setup Another Test</AwesomeButton></div>
+                return this.renderSuccess(title,message,successIcon)
             default:
-                return <div><h3>Error!</h3> <h4>{this.state.errorMessage}</h4> <button type="button" className="btn btn-outline-primary" onClick={this.restartCallback}>Restart</button> </div>
+                title = <div style={{ textAlign: "center", fontSize: "35px", fontWeight: "bold" }}>Error!</div>
+                message = <div style={{ paddingTop: "50px", textAlign: "center", fontSize: "20px" }}>{this.state.errorMessage}<br></br><AwesomeButton type="primary" onPress={this.restartCallback}>Setup Another Test</AwesomeButton></div>
+                return this.renderSuccess(title, message, errorIcon)
         }
     }
 
     /* render MultiStep */
     render() {
         return (
-            <div>    
-                {this.state.step < 5 && <h1>Step {this.state.step}</h1>}
-                {this.renderSwitch()}
+            <div>
+                <Row style={{paddingTop: "25px"}}>
+                    <Steps labelPlacement="horizontal" current={this.state.step-1}>
+                        <Steps.Step title="Test Name" description="Configure the test name, usually the API name" />
+                        <Steps.Step title="API Specification" description="Browse or Drag'n'Drop to upload the API's specification" />
+                        <Steps.Step title="TSL files" description="Optionally Upload TSL files to customize your tests" />
+                        <Steps.Step title="Timer" description="Choose a timer for the automatic repetition of your tests" />
+                        <Steps.Step title="Done!" description="Setup another test, or monitor your configured tests" />
+                    </Steps>
+                </Row>
+                <Row style={{paddingTop: "50px"}}>
+                    {this.renderSwitch()}
+                </Row>
             </div>
         );
     }

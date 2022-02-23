@@ -4,7 +4,7 @@ import CardComp from '../components/CardComp'
 import statsIcon from '../assets/stats.png'
 import uploadIcon from '../assets/upload.png'
 import loginIcon from '../assets/login.png'
-import {  Row, Col, Figure} from 'react-bootstrap'
+import {Table,  Row, Col, Figure} from 'react-bootstrap'
 import './Home.css';
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
@@ -18,11 +18,11 @@ export class Home extends Component {
         this.state = {
             Auth: false,
             currentSetupTests: 0,
-            latestReports: [],
+            latestActions: [],
             lastLogin: "",
-            nextTests: [],
             render: false
         }
+        this.renderLastReports = this.renderLastReports.bind(this)
     }
 
     //check if user is autenticated, if not render notAuth vs render Auth
@@ -35,16 +35,29 @@ export class Home extends Component {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             }).then(res => {
                 if (res.status !== 204) {
-                    console.log(res)
                     res.json().then(details => {
-                        console.log(details)
                         let lastLoginString = details.lastLogin.split('T')
                         let finalString = lastLoginString[0] + ' ' + lastLoginString[1].split('.')[0]
+
+                        details.latestActions.forEach(api => {
+                            let auxString = ""
+                            let auxfinalString = ""
+                            if (api.reportDate !== "0001-01-01T00:00:00") {
+                                auxString = api.reportDate.split('T')
+                                auxfinalString = auxString[0] + ' ' + auxString[1].split('.')[0]
+                                api.reportDate = auxfinalString
+                            }
+                            if (api.nextTest !== "0001-01-01T00:00:00") {
+                                auxString = api.nextTest.split('T')
+                                auxfinalString = auxString[0] + ' ' + auxString[1].split('.')[0]
+                                api.nextTest = auxfinalString
+                            }
+                        })
+
                         this.setState({
                             Auth: true,
-                            currentUploadedFiles: details.setupApiCount,
-                            latestReports: details.latestReports,
-                            nextTests: details.nextTests,
+                            currentSetupTests: details.setupApiCount,
+                            latestActions: details.latestActions,
                             lastLogin: finalString,
                             render: true
                         })
@@ -65,60 +78,53 @@ export class Home extends Component {
 
     renderLastReports(latestReports) {
         return latestReports.map(report => {
-            return <div class="row" style={{ paddingLeft: 10 }}><a href={'/monitorTests/' + report.apiId}>You were working on {action.FileName} (version {action.Version})</a></div>
+            if (report.reportDate === "0001-01-01T00:00:00") return null
+            return <button type="button" key={report.apiId} className="link-button" onClick={() => this.props.history.push('/monitorTests/report/' + report.apiId)}>The latest test for {report.title} completed on {report.reportDate}<br></br></button>
         })
     }
 
     //render page for a logged in user
     renderAuth() {
-        const analysedFilesData = [
-            { name: 'Not Analysed', value: this.state.currentUploadedFiles - this.state.currentAnalysedFiles },
-            { name: 'Analysed', value: this.state.currentAnalysedFiles }
-        ];
-
-        const uploadedURL = [
-            { name: 'Files Uploaded Locally', value: this.state.localUploaded },
-            { name: 'Files Uploaded URL', value: this.state.urlUploaded }
-        ];
-
         return (
             <div>
-                <div style={{ textAlign:"center" }}>
-                    <h1 class="row justify-content-md-center" style={{ width: "100%" }}>Welcome back {this.state.userName}!</h1>
-                    <h4 class="row justify-content-md-center" style={{ marginTop: 25, width: "100%" }}>Here is some general data about you:</h4>
-                </div>
-                <div>
-                    <Row style={{ marginTop: 30 }}>
-                        <Col style={{ marginLeft: 161 }}>
-                            <CardComp
-                                title='Previous Actions'
-                                body={this.renderLastReports(this.state.latestReports)}
-                            />
-                        </Col>
-                        <Col>
-                            <Row>
-                                <CardComp
-                                    title='Configured APIs'
-                                    body={this.state.currentSetupTests}
-                                />
-                            </Row>
-                            <Row style={{ marginTop: "15px" }}>
-                                <CardComp
-                                    title='Previous Login'
-                                    body={this.state.lastLogin}
-                                />
-                            </Row>
-                        </Col>
-                    </Row>
-
-                </div>
-                <Row style={{ maxWidth: 1919 }}>
+                <Row style={{ textAlign:"center" }}>
+                    <h1 className="row justify-content-md-center" style={{ width: "100%" }}>Welcome back!</h1>
+                    <h4 className="row justify-content-md-center" style={{ marginTop: 25, width: "100%" }}>Here is some general data about you:</h4>
+                </Row>
+                <Row style={{paddingTop: "50px"}}>
                     <Col>
-                        
+                        <CardComp
+                            title='Recently Completed Tests'
+                            body={this.renderLastReports(this.state.latestActions)}
+                        />
                     </Col>
-                    <Col>
-                        
+                    <Col>                    
+                        <CardComp
+                            title='Configured APIs'
+                            body={this.state.currentSetupTests}
+                        />                       
+                        <div style={{ paddingTop: "47px" }}></div>
+                        <CardComp
+                            title='Previous Login'
+                            body={this.state.lastLogin}
+                        />
                     </Col>
+                </Row>
+                <Row style={{ padding: "50px 100px 0px 100px" }}>
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>API Name</th>
+                                <th>Next Test</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.state.latestActions.map((report,index) => {
+                                return <tr key={index}><td>{index}</td><td>{report.title}</td><td>{report.nextTest === "0001-01-01T00:00:00" ? "-" : report.nextTest}</td></tr>
+                            })}
+                        </tbody>
+                    </Table>
                 </Row>
             </div>
         )

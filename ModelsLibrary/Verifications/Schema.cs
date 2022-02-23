@@ -43,23 +43,27 @@ namespace ModelsLibrary.Verifications
 			{
 				string xsdContent = schema;
 				string xmlContent = body;
-
-				XmlSchemaSet xmlschema;
-				XDocument xmlDoc;
-				using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(xsdContent)))
+				try
 				{
-					var xsc = XmlSchema.Read(ms, (o, e) =>
+					XmlSchemaSet xmlschema;
+					XDocument xmlDoc;
+					using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(xsdContent)))
 					{
-						res.Description = failStringXmlSchema;
-					});
-					xmlschema = new XmlSchemaSet();
-					xmlschema.Add(xsc);
-					xmlDoc = XDocument.Parse(xmlContent, LoadOptions.SetLineInfo);
-				}
+						var xsc = XmlSchema.Read(ms, (o, e) =>
+						{
+							res.Description = failStringXmlSchema;
+						});
+						xmlschema = new XmlSchemaSet();
+						xmlschema.Add(xsc);
+						xmlDoc = XDocument.Parse(xmlContent, LoadOptions.SetLineInfo);
+					}
 
-				xmlDoc.Validate(xmlschema, (o, e) =>{
-					res.Description = String.Format(failStringSchemaValidation, body);
-				});
+					xmlDoc.Validate(xmlschema, (o, e) =>
+					{
+						res.Description = String.Format(failStringSchemaValidation, body);
+					});
+				}
+				catch (Exception) { }
 
 				if (res.Description == null) res.Success = true;
 			}

@@ -48,14 +48,14 @@ export class Logout extends Component {
             return <div></div>
         }
         if (!!message) {
-            return (<div>{message}</div>);
+            window.location.href = '/'
         } else {
             const action = this.props.action;
             switch (action) {
                 case LogoutActions.Logout:
-                    return (<div>Processing logout</div>);
+                    return (<div></div>);
                 case LogoutActions.LogoutCallback:
-                    return (<div>Processing logout callback</div>);
+                    return (<div></div>);
                 case LogoutActions.LoggedOut:
                     return (<div>{message}</div>);
                 default:

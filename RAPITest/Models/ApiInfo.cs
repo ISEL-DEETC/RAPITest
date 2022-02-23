@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 
 namespace RAPITest.Models
 {
-	public class ReportInfo
+	public class ApiInfo
 	{
 		public int ApiId { get; set; }
-		public DateTime ReportTime { get; set; }
+		public string Title { get; set; }
+		public DateTime ReportDate { get; set; }
+		public DateTime NextTest { get; set; }
 	}
 }

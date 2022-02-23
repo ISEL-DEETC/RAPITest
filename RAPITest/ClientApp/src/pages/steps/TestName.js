@@ -3,7 +3,10 @@ import Form from 'react-bootstrap/Form';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
 import { warningMessage } from '../../components/AlertComp'
-
+import {Row, Col, Figure } from 'react-bootstrap'
+import thinkingIcon from '../../assets/thinking.png'
+import { AwesomeButton } from "react-awesome-button";
+import "react-awesome-button/dist/styles.css";
 
 export class TestName extends Component {
 
@@ -27,6 +30,10 @@ export class TestName extends Component {
             this.setState({ showWarning: true, warningMessage: "Please fill out the required form" })
             return
         }
+        if (formString.length > 40) {
+            this.setState({ showWarning: true, warningMessage: "Limit of 40 characters exceeded" })
+            return
+        }
         var format = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
         if (format.test(formString)) {
             this.setState({ showWarning: true, warningMessage: "Invalid characters, no special characters allowed" })
@@ -43,17 +50,35 @@ export class TestName extends Component {
         return (
             <div>
                 {this.state.showWarning ? warningMessage(this.state.warningMessage, this.closeWarning) : <div></div>}
-                <Form>
-                      <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>API Test Name</Form.Label>
-                        <Form.Control placeholder="Enter Name" />
-                        <Form.Text className="text-muted">
-                          The name of the API you want to test.
-                        </Form.Text>
-                      </Form.Group>
-    
-                    <button type="button" className="btn btn-outline-primary" onClick={this.finalizeCallback}>Continue</button>
-                </Form>
+                <Row>
+                    <Col sm={4}>
+                        <Form>
+                              <Form.Group className="mb-3" controlId="formBasicEmail">
+                                <Form.Label>API Test Name</Form.Label>
+                                <Form.Control placeholder="Enter Name" />
+                                <Form.Text className="text-muted">
+                                  The name of the API you want to test.
+                                </Form.Text>
+                              </Form.Group>
+
+                            <div style={{ textAlign: "center" }}>
+                                <AwesomeButton type="primary" onPress={this.finalizeCallback}>Continue</AwesomeButton>
+                            </div>
+                        </Form>
+                    </Col>
+                    <Col sm={8}>
+                        <Figure style={{padding: "100px 0px 0px 250px"}}>
+                            <Figure.Image
+                                width={400}
+                                height={400}
+                                alt="400x400"
+                                src={thinkingIcon}
+                            />
+                            <Figure.Caption>
+                            </Figure.Caption>
+                        </Figure>
+                    </Col>
+                </Row>
             </div>
         )
     }

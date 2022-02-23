@@ -35,31 +35,29 @@ namespace RAPITest.Controllers
 			AspNetUsers currentUser = _context.AspNetUsers.Find(userId);
 			if (currentUser == null) return NoContent();
 			HomeUserInfo ret = new HomeUserInfo();
-			ret.NextTests = new Dictionary<string, DateTime>();
-			ret.LatestReports = new Dictionary<string, ReportInfo>();
-			//.Include(api => api.ExternalDll)
+			ret.LatestActions = new List<ApiInfo>();
 			List<Api> apis = _context.Api.Where(a => a.UserId == userId).ToList();
 
 			foreach(Api api in apis)
 			{
+				ApiInfo apiInfo = new ApiInfo();
+				apiInfo.ApiId = api.ApiId;
+				apiInfo.Title = api.ApiTitle;
 				if(api.NextTest != null)
 				{
-					ret.NextTests.Add(api.ApiTitle, api.NextTest.Value);
+					apiInfo.NextTest = api.NextTest.Value;
 				}
 				Report latestReport = _context.Report.Where(r => r.ApiId == api.ApiId).ToList().OrderByDescending(r => r.ReportDate).FirstOrDefault(); 
 				if(latestReport != null)
 				{
-					ReportInfo reportInfo = new ReportInfo();
-					reportInfo.ApiId = api.ApiId;
-					reportInfo.ReportTime = latestReport.ReportDate;
-					ret.LatestReports.Add(api.ApiTitle, reportInfo);
+					apiInfo.ReportDate = latestReport.ReportDate;
 				}
+				ret.LatestActions.Add(apiInfo);
 			}
 
 			List<LoginRecord> loginRecords = _context.LoginRecord.Where(l => l.UserId == userId).ToList();
 			DateTime lastlogin = loginRecords.Count == 1 ? loginRecords.First().LoginTime : loginRecords[loginRecords.Count - 2].LoginTime;
 
-			
 			ret.SetupApiCount = apis.Count;
 			ret.LastLogin = lastlogin;
 

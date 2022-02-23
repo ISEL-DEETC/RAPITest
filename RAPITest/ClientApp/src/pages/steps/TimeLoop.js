@@ -1,9 +1,13 @@
 ﻿import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
+import { Row, Col, Figure } from 'react-bootstrap'
 import Form from 'react-bootstrap/Form';
 import RadioComp from '../../components/RadioComp'
 import { warningMessage } from '../../components/AlertComp'
+import { AwesomeButton } from "react-awesome-button";
+import "react-awesome-button/dist/styles.css";
+import loopIcon from '../../assets/loop.png'
 
 export class TimeLoop extends Component {
 
@@ -99,24 +103,44 @@ export class TimeLoop extends Component {
     render() {
         return (
             <div>
-                {this.state.showWarning ? warningMessage("Please select either run immediately or one of the intervals", this.closeWarning) : <div></div>}
-                <Form>
-                    <div key={`checkbox`} className="mb-3">
-                        <Form.Check
-                            defaultChecked
-                            type={'checkbox'}
-                            id={`testImmediately`}
-                            label={`Run tests immediately after setup is finished?`}
-                            onChange={this.handleCheck}
-                        />
-                    </div>
-                    <h4>Run tests every</h4>
-                    <RadioComp
-                        group={this.state.group}
-                        radioButtons={this.state.radioButtons}
-                    />
-                </Form>
-                <button type="button" className="btn btn-outline-primary" onClick={this.finalizeCallback}>Finalize</button>
+                <Row>
+                    {this.state.showWarning ? warningMessage("Please select either run immediately or one of the intervals", this.closeWarning) : <div></div>}
+                </Row>
+                <Row>
+                    <Col sm={4}>
+                        <Form>
+                            <div style={{ fontSize:"20px" }} key={`checkbox`} className="mb-3">
+                                <Form.Check
+                                    defaultChecked
+                                    type={'checkbox'}
+                                    id={`testImmediately`}
+                                    label={`Run tests immediately after this?`}
+                                    onChange={this.handleCheck}
+                                />
+                                <div style={{ fontSize: "25px", padding: "30px 0px 30px 0px", fontWeight:"bold" }}>Run tests every:</div>
+                                <RadioComp
+                                    group={this.state.group}
+                                    radioButtons={this.state.radioButtons}
+                                />
+                            </div>
+                        </Form>
+                        <div style={{ textAlign: "center" }}>
+                            <AwesomeButton type="primary" onPress={this.finalizeCallback}>Finalize</AwesomeButton>
+                        </div>
+                    </Col>
+                    <Col sm={8}>
+                        <Figure style={{ padding: "100px 0px 0px 250px" }}>
+                            <Figure.Image
+                                width={400}
+                                height={400}
+                                alt="400x400"
+                                src={loopIcon}
+                            />
+                            <Figure.Caption>
+                            </Figure.Caption>
+                        </Figure>
+                    </Col>
+                </Row>
             </div>
         )
     }

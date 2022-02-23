@@ -28,6 +28,7 @@
     "recharts": "2.0.0-beta.6",
     "rimraf": "^2.6.2",
     "react-awesome-button": "6.5.1",
+    "rc-steps": "4.1.4",
     "styled-components": "5.1.1"
   },
   "devDependencies": {

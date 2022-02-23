@@ -5,7 +5,9 @@ import Dropzone from '../../components/Dropzone'
 import { Container, Row,Col } from 'react-bootstrap'
 import './UploadFile.css';
 import { warningMessage } from '../../components/AlertComp'
-import ListGroup from '../../components/ListGroup'
+import ListGroupComp from '../../components/ListGroupComp'
+import { AwesomeButton } from "react-awesome-button";
+import "react-awesome-button/dist/styles.css";
 
 const acceptedSymbol = <svg className="bi bi-file-earmark-arrow-down" width="50" height="30" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
     <path d="M4 1h5v1H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V6h1v7a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2z" />
@@ -85,7 +87,7 @@ export class UploadTestSpecification extends Component {
         return (
             <div style={{ borderRadius: "20px" }}>
                 <div style={{ padding: "10px 10px 10px 10px" }}>
-                    <ListGroup
+                    <ListGroupComp
                         title={title}
                         files={fileList}
                         symbol={acceptedSymbol}
@@ -149,10 +151,12 @@ export class UploadTestSpecification extends Component {
                 </Row>
                 <Row>
                     <Col>
-                        {this.renderFiles()}
+                        <div style={{ paddingTop: "75px", textAlign: "center" }}>
+                            <AwesomeButton type="primary" onPress={this.continueCallback}>Continue</AwesomeButton>
+                        </div>
                     </Col>
                     <Col>
-                        <button type="button" className="btn btn-outline-primary" onClick={this.continueCallback}>Continue</button>
+                        {this.renderFiles()}
                     </Col>
                 </Row>
             </Container >

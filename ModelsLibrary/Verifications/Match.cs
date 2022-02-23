@@ -45,17 +45,18 @@ namespace ModelsLibrary.Verifications
 			}
 			else if(Response.Content.Headers.ContentType.MediaType == "application/xml")
 			{
-				XmlDocument xmlDoc = new XmlDocument();
-				xmlDoc.LoadXml(body);
 				try
 				{
+					XmlDocument xmlDoc = new XmlDocument();
+					xmlDoc.LoadXml(body);
+				
 					XmlNode node = xmlDoc.SelectSingleNode(path);
 					if (node != null)
 					{
 						val = node.InnerText;
 					}
 				}
-				catch (XPathException) {}
+				catch (Exception) {}
 			}
 			else
 			{

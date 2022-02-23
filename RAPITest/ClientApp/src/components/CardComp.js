@@ -1,12 +1,12 @@
 ﻿import React, { Component } from 'react'
-import { Accordion, Card, Button } from 'react-bootstrap'
+import {  Card } from 'react-bootstrap'
 
 export default class AccordionComp extends Component {
     render() {
         let title = this.props.title
         let body = this.props.body
 
-        if (title === 'Previous Actions') {
+        if (title === 'Recently Completed Tests') {
             return (
                 <Card border="info" style={{ minHeight: "280px" }}>
                     <Card.Header>

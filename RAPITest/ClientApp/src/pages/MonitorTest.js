@@ -190,7 +190,7 @@ export class MonitorTest extends Component {
                                 {Array.from(this.state.apis).map(([key, item]) => {
                                     if (item.apiTitle.toLowerCase().includes(this.state.searchByName.toLowerCase()))
                                         return <Nav.Item style={{ borderColor: "#dfdfdf", borderStyle: "solid", borderRadius: "7px" }}  key={key}>
-                                            <Nav.Link style={{}} eventKey={"#details-" + item.apiTitle}><svg className="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clipRule="evenodd" /><path fillRule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clipRule="evenodd" /></svg>{item.apiTitle.length > 55 ? item.apiTitle.substring(0, 52) + '...' : item.apiTitle}</Nav.Link>
+                                            <Nav.Link style={{}} eventKey={"#details-" + item.apiId}><svg className="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clipRule="evenodd" /><path fillRule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clipRule="evenodd" /></svg>{item.apiTitle.length > 55 ? item.apiTitle.substring(0, 52) + '...' : item.apiTitle}</Nav.Link>
                                         </Nav.Item>
                                     return <div key={key}></div>
                                 })}
@@ -200,7 +200,7 @@ export class MonitorTest extends Component {
                         <Col>
                             <Tab.Content>
                                 {Array.from(this.state.apis).map(([key, item]) => {
-                                    return <Tab.Pane key={key} style={{ borderColor: "#45ABD1", borderStyle: "solid", borderRadius: "20px", padding: 7 }} eventKey={"#details-" + item.apiTitle} aria-labelledby={'list-' + item.apiTitle}>
+                                    return <Tab.Pane key={key} style={{ borderColor: "#45ABD1", borderStyle: "solid", borderRadius: "20px", padding: 7 }} eventKey={"#details-" + item.apiId} aria-labelledby={'list-' + item.apiTitle}>
                                         {this.renderMetaData(item)}
                                         <div className="row" style={{ paddingLeft: "24px" }}>
                                             {this.renderTestButtons(item)}

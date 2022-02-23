@@ -1,28 +1,10 @@
-﻿.carousel-indicators li {
-    background-color: blue;
+﻿.link-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    display: inline;
+    margin: 0;
+    padding: 0;
+    color: blue;
 }
-
-.carousel-indicators .active {
-    background-color: black;
-}
-
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    height: 100px;
-    width: 100px;
-    background-size: 100%, 100%;
-    border-radius: 50%;
-    background-image: none;
-}
-
-    .carousel-control-next-icon:after {
-        content: '>';
-        font-size: 30px;
-        color: black;
-    }
-
-    .carousel-control-prev-icon:after {
-        content: '<';
-        font-size: 30px;
-        color: black;
-    }

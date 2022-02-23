@@ -10,7 +10,6 @@ namespace RAPITest.Models
 	{
 		public int SetupApiCount { get; set; }
 		public DateTime LastLogin { get; set; }
-		public Dictionary<string, ReportInfo> LatestReports { get; set; }
-		public Dictionary<string,DateTime> NextTests { get; set; }
+		public List<ApiInfo> LatestActions { get; set; }
 	}
 }

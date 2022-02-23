@@ -46,9 +46,6 @@ namespace DataAnnotation.Controllers
 
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 
-			Api api = _context.Api.Where(a => a.UserId == userId && a.ApiTitle == apiTitle).FirstOrDefault();
-			if (api != null) return BadRequest("This API is already being tested! Give a different title or delete the old one first.");
-
 			Api newApi = new Api();
 			newApi.ApiTitle = apiTitle;
 			newApi.UserId = userId;
