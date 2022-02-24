@@ -1,5 +1,7 @@
 ﻿import React from 'react'
-import { Modal, Button } from 'react-bootstrap'
+import { Modal} from 'react-bootstrap'
+import { AwesomeButton, AwesomeButtonProgress } from "react-awesome-button";
+import "react-awesome-button/dist/styles.css";
 
 export default class ModalComp extends React.Component {
     render() {
@@ -9,8 +11,6 @@ export default class ModalComp extends React.Component {
         let okButtonFunc = this.props.okButtonFunc
         let cancelButtonFunc = this.props.cancelButtonFunc
         let visible = this.props.visible
-        let removeButton = this.props.removeButton
-        let removeButtonFunc = this.props.removeButtonFunc
 
         return (
             <div>
@@ -22,15 +22,8 @@ export default class ModalComp extends React.Component {
                         {body}
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="outline-primary" onClick={okButtonFunc}>
-                            {okButtonText}
-                        </Button>
-                        <Button variant="outline-danger" onClick={cancelButtonFunc}>
-                            Close
-                        </Button>
-                        {removeButton && <Button variant="outline-danger" onClick={removeButtonFunc}>
-                            Delete version
-                        </Button>}
+                        <AwesomeButtonProgress type="primary" onPress={(element, next) => { okButtonFunc(next)}}>{okButtonText}</AwesomeButtonProgress>
+                        <AwesomeButton type="secondary" onPress={cancelButtonFunc}>Close</AwesomeButton>
                     </Modal.Footer>
                 </Modal>
             </div>

@@ -6,6 +6,8 @@ import 'bootstrap';
 import './MonitorTest.css'
 import ModalComp from '../components/ModalComp.js'
 import Loader from 'react-loader-spinner'
+import { AwesomeButton } from "react-awesome-button";
+import "react-awesome-button/dist/styles.css";
 
 export class MonitorTest extends Component {
 
@@ -109,7 +111,7 @@ export class MonitorTest extends Component {
     disableDeleteModal() { this.setState({ onShowDeleteModal: false }) }
 
     //delete a file from workspacce
-    async Remove() {
+    async Remove(next) {
         const token = await authService.getAccessToken();
         let apiId = this.state.idToRemove
         fetch(`MonitorTest/RemoveApi?apiId=${apiId}`, {
@@ -117,6 +119,7 @@ export class MonitorTest extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => {
             this.removeFile(apiId)
+            next()
             this.disableDeleteModal()
         })
     }
@@ -132,9 +135,13 @@ export class MonitorTest extends Component {
         }
         return (
             <div>
-                <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.visualizeReport(item.apiId)}>Latest Report</button>
-                <button type="button" className="btn btn-outline-primary" style={{ marginLeft: "8px" }} onClick={() => this.DownloadReport(item.apiId, item.apiTitle,item.latestReport)}>Download Latest Report</button>
-                <button type="button" className="btn btn-outline-danger" style={{ marginLeft: "8px" }} onClick={() => this.enableDeleteModal(item.apiId)}>Delete</button>
+                <div style={{ display: "inline-block",paddingLeft:"5px", paddingRight: "10px" }}>
+                    <AwesomeButton type="primary" onPress={() => this.visualizeReport(item.apiId)}>Latest Report</AwesomeButton>
+                </div>
+                <div style={{ display: "inline-block", paddingRight: "10px" }}>
+                    <AwesomeButton type="primary" onPress={() => this.DownloadReport(item.apiId, item.apiTitle, item.latestReport)}>Download Latest Report</AwesomeButton>
+                </div>
+                <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.apiId)}>Delete Test</AwesomeButton>
             </div>
         )
     }
@@ -189,9 +196,9 @@ export class MonitorTest extends Component {
                                 <Nav variant="pills" className="flex-column">
                                 {Array.from(this.state.apis).map(([key, item]) => {
                                     if (item.apiTitle.toLowerCase().includes(this.state.searchByName.toLowerCase()))
-                                        return <Nav.Item style={{ borderColor: "#dfdfdf", borderStyle: "solid", borderRadius: "7px" }}  key={key}>
+                                        return <div style={{ paddingBottom:"5px" }} key={key}><Nav.Item style={{ borderColor: "#dfdfdf", borderStyle: "solid", borderRadius: "7px", boxShadow: "1px 3px 1px #9E9E9E" }} >
                                             <Nav.Link style={{}} eventKey={"#details-" + item.apiId}><svg className="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clipRule="evenodd" /><path fillRule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clipRule="evenodd" /></svg>{item.apiTitle.length > 55 ? item.apiTitle.substring(0, 52) + '...' : item.apiTitle}</Nav.Link>
-                                        </Nav.Item>
+                                        </Nav.Item></div>
                                     return <div key={key}></div>
                                 })}
                                 </Nav>
@@ -199,12 +206,10 @@ export class MonitorTest extends Component {
                         </Col>
                         <Col>
                             <Tab.Content>
-                                {Array.from(this.state.apis).map(([key, item]) => {
-                                    return <Tab.Pane key={key} style={{ borderColor: "#45ABD1", borderStyle: "solid", borderRadius: "20px", padding: 7 }} eventKey={"#details-" + item.apiId} aria-labelledby={'list-' + item.apiTitle}>
+                                    {Array.from(this.state.apis).map(([key, item]) => {
+                                        return <Tab.Pane key={key} style={{ borderColor: "#45ABD1", borderStyle: "solid", borderRadius: "20px", padding: 7, boxShadow: "1px 3px 1px #9E9E9E"}} eventKey={"#details-" + item.apiId} aria-labelledby={'list-' + item.apiTitle}>
                                         {this.renderMetaData(item)}
-                                        <div className="row" style={{ paddingLeft: "24px" }}>
-                                            {this.renderTestButtons(item)}
-                                        </div>
+                                        {this.renderTestButtons(item)}
                                     </Tab.Pane>
                                 })}
                             </Tab.Content>
