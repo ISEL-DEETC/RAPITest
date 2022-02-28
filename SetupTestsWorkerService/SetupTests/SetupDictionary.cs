@@ -29,7 +29,14 @@ namespace SetupTestsWorkerService.SetupTests
 				{
 					if (line == "" && foundExample)
 					{
-						dic.Add(id, example);
+						if (dic.ContainsKey(id))
+						{
+							firstTestSetup.Errors.Add("Error Parsing Dictionary, found duplicate id");
+						}
+						else
+						{
+							dic.Add(id, example);
+						}
 						foundExample = false;
 						id = "";
 						example = "";

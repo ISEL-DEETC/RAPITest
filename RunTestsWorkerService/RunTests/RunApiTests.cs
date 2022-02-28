@@ -26,7 +26,7 @@ namespace RunTestsWorkerService.RunTests
 				Api api = _context.Api.Include(api => api.ExternalDll).Include(api => api.Report).Where(a => a.ApiId == ApiId).FirstOrDefault();
 				if (api == null) return;
 
-				//step 1 - Reload Assemblies and change TypeHandling
+				//step 1 - Reload Assemblies
 				foreach (ExternalDll external in api.ExternalDll)
 				{
 					Assembly.Load(external.Dll);

@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="ModelsLibrary.Models.AppSpecific.Result">
+    <Position X="8.25" Y="6.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAACAAAAAAAAAAgAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\AppSpecific\Result.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModelsLibrary.Models.AppSpecific.Retained">
+    <Position X="10.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Models\AppSpecific\Retained.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModelsLibrary.Models.AppSpecific.Test">
+    <Position X="5.5" Y="2.5" Width="2.75" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <AssociationLine Name="TestResults" Type="ModelsLibrary.Models.AppSpecific.Result" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.781" Y="5.401" />
+        <Point X="7.781" Y="5.743" />
+        <Point X="9.052" Y="5.743" />
+        <Point X="9.052" Y="6.25" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.762" Y="0.611" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="NativeVerifications" Type="ModelsLibrary.Models.AppSpecific.Verification" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="6.609" Y="5.401" />
+        <Point X="6.609" Y="5.776" />
+        <Point X="5.125" Y="5.776" />
+        <Point X="5.125" Y="6.5" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.551" Y="0.822" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAIQAAAgAAAAAAIAAAAlBAAAECAAAAgAAgAAAgAAAAA=</HashCode>
+      <FileName>Models\AppSpecific\Test.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Method" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="TestResults" />
+      <Property Name="NativeVerifications" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="ModelsLibrary.Models.AppSpecific.Workflow">
+    <Position X="5.5" Y="0.5" Width="2.75" />
+    <AssociationLine Name="Tests" Type="ModelsLibrary.Models.AppSpecific.Test">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.04" Y="0.361" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="Retain" Type="ModelsLibrary.Models.AppSpecific.Retained">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.06" Y="0.07" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAACAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\AppSpecific\Workflow.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Tests" />
+      <Property Name="Retain" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Interface Name="ModelsLibrary.Models.AppSpecific.Verification">
+    <Position X="3.5" Y="6.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\AppSpecific\Verification.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="ModelsLibrary.Models.AppSpecific.Method">
+    <Position X="9.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAACAEAAAAAAAAAAAAAAAg=</HashCode>
+      <FileName>Models\AppSpecific\Method.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

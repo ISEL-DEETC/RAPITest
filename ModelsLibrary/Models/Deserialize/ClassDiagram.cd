@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="ModelsLibrary.Models.Test_D">
+    <Position X="6.75" Y="1" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAIAAAAAIAAAAlAAAAECAAAAgAAAAAAgAAAAA=</HashCode>
+      <FileName>Models\Deserialize\Test_D.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Verifications" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="ModelsLibrary.Models.Verification_D">
+    <Position X="11" Y="1.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAgAAAAAAAAAAAgAAQEAAAAAAAAAAAAAAAQAAA=</HashCode>
+      <FileName>Models\Deserialize\Verification_D.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModelsLibrary.Models.Workflow_D">
+    <Position X="3" Y="1.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Deserialize\Workflow_D.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Tests" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
