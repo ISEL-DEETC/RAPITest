@@ -76,6 +76,7 @@ namespace RunTestsWorkerService.Utils
                 jsonResolver.IgnoreProperty(typeof(Test), "Server");
                 jsonResolver.IgnoreProperty(typeof(Test), "Path");
                 jsonResolver.IgnoreProperty(typeof(Test), "Method");
+                jsonResolver.IgnoreProperty(typeof(Test), "Query");
                 jsonResolver.IgnoreProperty(typeof(Test), "Consumes");
                 jsonResolver.IgnoreProperty(typeof(Test), "Produces");
                 jsonResolver.IgnoreProperty(typeof(Test), "Body");

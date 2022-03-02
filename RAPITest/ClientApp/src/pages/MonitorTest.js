@@ -106,7 +106,9 @@ export class MonitorTest extends Component {
 
     }
 
-    enableDeleteModal(id) { this.setState({ onShowDeleteModal: true, idToRemove: id }) }
+    enableDeleteModal(id) {
+        this.setState({ onShowDeleteModal: true, idToRemove: id })
+    }
 
     disableDeleteModal() { this.setState({ onShowDeleteModal: false }) }
 
@@ -125,8 +127,7 @@ export class MonitorTest extends Component {
     }
 
     renderTestButtons(item) {
-
-        if (item.errorMessages !== null) return <div><button type="button" className="btn btn-outline-danger" style={{ marginTop: "8px" }} onClick={() => this.enableDeleteModal(item.apiTitle)}>Delete</button></div>
+        if (item.errorMessages !== null) return <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.apiId)}>Delete Test</AwesomeButton>
         if (item.latestReport === "-" && item.nextTest === "-") {
             return <div className="row" style={{ marginLeft: 10, marginRight: 10 }}><div style={{ marginRight: 10 }}>Running Tests..</div><Loader type="Grid" color="#00BFFF" height={35} width={35} /></div>
         }
