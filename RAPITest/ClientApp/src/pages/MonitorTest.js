@@ -61,6 +61,7 @@ export class MonitorTest extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         })
         const data = await response.json()
+        console.log(data)
         var allAPIS = new Map()
         data.forEach(api => {
             if (api.nextTest === "0001-01-01T00:00:00") {
@@ -75,6 +76,7 @@ export class MonitorTest extends Component {
             } else {
                 api.latestReport = api.latestReport.replace("T", " ").substring(0, 19)
             }
+            if (api.errorMessages !== null) api.errorMessages.pop()
             allAPIS.set(api.apiId, api)
         })
         this.setState({ apis: allAPIS })
@@ -132,7 +134,7 @@ export class MonitorTest extends Component {
             return <div className="row" style={{ marginLeft: 10, marginRight: 10 }}><div style={{ marginRight: 10 }}>Running Tests..</div><Loader type="Grid" color="#00BFFF" height={35} width={35} /></div>
         }
         if (item.latestReport === "-") {
-            return <div></div>
+            return <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.apiId)}>Delete Test</AwesomeButton>
         }
         return (
             <div>
@@ -150,8 +152,8 @@ export class MonitorTest extends Component {
     renderMetaData(item) {
         if (item.errorMessages !== null) {
             return (
-                <div>
-                    <h4>The Validation and Compilation failed with the following errors:</h4>
+                <div style={{ marginBottom:"10px" }}>
+                    <h4>Validation failed with the following errors:</h4>
                     <ul className="list-group">
                         {item.errorMessages.map((item,i) => {
                             return <li key={i} className="list-group-item">{item}</li>
