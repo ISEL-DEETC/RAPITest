@@ -84,7 +84,7 @@ namespace RunTestsWorkerService.RunTests
 			foreach (dynamic verification in test.ExternalVerifications)
 			{
 				Result r = new Result();
-				dynamic result = verification.Verify(response);
+				dynamic result = await verification.Verify(response);
 				r.Success = result.Success;
 				r.Description = result.Description;
 				r.TestName = result.TestName;
