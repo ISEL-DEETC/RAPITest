@@ -100,7 +100,7 @@ export class Home extends Component {
                     </Col>
                     <Col>                    
                         <CardComp
-                            title='Configured APIs'
+                            title='Configured Tests'
                             body={this.state.currentSetupTests}
                         />                       
                         <div style={{ paddingTop: "47px" }}></div>
