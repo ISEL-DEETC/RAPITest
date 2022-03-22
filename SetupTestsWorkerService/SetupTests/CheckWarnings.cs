@@ -45,6 +45,7 @@ namespace SetupTestsWorkerService.SetupTests
 
 								if (operation.Value.RequestBody != null)
 								{
+									//operation.Value.RequestBody.Content.First().Value.Schema.Properties.First().Value.Type
 									foreach (KeyValuePair<string, OpenApiMediaType> consumes in operation.Value.RequestBody.Content)
 									{
 										testCombination = testCombination.Clone(testCombination);

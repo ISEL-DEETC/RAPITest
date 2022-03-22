@@ -219,7 +219,7 @@ namespace SetupTestsWorkerService.SetupTests
 					string key = verification.Schema.Substring(17, verification.Schema.Length - 17);
 					if (!firstTestSetup.ApiSpecification.Components.Schemas.TryGetValue(key, out OpenApiSchema value))
 					{
-						firstTestSetup.Errors.Add("Dictionary reference in TSL file not found in dictionary file, the id must be exact, case sensitive");
+						firstTestSetup.Errors.Add("Definitions reference in TSL file not found in specification file, the id must be exact, case sensitive");
 					}
 					allVerifications.Add(new Schema(value.ToString()));
 				}
