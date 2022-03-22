@@ -1,6 +1,8 @@
 ﻿using Microsoft.OpenApi.Models;
 using ModelsLibrary.Models;
 using ModelsLibrary.Models.AppSpecific;
+using ModelsLibrary.Verifications;
+using SetupTestsWorkerService.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,48 +17,58 @@ namespace SetupTestsWorkerService.SetupTests
 		//step 7 - Check if any combination of server/endpoint/input/output/code isn't beeing tested
 		public static void Check(CompleteTest firstTestSetup)
 		{
-			List<TestCombination> testCombinations = new List<TestCombination>();
+			List<Test> testCombinations = new List<Test>();
 
 			foreach (OpenApiServer server in firstTestSetup.ApiSpecification.Servers)
 			{
-
-				TestCombination testCombination = new TestCombination();
-				testCombination.Server = server.Url;
-
 				foreach (KeyValuePair<string, OpenApiPathItem> path in firstTestSetup.ApiSpecification.Paths)
 				{
-					testCombination.Endpoint = path.Key;
-					
-
 					foreach(KeyValuePair<OperationType, OpenApiOperation> operation in path.Value.Operations)
 					{
-						Method method;
-						Enum.TryParse<Method>(operation.Key.ToString(), out method);
-						testCombination.Method = method;
-
+						Enum.TryParse<Method>(operation.Key.ToString(), out Method method);
 						foreach (KeyValuePair<string, OpenApiResponse> response in operation.Value.Responses)
 						{
 							if (response.Key == "default") continue;
-							testCombination.ResponseCode = Int32.Parse(response.Key);
-							
+							if(response.Value.Content.Count == 0)
+							{
+								List<Verification> nativeVerifications = new List<Verification>();
+								nativeVerifications.Add(new Code(Int32.Parse(response.Key)));
+								Test testCombination = new Test(server.Url, path.Key, method, null, null, null, nativeVerifications);
+								testCombinations.Add(testCombination);
+							}
 							foreach (KeyValuePair<string, OpenApiMediaType> produces in response.Value.Content)
 							{
-								testCombination.Produces = produces.Key;
-
 								if (operation.Value.RequestBody != null)
 								{
-									//operation.Value.RequestBody.Content.First().Value.Schema.Properties.First().Value.Type
 									foreach (KeyValuePair<string, OpenApiMediaType> consumes in operation.Value.RequestBody.Content)
 									{
-										testCombination = testCombination.Clone(testCombination);
-										testCombination.Consumes = consumes.Key;
+										List<Verification> nativeVerifications = new List<Verification>();
+										nativeVerifications.Add(new Code(Int32.Parse(response.Key)));
+										if (produces.Value.Schema.Reference != null)
+										{
+											nativeVerifications.Add(new Schema(firstTestSetup.APISchemas.GetValueOrDefault(produces.Value.Schema.Reference.ReferenceV2.Split("/").Last()).ToString()));
+										}
+										string body = null;
+										if (consumes.Value.Schema.Reference != null)
+										{
+											//nao pode ser sempre json
+											body = JsonSchemaSampleGenerator.Generate(firstTestSetup.APISchemas.GetValueOrDefault(consumes.Value.Schema.Reference.ReferenceV2.Split("/").Last())).ToString();
+										}
+										Test testCombination = new Test(server.Url, path.Key, method, produces.Key, consumes.Key, body, nativeVerifications);
+
 										testCombinations.Add(testCombination);
 									}
 								}
 								else
 								{
-									testCombination = testCombination.Clone(testCombination);
-									testCombination.Consumes = null;
+									List<Verification> nativeVerifications = new List<Verification>();
+									nativeVerifications.Add(new Code(Int32.Parse(response.Key)));
+									if (produces.Value.Schema.Reference != null)
+									{
+										nativeVerifications.Add(new Schema(firstTestSetup.APISchemas.GetValueOrDefault(produces.Value.Schema.Reference.ReferenceV2.Split("/").Last()).ToString()));
+									}
+									Test testCombination = new Test(server.Url, path.Key, method, produces.Key, null, null, nativeVerifications);
+
 									testCombinations.Add(testCombination);
 								}
 							}
@@ -65,6 +77,7 @@ namespace SetupTestsWorkerService.SetupTests
 				}
 			}
 
+			firstTestSetup.GeneratedTests = testCombinations;
 			firstTestSetup.MissingTests = testCombinations;
 			RemoveTests(firstTestSetup);
 		}
@@ -79,5 +92,6 @@ namespace SetupTestsWorkerService.SetupTests
 				}
 			}
 		}
+
 	}
 }

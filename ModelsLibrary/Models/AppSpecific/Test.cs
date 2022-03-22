@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelsLibrary.Verifications;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +9,33 @@ namespace ModelsLibrary.Models.AppSpecific
 	[Serializable]
 	public class Test
 	{
+
+		public Test(string server, string path, Method method, string consumes, string produces, List<Verification> verifications)
+		{
+			Server = server;
+			Path = path;
+			Method = method;
+			Consumes = consumes;
+			Produces = produces;
+			NativeVerifications = verifications;
+		}
+
+		public Test()
+		{
+			NativeVerifications = new List<Verification>();
+		}
+
+		public Test(string url, string path, Method method, string produces, string consumes, string body, List<Verification> nativeVerifications)
+		{
+			Body = body;
+			NativeVerifications = nativeVerifications;
+			Server = url;
+			Path = path;
+			Method = method;
+			Produces = produces;
+			Consumes = consumes;
+		}
+
 		public string TestID { get; set; }
 		public string Server { get; set; }
 		public string Path { get; set; }
@@ -38,6 +66,29 @@ namespace ModelsLibrary.Models.AppSpecific
 				if (c == '{') found = true;
 			}
 			return foundVarPath;
+		}
+
+
+		public bool CompareTests(Test test)
+		{
+			if (test.Consumes != Consumes || test.Produces != Produces || test.Method != Method)
+			{
+				return false;
+			}
+
+			string fullPathComb = Server + Path;
+			string fullPathTest = test.Server + test.Path;
+
+			if (fullPathComb != fullPathTest)
+			{
+				return false;
+			}
+
+			Code v = (Code)test.NativeVerifications.Find((ver) => ver.GetType() == typeof(Code));
+
+			Code n = (Code)NativeVerifications.Find((ver) => ver.GetType() == typeof(Code));
+
+			return n.TargetCode == v.TargetCode;
 		}
 	}
 }

@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 
 namespace SetupTestsWorkerService.SetupTests
 {
@@ -213,15 +215,15 @@ namespace SetupTestsWorkerService.SetupTests
 						firstTestSetup.Errors.Add("Error in Json Schema validation:" +e.Message);
 					}
 				}
-				//not working
 				if (verification.Schema.StartsWith("$ref/definitions/"))
 				{
 					string key = verification.Schema.Substring(17, verification.Schema.Length - 17);
-					if (!firstTestSetup.ApiSpecification.Components.Schemas.TryGetValue(key, out OpenApiSchema value))
+					JSchema jSchema;
+					if (!firstTestSetup.APISchemas.TryGetValue(key,out jSchema))
 					{
 						firstTestSetup.Errors.Add("Definitions reference in TSL file not found in specification file, the id must be exact, case sensitive");
 					}
-					allVerifications.Add(new Schema(value.ToString()));
+					allVerifications.Add(new Schema(jSchema.ToString()));
 				}
 			}
 

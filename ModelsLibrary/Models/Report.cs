@@ -12,7 +12,7 @@ namespace ModelsLibrary.Models
 		{
 		}
 
-		public Report(int errors, int warnings, DateTime date, List<Workflow> workflowResults, List<TestCombination> missingTests)
+		public Report(int errors, int warnings, DateTime date, List<Workflow> workflowResults, List<Test> missingTests)
 		{
 			Errors = errors;
 			Warnings = warnings;
@@ -25,6 +25,7 @@ namespace ModelsLibrary.Models
 		public int Warnings { get; set; }
 		public DateTime date { get; set; }
 		public List<Workflow> WorkflowResults { get; set; }
-		public List<TestCombination> MissingTests { get; set; }
+		public Workflow GeneratedTests { get; set; }
+		public List<Test> MissingTests { get; set; }
 	}
 }

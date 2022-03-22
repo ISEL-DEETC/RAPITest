@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Schema;
 
 namespace ModelsLibrary.Models
 {
@@ -14,6 +15,9 @@ namespace ModelsLibrary.Models
 
 		[JsonIgnore]
 		public OpenApiDocument ApiSpecification { get; set; }
+
+		[JsonIgnore]
+		public Dictionary<string, JSchema> APISchemas { get; set; }
 
 		[JsonIgnore]
 		public List<Workflow_D> Work { get; set; }
@@ -29,7 +33,9 @@ namespace ModelsLibrary.Models
 		[JsonIgnore]
 		public List<string> Errors { get; set; }
 
-		public List<TestCombination> MissingTests { get; set; }
+		public List<Test> MissingTests { get; set; }
+
+		public List<Test> GeneratedTests { get; set; }
 	}
 }
 
