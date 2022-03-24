@@ -207,13 +207,7 @@ namespace SetupTestsWorkerService.SetupTests
 					{
 						firstTestSetup.Errors.Add("Dictionary reference in TSL file not found in dictionary file, the id must be exact, case sensitive");
 					}
-					try
-					{
-						allVerifications.Add(new Schema(value));
-					}catch(Exception e)
-					{
-						firstTestSetup.Errors.Add("Error in Json Schema validation:" +e.Message);
-					}
+					allVerifications.Add(new Schema(value));
 				}
 				if (verification.Schema.StartsWith("$ref/definitions/"))
 				{

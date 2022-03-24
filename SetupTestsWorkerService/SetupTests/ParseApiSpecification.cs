@@ -30,7 +30,6 @@ namespace SetupTestsWorkerService.SetupTests
 				var deserializer = new Deserializer();
 				var yamlObject = deserializer.Deserialize(r);
 
-				// now convert the object to JSON. Simple!
 				Newtonsoft.Json.JsonSerializer js = new Newtonsoft.Json.JsonSerializer();
 
 				var w = new StringWriter();
@@ -38,7 +37,6 @@ namespace SetupTestsWorkerService.SetupTests
 				string jsonText = w.ToString();
 				JObject obj = JObject.Parse(jsonText);
 				JToken tok = obj.SelectToken("$.components.schemas");
-				
 
 				Dictionary<string, JSchema> APISchemasAux = new Dictionary<string, JSchema>();
 

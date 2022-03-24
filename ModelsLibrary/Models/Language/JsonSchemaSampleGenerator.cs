@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SetupTestsWorkerService.Utils
+namespace ModelsLibrary.Models.Language
 {
-	class JsonSchemaSampleGenerator
-	{
+    class JsonSchemaSampleGenerator
+    {
         public static JToken Generate(JSchema schema)
         {
             JToken output;

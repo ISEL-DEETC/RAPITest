@@ -25,8 +25,9 @@ namespace ModelsLibrary.Models.AppSpecific
 			NativeVerifications = new List<Verification>();
 		}
 
-		public Test(string url, string path, Method method, string produces, string consumes, string body, List<Verification> nativeVerifications)
+		public Test(string id, string url, string path, Method method, string produces, string consumes, string body, List<Verification> nativeVerifications)
 		{
+			TestID = id;
 			Body = body;
 			NativeVerifications = nativeVerifications;
 			Server = url;
@@ -34,6 +35,8 @@ namespace ModelsLibrary.Models.AppSpecific
 			Method = method;
 			Produces = produces;
 			Consumes = consumes;
+			Query = new Dictionary<string, string>();
+			ExternalVerifications = new List<dynamic>();
 		}
 
 		public string TestID { get; set; }

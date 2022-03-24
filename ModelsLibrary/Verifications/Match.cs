@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Xml;
 using System.Xml.XPath;
+using ModelsLibrary.Models.Language;
 
 namespace ModelsLibrary.Verifications
 {
@@ -18,8 +19,6 @@ namespace ModelsLibrary.Verifications
 	{
 		public readonly string path;
 		public readonly string targetValue;
-		private const string failValidationString = "Validation failed! Expected value: {0}, Actual value: {1}";
-		private const string failValidationContentTypeString = "Validation failed! Expected json or xml Content Type, Actual Content Type: {0}";
 
 		public Match(string path, string targetValue)
 		{
@@ -33,44 +32,12 @@ namespace ModelsLibrary.Verifications
 			res.TestName = "Match";
 			res.Success = false;
 			string body = await Response.Content.ReadAsStringAsync();
-			string val = null;
-			if (Response.Content.Headers.ContentType.MediaType == "application/json")
-			{
-				JObject obj = JObject.Parse(body);
-				JToken value = obj.SelectToken(path);
-				if(value != null)
-				{
-					val = value.ToString();
-				}
-			}
-			else if(Response.Content.Headers.ContentType.MediaType == "application/xml")
-			{
-				try
-				{
-					XmlDocument xmlDoc = new XmlDocument();
-					xmlDoc.LoadXml(body);
-				
-					XmlNode node = xmlDoc.SelectSingleNode(path);
-					if (node != null)
-					{
-						val = node.InnerText;
-					}
-				}
-				catch (Exception) {}
-			}
-			else
-			{
-				res.Description = String.Format(failValidationContentTypeString, Response.Content.Headers.ContentType.MediaType);
-			}
 
-			if(val == targetValue)
-			{
-				res.Success = true;
-			}
-			else
-			{
-				res.Description = String.Format(failValidationString, targetValue, val);
-			}
+			ALanguage language = ALanguage.GetLanguage(Response);
+
+			string val = language.GetValue(path, body);
+
+			if (val != null) res.Success = true;
 
 			return res;
 		}

@@ -25,7 +25,7 @@ namespace ModelsLibrary.Models
 		public int Warnings { get; set; }
 		public DateTime date { get; set; }
 		public List<Workflow> WorkflowResults { get; set; }
-		public Workflow GeneratedTests { get; set; }
+		public List<Test> GeneratedTests { get; set; }
 		public List<Test> MissingTests { get; set; }
 	}
 }

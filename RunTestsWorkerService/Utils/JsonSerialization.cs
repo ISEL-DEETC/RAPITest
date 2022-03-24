@@ -73,13 +73,7 @@ namespace RunTestsWorkerService.Utils
             try
             {
                 var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
-                jsonResolver.IgnoreProperty(typeof(Test), "Server");
-                jsonResolver.IgnoreProperty(typeof(Test), "Path");
-                jsonResolver.IgnoreProperty(typeof(Test), "Method");
                 jsonResolver.IgnoreProperty(typeof(Test), "Query");
-                jsonResolver.IgnoreProperty(typeof(Test), "Consumes");
-                jsonResolver.IgnoreProperty(typeof(Test), "Produces");
-                jsonResolver.IgnoreProperty(typeof(Test), "Body");
                 jsonResolver.IgnoreProperty(typeof(Test), "NativeVerifications");
                 jsonResolver.IgnoreProperty(typeof(Test), "ExternalVerifications");
                 jsonResolver.IgnoreProperty(typeof(Test), "Retain");

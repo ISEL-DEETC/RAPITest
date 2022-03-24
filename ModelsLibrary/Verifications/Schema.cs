@@ -11,6 +11,7 @@ using NJsonSchema;
 using System.Xml.Schema;
 using System.Xml.Linq;
 using System.Text;
+using ModelsLibrary.Models.Language;
 
 namespace ModelsLibrary.Verifications
 {
@@ -33,49 +34,9 @@ namespace ModelsLibrary.Verifications
 			res.Success = false;
 			string body = await Response.Content.ReadAsStringAsync();
 
-			if (Response.Content.Headers.ContentType.MediaType == "application/json")
-			{
-				JObject obj = JObject.Parse(body);
-				JSchema jschema = JSchema.Parse(schema);
-				res.Success = obj.IsValid(jschema);
-			}
-			else if (Response.Content.Headers.ContentType.MediaType == "application/xml")
-			{
-				string xsdContent = schema;
-				string xmlContent = body;
-				try
-				{
-					XmlSchemaSet xmlschema;
-					XDocument xmlDoc;
-					using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(xsdContent)))
-					{
-						var xsc = XmlSchema.Read(ms, (o, e) =>
-						{
-							res.Description = failStringXmlSchema;
-						});
-						xmlschema = new XmlSchemaSet();
-						xmlschema.Add(xsc);
-						xmlDoc = XDocument.Parse(xmlContent, LoadOptions.SetLineInfo);
-					}
+			ALanguage language = ALanguage.GetLanguage(Response);
 
-					xmlDoc.Validate(xmlschema, (o, e) =>
-					{
-						res.Description = String.Format(failStringSchemaValidation, body);
-					});
-				}
-				catch (Exception) { }
-
-				if (res.Description == null) res.Success = true;
-			}
-			else
-			{
-				res.Description = String.Format(failValidationContentTypeString, Response.Content.Headers.ContentType.MediaType);
-			}
-
-			if (!res.Success)
-			{
-				res.Description = String.Format(failStringSchemaValidation, body);
-			}
+			res.Success = language.ValidateSchema(schema, body);
 
 			return res;
 		}
