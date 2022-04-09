@@ -27,6 +27,8 @@ namespace DataAnnotation.Controllers
 		private readonly long _fileSizeLimit;
 		private readonly string[] _permittedExtensions;
 		private readonly RAPITestDBContext _context;
+		private readonly string RabbitMqHostName;
+		private readonly int RabbitMqPort;
 
 		public SetupTestController(ILogger<SetupTestController> logger, RAPITestDBContext context, IConfiguration config)
 		{
@@ -34,6 +36,8 @@ namespace DataAnnotation.Controllers
 			_context = context;
 			_fileSizeLimit = config.GetValue<long>("FileSizeLimit");
 			_permittedExtensions = config.GetSection("PermittedExtensionsApiSpecification").GetChildren().ToArray().Select(v => v.Value).ToArray();
+			RabbitMqHostName = config.GetValue<string>("RabbitMqHostName");
+			RabbitMqPort = config.GetValue<int>("RabbitMqPort");
 		}
 
 		[HttpPost]
@@ -153,7 +157,7 @@ namespace DataAnnotation.Controllers
 
 		public void Sender(int apiId, bool runImmediately)
 		{
-			var factory = new ConnectionFactory() { HostName = "localhost" };   //as longs as it is running in the same machine
+			var factory = new ConnectionFactory() { HostName = RabbitMqHostName, Port = RabbitMqPort };   //as longs as it is running in the same machine
 			using (var connection = factory.CreateConnection())
 			using (var channel = connection.CreateModel())
 			{

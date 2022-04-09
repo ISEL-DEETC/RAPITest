@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>dotnet-SetupTestsWorkerService-F73C9D74-A186-407B-8E1D-3E4E3DA8077A</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +30,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.21" />
     <PackageReference Include="Microsoft.OpenApi" Version="1.2.3" />
     <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.2.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="RabbitMQ.Client" Version="6.2.3" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />

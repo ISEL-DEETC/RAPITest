@@ -47,8 +47,6 @@ namespace SetupTestsWorkerService.SetupTests
 
 						Enum.TryParse<Method>(operation.Key.ToString(), out Method method);
 						testCombinations.AddRange(GenerateTests(cartesianProduct, path.Key, method, firstTestSetup));
-
-						Console.WriteLine("boas");
 					}
 				}
 			}

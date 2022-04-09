@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SetupTestsWorkerService.SetupTests
@@ -25,7 +26,8 @@ namespace SetupTestsWorkerService.SetupTests
 				string id = "";
 				bool foundExample = false;
 				string example = "";
-				foreach (var line in entireString.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
+				var result = Regex.Split(entireString, "\r\n|\r|\n");
+				foreach (var line in result)
 				{
 					if (line == "" && foundExample)
 					{
