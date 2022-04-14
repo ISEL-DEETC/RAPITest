@@ -16,7 +16,11 @@ namespace SetupTestsWorkerService.SetupTests
 		public static void Parse(CompleteTest firstTestSetup)
 		{
 			List<Workflow> workflows = new List<Workflow>();
-			if (firstTestSetup.Work == null) return;
+			if (firstTestSetup.Work == null)
+			{
+				firstTestSetup.Workflows = workflows;
+				return;
+			}
 			foreach (Workflow_D workflow_d in firstTestSetup.Work)
 			{
 				Workflow newWork = new Workflow();

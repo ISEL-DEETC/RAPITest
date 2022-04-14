@@ -94,6 +94,7 @@ namespace SetupTestsWorkerService
 
             using (_context = new RAPITestDBContext(optionsBuilder.Options))
             {
+                if (!_context.Database.CanConnect()) return;
                 List<Api> apis = _context.Api.Where(api => api.NextTest != null).ToList();
 
                 foreach(Api api in apis)

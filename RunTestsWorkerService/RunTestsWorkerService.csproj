@@ -1,11 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
-
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>dotnet-RunTestsWorkerService-81B740E7-0BAB-46B1-B6C3-6C3AFBC92C04</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Models\**" />
     <Compile Remove="Verifications\**" />
@@ -16,7 +14,6 @@
     <None Remove="Models\**" />
     <None Remove="Verifications\**" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.21" />
@@ -34,7 +31,6 @@
     <PackageReference Include="NJsonSchema" Version="10.6.8" />
     <PackageReference Include="RabbitMQ.Client" Version="6.2.3" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\ModelsLibrary\ModelsLibrary.csproj" />
   </ItemGroup>

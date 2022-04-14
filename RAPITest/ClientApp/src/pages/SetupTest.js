@@ -72,16 +72,18 @@ export class SetupTest extends Component {
     }
 
     async sendTestSetup() {
-
+        console.log(this.state)
         let data = new FormData();
         data.append('apiSpecification', this.state.apiSpecification);
         if (this.state.dictionary !== null) {
             data.append('dictionary.txt', this.state.dictionary);
         }
         let i = 1
-        for (const file of this.state.testSpecification) {
-            data.append("tsl_"+i+".yaml", file)
-            i++
+        if (this.state.testSpecification !== null) {
+            for (const file of this.state.testSpecification) {
+                data.append("tsl_" + i + ".yaml", file)
+                i++
+            }
         }
         if (this.state.dllFiles !== null) {
             for (const file of this.state.dllFiles) {
