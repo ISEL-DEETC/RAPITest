@@ -54,8 +54,8 @@ namespace RAPITest
 					IConfigurationSection googleAuthNSection =
 						Configuration.GetSection("Authentication:Google");
 
-					options.ClientId = googleAuthNSection["ClientId"];
-					options.ClientSecret = googleAuthNSection["ClientSecret"];
+					options.ClientId = Configuration["Authentication:Google:ClientId"];
+					options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
 				})
 				.AddFacebook(options =>
 				{

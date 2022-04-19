@@ -1,8 +1,8 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 FROM mcr.microsoft.com/dotnet/aspnet:3.1 AS base
 WORKDIR /app
+ENV ASPNETCORE_URLS=https://+:80  
 EXPOSE 80
-EXPOSE 443
  
 RUN apt-get update
 RUN apt-get install -y curl
@@ -29,6 +29,7 @@ RUN dotnet publish "RAPITest.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
+COPY RAPITest/certs/certificate.pfx ./certs/
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "RAPITest.dll"]
 
