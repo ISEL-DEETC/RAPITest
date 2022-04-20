@@ -18,6 +18,7 @@ using System.Text.Json;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using ModelsLibrary.Models.EFModels;
+using Newtonsoft.Json;
 
 namespace RAPITest.Controllers
 {
@@ -57,7 +58,7 @@ namespace RAPITest.Controllers
 					if(text[0] == '{')
 					{
 						//valid report
-						ModelsLibrary.Models.Report re = JsonSerializer.Deserialize<ModelsLibrary.Models.Report>(text);
+						ModelsLibrary.Models.Report re = JsonConvert.DeserializeObject<ModelsLibrary.Models.Report>(text);
 						userInfoAPI.Errors = re.Errors;
 						userInfoAPI.Warnings = re.Warnings;
 						userInfoAPI.LatestReport = report.ReportDate;

@@ -35,10 +35,16 @@ namespace ModelsLibrary.Verifications
 
 			ALanguage language = ALanguage.GetLanguage(Response);
 
-			string val = language.GetValue(path, body);
+			try
+			{
+				string val = language.GetValue(path, body);
 
-			if (val != null) res.Success = true;
-
+				if (val != null) res.Success = true;
+			}
+			catch (Exception)
+			{
+				res.Success = false;
+			}
 			return res;
 		}
 	}

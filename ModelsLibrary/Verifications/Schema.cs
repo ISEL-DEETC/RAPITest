@@ -36,7 +36,13 @@ namespace ModelsLibrary.Verifications
 
 			ALanguage language = ALanguage.GetLanguage(Response);
 
-			res.Success = language.ValidateSchema(schema, body);
+			try
+			{
+				res.Success = language.ValidateSchema(schema, body);
+			}catch (Exception)
+			{
+				res.Success = false;
+			}
 
 			return res;
 		}
