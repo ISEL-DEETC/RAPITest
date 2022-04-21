@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+using ModelsLibrary.Models.Deserialize;
 
 namespace SetupTestsWorkerService.SetupTests
 {
@@ -28,6 +29,8 @@ namespace SetupTestsWorkerService.SetupTests
 
 				newWork.WorkflowID = workflow_d.WorkflowID;
 				newWork.Retain = new Dictionary<string, Retained>();
+
+				SetupStress(workflow_d.Stress, newWork, firstTestSetup);
 
 				foreach (Test_D test_D in workflow_d.Tests)
 				{
@@ -86,6 +89,23 @@ namespace SetupTestsWorkerService.SetupTests
 
 			firstTestSetup.Workflows = workflows;
 			VerifyRetains(firstTestSetup);
+		}
+
+		private static void SetupStress(Stress_D stress, Workflow newWork, CompleteTest firstTestSetup)
+		{
+			if (stress == null) return;
+			Stress newStress = new Stress();
+
+			if(stress.Count <= 0 || stress.Delay < 0 || stress.Threads <= 0)
+			{
+				firstTestSetup.Errors.Add("Stress count, delay and threads must all be positive integers");
+			}
+
+			newStress.Count = stress.Count;
+			newStress.Delay = stress.Delay;
+			newStress.Threads = stress.Threads;
+
+			newWork.StressTest = newStress;
 		}
 
 		private static Dictionary<string, string> SetupQuery(List<string> query, CompleteTest firstTestSetup)

@@ -10,6 +10,8 @@ namespace ModelsLibrary.Models.AppSpecific
 	{
 		public string WorkflowID { get; set; }
 
+		public Stress StressTest { get; set; }
+
 		public Dictionary<string, Retained> Retain { get; set; }
 
 		public List<Test> Tests { get; set; }

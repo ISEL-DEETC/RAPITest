@@ -50,7 +50,14 @@ namespace RunTestsWorkerService.RunModels
 		{
 			foreach (var item in merge)
 			{
-				me[item.Key] = item.Value;
+				if (!me.ContainsKey(item.Key))
+				{
+					me[item.Key] = item.Value;
+				}
+				else
+				{
+					me[item.Key].AddRange(item.Value);
+				}
 			}
 		}
 

@@ -38,11 +38,14 @@ namespace RunTestsWorkerService.RunTests
 				RunWorkflow twf = new RunWorkflow(workflow, httpUtils);
 				tasks.Add(twf.Run());
 
-				//if quer stress test
-				StressTests stressTests = new StressTests(workflow, httpUtils, 5, 100, 0);
-				tasks.Add(stressTests.Run().ContinueWith(dic => {
-					stressTestResults = dic.Result;
-				}));
+				if(workflow.StressTest != null)
+				{
+					StressTests stressTests = new StressTests(workflow, httpUtils, workflow.StressTest.Threads, workflow.StressTest.Count, workflow.StressTest.Delay);
+					tasks.Add(stressTests.Run().ContinueWith(dic => {
+						stressTestResults = dic.Result;
+					}));
+				}
+				
 			}
 
 			await Task.WhenAll(tasks);

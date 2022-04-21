@@ -78,6 +78,7 @@ namespace RunTestsWorkerService.Utils
                 jsonResolver.IgnoreProperty(typeof(Test), "ExternalVerifications");
                 jsonResolver.IgnoreProperty(typeof(Test), "Retain");
                 jsonResolver.IgnoreProperty(typeof(Workflow), "Retain");
+                jsonResolver.IgnoreProperty(typeof(Workflow), "StressTest");
 
                 JsonSerializerSettings j = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
                 j.ContractResolver = jsonResolver;
