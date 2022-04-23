@@ -50,7 +50,26 @@ namespace RunTestsWorkerService.RunTests
 
 			await Task.WhenAll(tasks);
 
+			SetupStressResults(firstTestSetup, stressTestResults);
+
 			WriteReport(firstTestSetup, api);
+		}
+
+		private static void SetupStressResults(CompleteTest firstTestSetup, Dictionary<string, List<long>> stressTestResults)
+		{
+			foreach (Workflow workflow in firstTestSetup.Workflows)
+			{
+				if (workflow.StressTest != null)
+				{
+					foreach (Test test in workflow.Tests)
+					{
+						if (stressTestResults.ContainsKey(test.TestID))
+						{
+							test.StressTimes = stressTestResults.GetValueOrDefault(test.TestID);
+						}
+					}
+				}
+			}
 		}
 
 		public static void WriteReport(CompleteTest firstTestSetup, Api api)

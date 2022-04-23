@@ -52,6 +52,7 @@ namespace ModelsLibrary.Models.AppSpecific
 		public List<dynamic> ExternalVerifications { get; set; }
 		public List<Result> TestResults { get; set; }
 		public RequestMetadata RequestMetadata { get; set; }
+		public List<long> StressTimes { get; set; }
 
 		public List<string> GetVariablePathKeys()
 		{

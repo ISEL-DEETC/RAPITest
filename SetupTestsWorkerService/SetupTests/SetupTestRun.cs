@@ -26,17 +26,20 @@ namespace SetupTestsWorkerService.SetupTests
 			//step 1 - Parse API Specification
 			ParseApiSpecification.Parse(firstTestSetup, api);
 
-			//step 2 - Parse TSL into Deserialize Models
-			ParseTSL.Parse(firstTestSetup, api);
+			if(firstTestSetup.Errors.Count == 0)
+			{
+				//step 2 - Parse TSL into Deserialize Models
+				ParseTSL.Parse(firstTestSetup, api);
 
-			//step 3 - Setup Dictionary
-			SetupDictionary.Setup(firstTestSetup, api);
+				//step 3 - Setup Dictionary
+				SetupDictionary.Setup(firstTestSetup, api);
 
-			//step 4 - Setup External DLL's
-			SetupExternalDLLs.Setup(firstTestSetup, api);
+				//step 4 - Setup External DLL's
+				SetupExternalDLLs.Setup(firstTestSetup, api);
 
-			//step 5 - Parse Deserialized models into Logic Models with extra validations
-			ParseIntoApplicationLogic.Parse(firstTestSetup);
+				//step 5 - Parse Deserialized models into Logic Models with extra validations
+				ParseIntoApplicationLogic.Parse(firstTestSetup);
+			}
 
 			//step 6 - Check if any errors ocurred, if yes save them and return
 			if (firstTestSetup.Errors.Count > 0)
