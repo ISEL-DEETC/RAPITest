@@ -15,6 +15,8 @@ using System;
 using ModelsLibrary.Models.EFModels;
 using System.Text;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
+using System.Threading;
 
 namespace DataAnnotation.Controllers
 {
@@ -158,7 +160,7 @@ namespace DataAnnotation.Controllers
 		public void Sender(int apiId, bool runImmediately)
 		{
 			var factory = new ConnectionFactory() { HostName = RabbitMqHostName, Port = RabbitMqPort };   //as longs as it is running in the same machine
-			using (var connection = factory.CreateConnection())
+			using (var connection = CreateConnection(factory))
 			using (var channel = connection.CreateModel())
 			{
 				channel.QueueDeclare(queue: "setup",
@@ -176,6 +178,24 @@ namespace DataAnnotation.Controllers
 									 body: body);
 
 				_logger.LogInformation("[x] Sent {0} ", message);
+			}
+		}
+
+		private IConnection CreateConnection(ConnectionFactory connectionFactory)
+		{
+			while (true)
+			{
+				try
+				{
+					_logger.LogInformation("Attempting to connect to RabbitMQ....");
+					IConnection connection = connectionFactory.CreateConnection();
+					return connection;
+				}
+				catch (BrokerUnreachableException e)
+				{
+					_logger.LogInformation("RabbitMQ Connection Unreachable, sleeping 5 seconds....");
+					Thread.Sleep(5000);
+				}
 			}
 		}
 

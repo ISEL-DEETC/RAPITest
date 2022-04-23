@@ -16,6 +16,8 @@ using System.IO;
 using SetupTestsWorkerService.SetupTests;
 using System.Timers;
 using ModelsLibrary.Models.EFModels;
+using RabbitMQ.Client.Exceptions;
+using Microsoft.Data.SqlClient;
 
 namespace SetupTestsWorkerService
 {
@@ -34,7 +36,7 @@ namespace SetupTestsWorkerService
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
             var factory = new ConnectionFactory() { HostName = this.options.RabbitMqHostName, Port = this.options.RabbitMqPort};
-            using (var connection = factory.CreateConnection())
+            using (var connection = CreateConnection(factory))
             using (var channel = connection.CreateModel())
             {
                 channel.QueueDeclare(queue: "setup",
@@ -59,6 +61,24 @@ namespace SetupTestsWorkerService
                 {
                     //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                     await Task.Delay(10000, stoppingToken);
+                }
+            }
+        }
+
+        private IConnection CreateConnection(ConnectionFactory connectionFactory)
+        {
+            while (true)
+            {
+                try
+                {
+                    _logger.LogInformation("Attempting to connect to RabbitMQ....");
+                    IConnection connection = connectionFactory.CreateConnection();
+                    return connection;
+                }
+                catch (BrokerUnreachableException e)
+                {
+                    _logger.LogInformation("RabbitMQ Connection Unreachable, sleeping 5 seconds....");
+                    Thread.Sleep(5000);
                 }
             }
         }
@@ -94,7 +114,7 @@ namespace SetupTestsWorkerService
 
             using (_context = new RAPITestDBContext(optionsBuilder.Options))
             {
-                if (!_context.Database.CanConnect()) return;
+                DatabaseConnection(_context);
                 List<Api> apis = _context.Api.Where(api => api.NextTest != null).ToList();
 
                 foreach(Api api in apis)
@@ -105,7 +125,26 @@ namespace SetupTestsWorkerService
             }
         }
 
-        public void SetupSpecificTimer(Api api)
+		private void DatabaseConnection(RAPITestDBContext context)
+		{
+            while (true)
+            {
+                try
+                {
+                    _logger.LogInformation("Attempting to connect to Database....");
+                    context.Database.CanConnect();
+                    List<Api> apis = context.Api.Where(api => api.NextTest != null).ToList();
+                    return;
+                }
+                catch (SqlException e)
+                {
+                    _logger.LogInformation("Database Unreachable, sleeping 5 seconds....");
+                    Thread.Sleep(5000);
+                }
+            }
+        }
+
+		public void SetupSpecificTimer(Api api)
 		{
             double timer = (api.NextTest - DateTime.Now).Value.TotalMilliseconds;
 			if (timer < 0)

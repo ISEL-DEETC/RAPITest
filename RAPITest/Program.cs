@@ -20,25 +20,33 @@ namespace RAPITest
 
             using var scope = host.Services.CreateScope();
             var services = scope.ServiceProvider;
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-            try
-            {
-                var dbContext = services.GetRequiredService<ApplicationDbContext>();
-                if (dbContext.Database.IsSqlServer())
-                {
-                    dbContext.Database.Migrate();
-                }
-            }
-            catch (Exception ex)
-            {
-                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-
-                logger.LogError(ex, "An error occurred while migrating or seeding the database.");
-
-                throw;
-            }
+            ApplyMigrations(services, logger);
 
             await host.RunAsync();
+        }
+
+        public static void ApplyMigrations(IServiceProvider services, ILogger logger)
+		{
+			while (true)
+			{
+                try
+                {
+                    logger.LogInformation("Attempting to connect to Database....");
+                    var dbContext = services.GetRequiredService<ApplicationDbContext>();
+                    if (dbContext.Database.IsSqlServer())
+                    {
+                        dbContext.Database.Migrate();
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogInformation("Database Unreachable, sleeping 5 seconds....");
+                }
+            }
+            
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

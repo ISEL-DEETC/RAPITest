@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using System.IO;
 using RunTestsWorkerService.RunTests;
 using ModelsLibrary.Models.EFModels;
+using RabbitMQ.Client.Exceptions;
 
 namespace RunTestsWorkerService
 {
@@ -31,15 +32,16 @@ namespace RunTestsWorkerService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var factory = new ConnectionFactory() { HostName = this.options.RabbitMqHostName, Port = this.options.RabbitMqPort };
-            using (var connection = factory.CreateConnection())
+            var factory = new ConnectionFactory() { HostName = this.options.RabbitMqHostName, Port = this.options.RabbitMqPort };  
+
+            using (var connection = CreateConnection(factory))
             using (var channel = connection.CreateModel())
             {
                 channel.QueueDeclare(queue: "run",
-                                     durable: false,
-                                     exclusive: false,
-                                     autoDelete: false,
-                                     arguments: null);
+                                        durable: false,
+                                        exclusive: false,
+                                        autoDelete: false,
+                                        arguments: null);
 
                 var consumer = new EventingBasicConsumer(channel);
                 consumer.Received += (model, ea) =>
@@ -50,8 +52,8 @@ namespace RunTestsWorkerService
                     ThreadPool.QueueUserWorkItem((state) => Work(message));
                 };
                 channel.BasicConsume(queue: "run",
-                                     autoAck: true,
-                                     consumer: consumer);
+                                        autoAck: true,
+                                        consumer: consumer);
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
@@ -60,6 +62,25 @@ namespace RunTestsWorkerService
                 }
             }
         }
+
+        private IConnection CreateConnection(ConnectionFactory connectionFactory)
+		{
+			while (true)
+			{
+				try
+				{
+                    _logger.LogInformation("Attempting to connect to RabbitMQ....");
+                    IConnection connection = connectionFactory.CreateConnection();
+                    return connection;
+                }catch(BrokerUnreachableException e)
+				{
+                    _logger.LogInformation("RabbitMQ Connection Unreachable, sleeping 5 seconds....");
+                    Thread.Sleep(5000);
+                }
+			}
+		}
+
+
         private async void Work(string message)
         { 
             int apiId = Int32.Parse(message);
