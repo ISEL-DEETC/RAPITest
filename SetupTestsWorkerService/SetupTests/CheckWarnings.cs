@@ -90,7 +90,10 @@ namespace SetupTestsWorkerService.SetupTests
 				}
 
 				string testId = test.Server + path + method + test.ResponseTypes.Key + test.Consumes.Key;
-				newTests.Add(new Test(testId, test.Server, path, method, test.ResponseTypes.Key, test.Consumes.Key, body, nativeVerifications));
+				Dictionary<string, string> headers = new Dictionary<string, string>();
+				headers.Add("Consumes", test.Consumes.Key);
+				headers.Add("Produces", test.ResponseTypes.Key);
+				newTests.Add(new Test(testId, test.Server, path, method, headers, body, nativeVerifications));
 			}
 			return newTests;
 		}

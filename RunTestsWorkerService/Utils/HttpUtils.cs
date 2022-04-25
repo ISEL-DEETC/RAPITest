@@ -77,9 +77,16 @@ namespace RunTestsWorkerService.Utils
 
 			var requestMessage = new HttpRequestMessage(Convert(test.Method), uri);
 			
-			if (test.Produces != null) requestMessage.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse(test.Produces));
+			if (test.Headers.ContainsKey("Produces") && test.Headers.GetValueOrDefault("Produces") != null) requestMessage.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse(test.Headers.GetValueOrDefault("Produces")));
 
-			if (test.Body != null) requestMessage.Content = new StringContent(test.Body, Encoding.UTF8, test.Consumes);
+			if (test.Body != null) requestMessage.Content = new StringContent(test.Body, Encoding.UTF8, test.Headers.GetValueOrDefault("Consumes"));
+
+			foreach (KeyValuePair<string, string> entry in test.Headers)
+			{
+				if (entry.Key.Equals("Produces") || entry.Key.Equals("Consumes")) continue;
+
+				requestMessage.Headers.Add(entry.Key, entry.Value);
+			}
 
 			return requestMessage;
 		}

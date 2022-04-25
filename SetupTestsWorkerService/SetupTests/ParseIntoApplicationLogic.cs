@@ -58,8 +58,7 @@ namespace SetupTestsWorkerService.SetupTests
 						firstTestSetup.Errors.Add("Method in TSL file not supported, must be exactly Get, Post, Put or Delete. It is case sensitive!");
 					}
 
-					newTest.Consumes = test_D.Consumes;
-					newTest.Produces = test_D.Produces;
+					newTest.Headers = SetupHeaders(test_D.Headers, firstTestSetup);
 
 					if (test_D.Body != null)
 					{
@@ -89,6 +88,26 @@ namespace SetupTestsWorkerService.SetupTests
 
 			firstTestSetup.Workflows = workflows;
 			VerifyRetains(firstTestSetup);
+		}
+
+		private static Dictionary<string, string> SetupHeaders(List<string> headers, CompleteTest firstTestSetup)
+		{
+			Dictionary<string, string> myHeaders = new Dictionary<string, string>();
+			if (headers == null) return myHeaders;
+
+			foreach (string str in headers)
+			{
+				string[] parameters = str.Split(':',2);
+				if (parameters.Length != 2)
+				{
+					firstTestSetup.Errors.Add("Header parameters not correctly supplied, must be two strings seperated by ':'");
+				}
+				else
+				{
+					myHeaders.Add(parameters[0], parameters[1]);
+				}
+			}
+			return myHeaders;
 		}
 
 		private static void SetupStress(Stress_D stress, Workflow newWork, CompleteTest firstTestSetup)

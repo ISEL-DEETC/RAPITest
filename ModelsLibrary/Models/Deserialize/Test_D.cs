@@ -11,8 +11,7 @@ namespace ModelsLibrary.Models
 		public string Server { get; set; }
 		public string Path { get; set; }
 		public string Method { get; set; }
-		public string Consumes { get; set; }
-		public string Produces { get; set; }
+		public List<string> Headers { get; set; }
 		public string Body { get; set; }
 		public List<string> Retain { get; set; }
 		public List<string> Query { get; set; }

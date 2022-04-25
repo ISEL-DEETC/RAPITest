@@ -8,6 +8,7 @@ using RAPITest.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RAPITest
@@ -44,6 +45,7 @@ namespace RAPITest
                 catch (Exception ex)
                 {
                     logger.LogInformation("Database Unreachable, sleeping 5 seconds....");
+                    Thread.Sleep(5000);
                 }
             }
             

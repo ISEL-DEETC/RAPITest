@@ -10,22 +10,12 @@ namespace ModelsLibrary.Models.AppSpecific
 	public class Test
 	{
 
-		public Test(string server, string path, Method method, string consumes, string produces, List<Verification> verifications)
-		{
-			Server = server;
-			Path = path;
-			Method = method;
-			Consumes = consumes;
-			Produces = produces;
-			NativeVerifications = verifications;
-		}
-
 		public Test()
 		{
 			NativeVerifications = new List<Verification>();
 		}
 
-		public Test(string id, string url, string path, Method method, string produces, string consumes, string body, List<Verification> nativeVerifications)
+		public Test(string id, string url, string path, Method method, Dictionary<string, string> Headers, string body, List<Verification> nativeVerifications)
 		{
 			TestID = id;
 			Body = body;
@@ -33,8 +23,7 @@ namespace ModelsLibrary.Models.AppSpecific
 			Server = url;
 			Path = path;
 			Method = method;
-			Produces = produces;
-			Consumes = consumes;
+			this.Headers = Headers;
 			Query = new Dictionary<string, string>();
 			ExternalVerifications = new List<dynamic>();
 		}
@@ -43,8 +32,7 @@ namespace ModelsLibrary.Models.AppSpecific
 		public string Server { get; set; }
 		public string Path { get; set; }
 		public Method Method { get; set; }
-		public string Consumes { get; set; }
-		public string Produces { get; set; }
+		public Dictionary<string, string> Headers { get; set; }
 		public string Body { get; set; }
 		public List<string> Retain { get; set; }
 		public Dictionary<string, string> Query { get; set; }
@@ -76,7 +64,7 @@ namespace ModelsLibrary.Models.AppSpecific
 
 		public bool CompareTests(Test test)
 		{
-			if (test.Consumes != Consumes || test.Produces != Produces || test.Method != Method)
+			if (test.Headers.GetValueOrDefault("Consumes") != Headers.GetValueOrDefault("Consumes") || test.Headers.GetValueOrDefault("Produces") != Headers.GetValueOrDefault("Produces") || test.Method != Method)
 			{
 				return false;
 			}
