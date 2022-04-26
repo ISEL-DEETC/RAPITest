@@ -11,7 +11,7 @@ namespace ModelsLibrary.Verifications
 	{
 		public readonly int times;
 		public readonly string targetString;
-		private const string failString = "Validation failed! string {0} was found {1} times in body: {2}";
+		private const string failString = "Validation failed! string {0} was found {1} times in response body";
 
 		public Count(string targetString, int times)
 		{
@@ -36,7 +36,7 @@ namespace ModelsLibrary.Verifications
 
 			if (!res.Success)
 			{
-				res.Description = String.Format(failString, targetString, count, body);
+				res.Description = String.Format(failString, targetString, count);
 			}
 
 			return res;

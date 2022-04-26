@@ -6,6 +6,8 @@ namespace ModelsLibrary.Models.Language
 {
 	public abstract class ALanguage
 	{
+		public IList<string> invalidMessageErrors;
+
 		public static ALanguage GetLanguage(string path)
 		{
 			switch (path[0])

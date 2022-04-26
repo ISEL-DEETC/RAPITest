@@ -18,9 +18,6 @@ namespace ModelsLibrary.Verifications
 	public class Schema : Verification
 	{
 		public string schema;
-		private const string failStringSchemaValidation = "Validation failed! Schema does not comply with body: {0}";
-		private const string failValidationContentTypeString = "Validation failed! Expected json or xml Content Type, Actual Content Type: {0}";
-		private const string failStringXmlSchema = "Validation failed! Error in supplied schema";
 
 		public Schema(string schema)
 		{
@@ -43,6 +40,7 @@ namespace ModelsLibrary.Verifications
 			{
 				res.Success = false;
 			}
+			if (!res.Success) res.Description = string.Join(";", language.invalidMessageErrors);
 
 			return res;
 		}

@@ -11,7 +11,7 @@ namespace ModelsLibrary.Verifications
 	public class Contains : Verification
 	{
 		public readonly string TargetString;
-		private const string failString = "Validation failed! string {0} not found in {1}";
+		private const string failString = "Validation failed! string {0} not found in response body";
 
 		public Contains(string TargetString)
 		{
@@ -28,7 +28,7 @@ namespace ModelsLibrary.Verifications
 
 			if (!res.Success)
 			{
-				res.Description = String.Format(failString, TargetString, body);
+				res.Description = String.Format(failString, TargetString);
 			}
 
 			return res;

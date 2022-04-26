@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using RunTestsWorkerService.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;

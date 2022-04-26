@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using System;
 using System.Collections.Generic;
@@ -16,20 +17,44 @@ namespace ModelsLibrary.Models.Language
 
 		public override string GetValue(string path, string obj)
 		{
-			JObject jobj = JObject.Parse(obj);
-			JToken value = jobj.SelectToken(path);
-			if (value != null)
+			try
 			{
-				return value.ToString();
+				//Test if its a Single Object
+				JObject jobj = JObject.Parse(obj);
+				JToken value = jobj.SelectToken(path);
+				if (value != null)
+				{
+					return value.ToString();
+				}
+			}
+			catch(JsonReaderException)
+			{
+				//Test if its a Json Array
+				JArray jArray = JArray.Parse(obj);
+				JToken v = jArray.SelectToken(path);
+				if (v != null)
+				{
+					return v.ToString();
+				}
 			}
 			return null;
 		}
 
 		public override bool ValidateSchema(string schema, string obj)
 		{
-			JObject jobj = JObject.Parse(obj);
 			JSchema jschema = JSchema.Parse(schema);
-			return jobj.IsValid(jschema);
+			try
+			{
+				//Test if its a Single Object
+				JObject jobj = JObject.Parse(obj);
+				return jobj.IsValid(jschema, out invalidMessageErrors);
+			}
+			catch (JsonReaderException)
+			{
+				//Test if its a Json Array
+				JArray jArray = JArray.Parse(obj);
+				return jArray.IsValid(jschema, out invalidMessageErrors);
+			}
 		}
 	}
 }
