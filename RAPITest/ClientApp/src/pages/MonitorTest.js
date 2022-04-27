@@ -61,7 +61,6 @@ export class MonitorTest extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         })
         const data = await response.json()
-        console.log(data)
         var allAPIS = new Map()
         data.forEach(api => {
             if (api.nextTest === "0001-01-01T00:00:00") {

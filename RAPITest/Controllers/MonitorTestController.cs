@@ -19,6 +19,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using ModelsLibrary.Models.EFModels;
 using Newtonsoft.Json;
+using ModelsLibrary.Models.AppSpecific;
 
 namespace RAPITest.Controllers
 {
@@ -93,11 +94,21 @@ namespace RAPITest.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 
-			ModelsLibrary.Models.EFModels.Report report = _context.Report.Where(r => r.ApiId == apiId).OrderByDescending(r => r.ReportDate).FirstOrDefault();
+			IOrderedQueryable<ModelsLibrary.Models.EFModels.Report> reports = _context.Report.Include(report => report.Api).Where(r => r.ApiId == apiId).OrderByDescending(r => r.ReportDate);
+			ModelsLibrary.Models.EFModels.Report report = reports.FirstOrDefault();
 			if (report == null) return NotFound();
 
-			string rep = Encoding.Default.GetString(report.ReportFile);
-			return Ok(rep);
+			VisualizeReportModel v = new VisualizeReportModel();
+			v.Report = Encoding.Default.GetString(report.ReportFile);
+			v.ApiName = report.Api.ApiTitle;
+
+			List<DateTime> dateTimes = new List<DateTime>();
+
+			reports.AsEnumerable().ToList().ForEach(x => dateTimes.Add(x.ReportDate));
+
+			v.AllReportDates = dateTimes;
+
+			return Ok(v);
 		}
 
 		[HttpDelete]
