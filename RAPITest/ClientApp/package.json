@@ -25,11 +25,13 @@
     "react-sliding-pane": "6.1.0",
     "react-spring": "9.0.0-rc.3",
     "reactstrap": "^8.4.1",
-    "recharts": "2.0.0-beta.6",
+    "recharts": "2.1.9",
     "rimraf": "^2.6.2",
     "react-awesome-button": "6.5.1",
     "rc-steps": "4.1.4",
-    "styled-components": "5.1.1"
+    "styled-components": "5.1.1",
+    "d3-scale": "4.0.2",
+    "d3-scale-chromatic": "3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.16.10",

@@ -22,7 +22,10 @@ export class VisualizeReport extends Component {
             workflows: null,
             date: null,
             generatedTests: null,
-            missingTests: null
+            missingTests: null,
+            barChartData: null,
+            pieChartData: null,
+            totalCompletionTime: 0
         }
 
         this.setupReport = this.setupReport.bind(this)
@@ -44,6 +47,7 @@ export class VisualizeReport extends Component {
     }
 
     setupReport(report) {
+        console.log(report)
         let newDates = [];
 
         report.allReportDates.forEach((element, index) => {
@@ -51,6 +55,56 @@ export class VisualizeReport extends Component {
         });
 
         report.report.date = this.showTime(report.report.date)
+
+
+        let piedata = [];
+        piedata.push({ name: 'Total Errors', value: report.report.Errors })
+
+        let bardata = [];
+
+        let totalsuccesses = 0;
+        let totalCompletionTime = 0;
+
+        report.report.WorkflowResults.forEach((workflow, workflowindex) => {
+
+            let workflowId = workflow.WorkflowID
+            let workflowTotalTime = 0
+
+            workflow.Tests.forEach((test, testindex) => {
+
+
+                test.TestResults.forEach((testresult, testresultindex) => {
+                    if (testresult.Success) totalsuccesses++;
+                })
+
+                totalCompletionTime += test.RequestMetadata.ResponseTime
+                workflowTotalTime += test.RequestMetadata.ResponseTime
+
+                if (test.StressTimes != null) {
+                    test.StressTimes.forEach((time, testresultindex) => {
+                        totalCompletionTime += time;
+                        workflowTotalTime += time
+                    })
+                }
+
+            })
+
+            bardata.push({ name: workflowId, Total_Time: workflowTotalTime })
+        })
+
+        let generatedTestsCompletionTime = 0
+
+        report.report.GeneratedTests.forEach((generatedTest, workflowindex) => {
+            generatedTest.TestResults.forEach((testresult, testresultindex) => {
+                if (testresult.Success) totalsuccesses++;
+            })
+            generatedTestsCompletionTime += generatedTest.RequestMetadata.ResponseTime
+            totalCompletionTime += generatedTest.RequestMetadata.ResponseTime
+        })
+
+        bardata.push({ name: 'GeneratedTests', Total_Time: generatedTestsCompletionTime })
+        piedata.push({ name: 'Total Successes', value: totalsuccesses })
+        
 
         this.setState({
             apiTitle: report.apiName,
@@ -61,7 +115,10 @@ export class VisualizeReport extends Component {
             workflows: report.report.WorkflowResults,
             date: report.report.date,
             generatedTests: report.report.GeneratedTests,
-            missingTests: report.report.MissingTests
+            missingTests: report.report.MissingTests,
+            pieChartData: piedata,
+            barChartData: bardata,
+            totalCompletionTime: totalCompletionTime
         })
     }
 
@@ -90,7 +147,13 @@ export class VisualizeReport extends Component {
                     <Tabs defaultActiveKey="overview" id="uncontrolled-tab-example" className="mb-3">
                         <Tab eventKey="overview" title="Overview">
                             <Overview
-                    
+                                errors={this.state.errors}
+                                warnings={this.state.warnings}
+                                workflows={this.state.workflows}
+                                generatedTests={this.state.generatedTests}
+                                totalCompletionTime={this.state.totalCompletionTime}
+                                pieChartData={this.state.pieChartData}
+                                barChartData={this.state.barChartData}
                             />
                         </Tab>
                         <Tab eventKey="tslworkflows" title="TSL Workflows">
@@ -113,7 +176,7 @@ export class VisualizeReport extends Component {
     render() {
         return (
             <div>
-                {this.state.report !== null && this.showRender()}
+                {this.state.date !== null && this.showRender()}
             </div>
         )
     }
