@@ -5,7 +5,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Overview from './VisualizeReportTabs/Overview'
 import GeneratedTests from './VisualizeReportTabs/GeneratedTests'
 import TSLWorkflows from './VisualizeReportTabs/TSLWorkflows'
-import { Tabs, Tab, Row, Col } from 'react-bootstrap'
+import { Row, Col } from 'react-bootstrap'
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import Xarrow from "react-xarrows";
+import 'react-tabs/style/react-tabs.css';
+const boxStyle = { border: "grey solid 2px", borderRadius: "10px", padding: "5px" };
 
 export class VisualizeReport extends Component {
 
@@ -25,7 +29,8 @@ export class VisualizeReport extends Component {
             missingTests: null,
             barChartData: null,
             pieChartData: null,
-            totalCompletionTime: 0
+            totalCompletionTime: 0,
+            fullWorkflows: null
         }
 
         this.setupReport = this.setupReport.bind(this)
@@ -65,17 +70,29 @@ export class VisualizeReport extends Component {
         let totalsuccesses = 0;
         let totalCompletionTime = 0;
 
+        let fullWorkflows = []
+
         report.report.WorkflowResults.forEach((workflow, workflowindex) => {
+
+            let thisWorkflow = []
 
             let workflowId = workflow.WorkflowID
             let workflowTotalTime = 0
 
+            let currentWorkflow = []
+            currentWorkflow.push({ displayName: workflowId, id: workflowId, targetId: [] })
+            thisWorkflow.push(currentWorkflow)
+
             workflow.Tests.forEach((test, testindex) => {
 
+                let currentTest = []
+                currentTest.push({ displayName: test.TestID, id: test.TestID, targetId: [] })
 
                 test.TestResults.forEach((testresult, testresultindex) => {
+                    currentTest.push({ displayName: testresult.TestName, id: test.TestID + testresult.TestName, targetId: [], success: testresult.Success })
                     if (testresult.Success) totalsuccesses++;
                 })
+                thisWorkflow.push(currentTest)
 
                 totalCompletionTime += test.RequestMetadata.ResponseTime
                 workflowTotalTime += test.RequestMetadata.ResponseTime
@@ -89,8 +106,11 @@ export class VisualizeReport extends Component {
 
             })
 
+            fullWorkflows.push(thisWorkflow)
             bardata.push({ name: workflowId, Total_Time: workflowTotalTime })
         })
+
+        this.setupCircleTree(fullWorkflows)
 
         let generatedTestsCompletionTime = 0
 
@@ -118,7 +138,24 @@ export class VisualizeReport extends Component {
             missingTests: report.report.MissingTests,
             pieChartData: piedata,
             barChartData: bardata,
-            totalCompletionTime: totalCompletionTime
+            totalCompletionTime: totalCompletionTime,
+            fullWorkflows: fullWorkflows
+        })
+    }
+
+    setupCircleTree(fullWorkflows) {
+        fullWorkflows.forEach((workflow, workflowindex) => {
+            for (var i = 0; i < workflow.length; i++) {
+                if (i + 1 !== workflow.length) {
+                    workflow[i][0].targetId.push(workflow[i + 1][0].id)
+                }
+                let TestList = workflow[i]
+                for (var k = 0; k < TestList.length; k++) {
+                    if (k + 1 !== TestList.length) {
+                        TestList[k].targetId.push(TestList[k + 1].id)
+                    }
+                }
+            }
         })
     }
 
@@ -144,8 +181,13 @@ export class VisualizeReport extends Component {
                     </Col>
                 </Row>
                 <Row style={{ paddingTop:"10px" }}>
-                    <Tabs defaultActiveKey="overview" id="uncontrolled-tab-example" className="mb-3">
-                        <Tab eventKey="overview" title="Overview">
+                    <Tabs>
+                        <TabList>
+                            <Tab>Overview</Tab>
+                            <Tab>TSL Workflows</Tab>
+                            <Tab>Generated Tests</Tab>
+                        </TabList>
+                        <TabPanel>
                             <Overview
                                 errors={this.state.errors}
                                 warnings={this.state.warnings}
@@ -155,18 +197,17 @@ export class VisualizeReport extends Component {
                                 pieChartData={this.state.pieChartData}
                                 barChartData={this.state.barChartData}
                             />
-                        </Tab>
-                        <Tab eventKey="tslworkflows" title="TSL Workflows">
+                        </TabPanel>
+                        <TabPanel>
                             <TSLWorkflows
-                                report={this.state.report}
-                                tests={this.state.Tests}
+                                fullWorkflows={this.state.fullWorkflows}
                             />
-                        </Tab>
-                        <Tab eventKey="generatedtests" title="Generated Tests">
+                        </TabPanel>
+                        <TabPanel>
                             <GeneratedTests
-                    
+
                             />
-                        </Tab>
+                        </TabPanel>
                     </Tabs>
                 </Row>
             </div>
@@ -181,3 +222,5 @@ export class VisualizeReport extends Component {
         )
     }
 }
+
+/**/

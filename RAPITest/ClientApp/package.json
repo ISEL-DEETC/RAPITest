@@ -31,7 +31,9 @@
     "rc-steps": "4.1.4",
     "styled-components": "5.1.1",
     "d3-scale": "4.0.2",
-    "d3-scale-chromatic": "3.0.0"
+    "d3-scale-chromatic": "3.0.0",
+    "react-xarrows": "2.0.2",
+    "react-tabs": "4.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.16.10",

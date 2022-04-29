@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react'
-import { PieChart, Pie, Tooltip, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Tooltip, Cell} from 'recharts';
 
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {

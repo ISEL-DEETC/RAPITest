@@ -1,19 +1,14 @@
-﻿import React, { Component } from 'react';
+﻿import React, { Component} from 'react';
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Card, Accordion, Container, ListGroup, Badge } from 'react-bootstrap'
-import AccordionItemListGroup from '../../components/AccordionItemListGroup'
+import { Row, Badge } from 'react-bootstrap'
+import './TSLWorkflows.css';
+import Xarrow from "react-xarrows";
+
+const rootStyle = { display: 'flex', margin: '25px 0', };
+const rowStyle = { display: 'flex', justifyContent: 'space-between', margin: '0px 25px' }
 
 export default class TSLWorkflows extends Component {
-
-    showTime(value) {
-        if (value === null) return 0
-        let time = value.split('T')
-        let date = time[0]
-        let hours = time[1].split('.')[0]
-
-        return date + " " + hours
-    }
 
     printBadge(testResult) {
         if (testResult.Success) {
@@ -26,105 +21,66 @@ export default class TSLWorkflows extends Component {
         </Badge>
     }
 
-    printErrors(testresult) {
-        if (!testresult.Success)
-            return <ListGroup.Item key={testresult.WorkflowID + testresult.TestID + testresult.TestName} as="li" className="d-flex justify-content-between align-items-start" >
-                <div className="ms-2 me-auto">
-                    <div className="fw-bold" style={{ textAlign: "left" }}>{testresult.TestID + " - " + testresult.TestName}</div>
-                    <div style={{ textAlign: "left" }}>  {testresult.Description}</div>
-                </div>
-                <Badge bg="danger" pill>
-                    Error
-                </Badge>
-            </ListGroup.Item>
-        return <div key={testresult.WorkflowID + testresult.TestID + testresult.TestName}></div>
-    }
+    getCircleType(indexTest, indexInner, success) {
+        if (indexTest === 0) return "circleMain"
 
-    printWarnings(warning) {
-        return <ListGroup.Item key={warning.Server + warning.Endpoint + warning.Method + warning.Consumes + warning.Produces + warning.ResponseCode} as="li" className="d-flex justify-content-between align-items-start" >
-            <div className="ms-2 me-auto">
-                <div className="fw-bold" style={{ textAlign: "left" }}>{warning.Method + " " + warning.Server + warning.Endpoint}</div>
-                <div style={{ textAlign: "left" }}>Consumes:  {warning.Consumes}</div>
-                <div style={{ textAlign: "left" }}>Produces:  {warning.Produces}</div>
-                <div style={{ textAlign: "left" }}>Code:  {warning.ResponseCode}</div>
-            </div>
-            <Badge bg="warning" pill>
-                Warning
-            </Badge>
-        </ListGroup.Item>
-    }
+        if (indexInner === 0) return "circleTest"
 
-    renderTest(test, testindex) {
-        return (
-            <Accordion.Item key={test.TestID + testindex} eventKey={test.TestID}>
-                <Accordion.Header>{test.TestID}</Accordion.Header>
-                <Accordion.Body>
-                    <ListGroup as="ol">
-                        {test.TestResults.map((testresult, testresultindex) => {
-                            return <ListGroup.Item key={test.TestID + testresult.TestName + testresult.Success + testresult.Description} as="li" className="d-flex justify-content-between align-items-start" >
-                                <div className="ms-2 me-auto">
-                                    <div className="fw-bold" style={{ textAlign: "left" }}>{testresult.TestName}</div>
-                                    <div style={{ textAlign: "left" }}>  {testresult.Description}</div>
-                                </div>
-                                {this.printBadge(testresult)}
-                            </ListGroup.Item>
-                        })}
-                    </ListGroup>
-                </Accordion.Body>
-            </Accordion.Item >
-        )
-    }
+        if (success) return "circleSucess"
 
-    renderWorkflow(workflow, workflowindex) {
-        return (
-            <Accordion.Item key={workflow.WorkflowID + workflowindex} eventKey={workflow.WorkflowID}>
-                <Accordion.Header>{workflow.WorkflowID}</Accordion.Header>
-                <Accordion.Body>
-                    {workflow.Tests.map((test, testindex) => {
-                        return this.renderTest(test, testindex)
-                    })}
-                </Accordion.Body>
-            </Accordion.Item >
-        )
+        return "circleFail"
     }
 
     render() {
-        return (<div></div>)
-        let report = this.props.report
-        let Tests = this.props.tests
-
+        let fullWorkflows = this.props.fullWorkflows
+     
         return (
-            < Container >
-                <Card className="text-center">
-                    <Card.Header>Report Results</Card.Header>
-                    <Card.Body>
-                        <Accordion defaultActiveKey={['0']} alwaysOpen>
-                            <AccordionItemListGroup
-                                title={"Errors: " + report.Errors}
-                                eventKey="0"
-                                listItems={Tests}
-                                printFunction={this.printErrors}
-                            />
-                            <AccordionItemListGroup
-                                title={"Warnings: " + report.MissingTests.length}
-                                eventKey="1"
-                                listItems={report.MissingTests}
-                                printFunction={this.printWarnings}
-                            />
-                            <Accordion.Item eventKey="workflows">
-                                <Accordion.Header>Workflows</Accordion.Header>
-                                <Accordion.Body>
-                                    {report.WorkflowResults.map((workflow, workflowindex) => {
-                                        return this.renderWorkflow(workflow, workflowindex)
+            
+            <div>
+                {fullWorkflows.map((workflow, indexWorkflow) =>
+                    <Row key={indexWorkflow}>
+                        {workflow.map((o, i) => {
+                            return (
+                                <div key={i} style={rootStyle}>
+                                    {o.map((inner, inneri) => {
+                                        return (
+                                            <div key={inner.id} style={rowStyle}>
+                                                <button id={inner.id} className={this.getCircleType(i, inneri, inner.Success)}>{inner.displayName}</button>
+                                            </div>
+                                        )
                                     })}
-                                </Accordion.Body>
-                            </Accordion.Item>
-                        </Accordion>
-                    </Card.Body>
-                    <Card.Footer className="text-muted">{this.showTime(report.date)}</Card.Footer>
-                </Card>
-            </Container >
+                                </div>
+                            )
+                        })}
+
+                        {workflow.map((o, i) => {
+                            return (
+                                <div key={i}>
+                                    {o.map((inner, inneri) => {
+                                        return (
+                                            <div>
+                                                {inner.targetId.map((target, targeti) => {
+                                                    return (
+                                                        <Xarrow
+                                                            start={inner.id}
+                                                            end={target}
+                                                            showHead={false}
+                                                        />
+                                                    )
+                                                })}
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )
+                        })}
+
+                    </Row>
+                )}
+            </div>
+ 
         )
         
     }
 }
+

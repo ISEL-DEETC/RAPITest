@@ -1,0 +1,83 @@
+﻿.circle {
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    border-radius: 50%;
+    font-size: 20px;
+    color: #fff;
+    text-align: center;
+    background: #000
+}
+
+.circleMain {
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    border-radius: 50%;
+    font-size: 20px;
+    border-color: #000;
+    color: white;
+    text-align: center;
+    background: #37A6E6
+}
+
+.circleTest {
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    border-radius: 50%;
+    font-size: 20px;
+    border-color: #000;
+    color: white;
+    text-align: center;
+    background: #A5B7C1
+}
+
+.circleSuccess {
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    border-radius: 50%;
+    font-size: 20px;
+    border-color: #000;
+    color: white;
+    text-align: center;
+    background: #ff5d5d
+}
+
+.circleFail {
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    border-radius: 50%;
+    font-size: 20px;
+    border-color: #000;
+    color: white;
+    text-align: center;
+    background: #10CD29
+}
+
+.circle:hover {
+    transform: scale(1.1);
+    transition-duration: 0.5s;
+}
+
+.circleMain:hover {
+    transform: scale(1.1);
+    transition-duration: 0.5s;
+}
+
+.circleSuccess:hover {
+    transform: scale(1.1);
+    transition-duration: 0.5s;
+}
+
+.circleFail:hover {
+    transform: scale(1.1);
+    transition-duration: 0.5s;
+}
+
+.circleTest:hover {
+    transform: scale(1.1);
+    transition-duration: 0.5s;
+}

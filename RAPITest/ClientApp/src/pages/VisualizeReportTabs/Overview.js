@@ -10,7 +10,7 @@ import timeIcon from '../../assets/hourglass.png'
 import { Row, Col} from 'react-bootstrap'
 import InformationComp from '../../components/InformationComp.js'
 import PieChartComp from '../../components/PieChartComp.js'
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { scaleOrdinal } from 'd3-scale';
 import { schemeCategory10 } from 'd3-scale-chromatic';
 
@@ -33,7 +33,7 @@ export default class Overview extends Component {
 
         return (
             <div>
-                <Row>
+                <Row style={{marginTop:"30px"}}>
                     <Col>
                         <InformationComp
                             width={80}
