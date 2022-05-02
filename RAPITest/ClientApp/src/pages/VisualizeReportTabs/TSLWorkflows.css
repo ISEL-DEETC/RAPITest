@@ -42,7 +42,7 @@
     border-color: #000;
     color: white;
     text-align: center;
-    background: #ff5d5d
+    background: #10CD29
 }
 
 .circleFail {
@@ -54,7 +54,7 @@
     border-color: #000;
     color: white;
     text-align: center;
-    background: #10CD29
+    background: #ff5d5d
 }
 
 .circle:hover {

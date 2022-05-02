@@ -5,10 +5,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Overview from './VisualizeReportTabs/Overview'
 import GeneratedTests from './VisualizeReportTabs/GeneratedTests'
 import TSLWorkflows from './VisualizeReportTabs/TSLWorkflows'
-import { Row, Col } from 'react-bootstrap'
+import { Row, Col, Table } from 'react-bootstrap'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import Xarrow from "react-xarrows";
 import 'react-tabs/style/react-tabs.css';
+import SlidingPane from "react-sliding-pane";
+import "react-sliding-pane/dist/react-sliding-pane.css";
+import HttpRequestInfoComp from '../components/HttpRequestInfoComp'
+
 const boxStyle = { border: "grey solid 2px", borderRadius: "10px", padding: "5px" };
 
 export class VisualizeReport extends Component {
@@ -30,10 +34,16 @@ export class VisualizeReport extends Component {
             barChartData: null,
             pieChartData: null,
             totalCompletionTime: 0,
-            fullWorkflows: null
+            fullWorkflows: null,
+            openSidePanel: false,
+            sidePanelInfo: {},
+            stressTestData: null,
+            stressTestColumns: null
         }
 
         this.setupReport = this.setupReport.bind(this)
+        this.showSidePanelDetails = this.showSidePanelDetails.bind(this)
+        this.showSidePanel = this.showSidePanel.bind(this)
     }
 
     async componentDidMount() {
@@ -72,9 +82,15 @@ export class VisualizeReport extends Component {
 
         let fullWorkflows = []
 
+        let stressTestData = []
+        let stressTestColumns = []
+
         report.report.WorkflowResults.forEach((workflow, workflowindex) => {
 
             let thisWorkflow = []
+
+            let workflowStressData = []
+            let workflowStressColumns = []
 
             let workflowId = workflow.WorkflowID
             let workflowTotalTime = 0
@@ -84,6 +100,8 @@ export class VisualizeReport extends Component {
             thisWorkflow.push(currentWorkflow)
 
             workflow.Tests.forEach((test, testindex) => {
+
+                workflowStressColumns.push(test.TestID)
 
                 let currentTest = []
                 currentTest.push({ displayName: test.TestID, id: test.TestID, targetId: [] })
@@ -101,14 +119,29 @@ export class VisualizeReport extends Component {
                     test.StressTimes.forEach((time, testresultindex) => {
                         totalCompletionTime += time;
                         workflowTotalTime += time
+
+                        if (workflowStressData[testresultindex] !== undefined) {
+                            let aux = workflowStressData[testresultindex]
+                            aux[test.TestID] = time
+                        }
+                        else {
+                            let newAux = {}
+                            newAux.name = testresultindex
+                            newAux[test.TestID] = time
+                            workflowStressData.push(newAux)
+                        }
                     })
                 }
 
             })
 
+            stressTestColumns.push(workflowStressColumns)
+            stressTestData.push(workflowStressData)
             fullWorkflows.push(thisWorkflow)
             bardata.push({ name: workflowId, Total_Time: workflowTotalTime })
         })
+
+        console.log(stressTestColumns)
 
         this.setupCircleTree(fullWorkflows)
 
@@ -139,8 +172,126 @@ export class VisualizeReport extends Component {
             pieChartData: piedata,
             barChartData: bardata,
             totalCompletionTime: totalCompletionTime,
-            fullWorkflows: fullWorkflows
+            fullWorkflows: fullWorkflows,
+            stressTestData: stressTestData,
+            stressTestColumns: stressTestColumns
         })
+    }
+
+    showSidePanel(id,workflowIndex,testIndex) {
+        let information = {}
+
+        if (workflowIndex === 0) {
+            this.state.workflows.forEach((workflow, wi) => {
+                if (id === workflow.WorkflowID) {
+                    information.workflow = workflow
+                    information.title = id
+                    information.subtitle = "Workflow Details"
+                }
+            })
+        }
+        else {
+            if (testIndex === 0) {
+                this.state.workflows.forEach((workflow, wi) => {
+                    workflow.Tests.forEach((test, ti) => {
+                        if (id.includes(test.TestID)) {
+                            information.test = test
+                            information.title = id
+                            information.subtitle = "Test Details"
+                        }
+                    })
+                })
+            }
+            else {
+                this.state.workflows.forEach((workflow, wi) => {
+                    workflow.Tests.forEach((test, ti) => {
+                        if (id.includes(test.TestID)) {
+                            let target = id.substring(test.TestID.length, id.length)
+                            test.TestResults.forEach((result, ri) => {
+                                if (target === result.TestName) {
+                                    information.verification = result
+                                    information.title = result.TestName
+                                    information.subtitle = "Verification Details"
+                                }
+                            })
+                        }
+                    })
+                }) 
+            }
+        }
+
+        this.setState({
+            openSidePanel: true,
+            sidePanelInfo: information
+        })
+    }
+
+    showSidePanelDetails() {
+        console.log(this.state.sidePanelInfo)
+        console.log(this.state.sidePanelInfo.workflow)
+        if (this.state.sidePanelInfo.workflow !== undefined) {
+            return <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>Tests</th>
+                        <th># Successes</th>
+                        <th># Errors</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {this.state.sidePanelInfo.workflow.Tests.map((test, i) => {
+                        let nErrors = 0
+                        let nSuccesses = 0
+
+                        test.TestResults.forEach((r, i) => {
+                            if (r.Success) {
+                                nSuccesses++
+                            }
+                            else {
+                                nErrors++
+                            }
+                        })
+
+                        return (
+                            <tr>
+                                <td>{test.TestID}</td>
+                                <td>{nSuccesses}</td>
+                                <td>{nErrors}</td>
+                            </tr>
+                        )
+                        
+                    })}
+                </tbody>
+            </Table>
+        }
+        if (this.state.sidePanelInfo.test !== undefined) {
+            let myTest = this.state.sidePanelInfo.test
+
+            return <HttpRequestInfoComp
+                Method={myTest.RequestMetadata.Method}
+                URI={myTest.RequestMetadata.URI}
+                requestHeaders={myTest.Headers}
+                requestBody={myTest.Body}
+                code={myTest.RequestMetadata.ResponseCode}
+                responseHeaders={myTest.RequestMetadata.ResponseHeaders}
+                responseBody={myTest.RequestMetadata.ResponseBody}
+                responseTime={myTest.RequestMetadata.ResponseTime}
+            />
+        }
+        if (this.state.sidePanelInfo.verification !== undefined) {
+            return <Table striped bordered hover>
+                <tbody>
+                    <tr>
+                        <td>Success</td>
+                        <td>{this.state.sidePanelInfo.verification.Success ? "true" : "false"}</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>{this.state.sidePanelInfo.verification.Description}</td>
+                    </tr>
+                </tbody>
+            </Table>
+        }
     }
 
     setupCircleTree(fullWorkflows) {
@@ -181,7 +332,7 @@ export class VisualizeReport extends Component {
                     </Col>
                 </Row>
                 <Row style={{ paddingTop:"10px" }}>
-                    <Tabs>
+                    <Tabs id='myTabsID'>
                         <TabList>
                             <Tab>Overview</Tab>
                             <Tab>TSL Workflows</Tab>
@@ -201,6 +352,9 @@ export class VisualizeReport extends Component {
                         <TabPanel>
                             <TSLWorkflows
                                 fullWorkflows={this.state.fullWorkflows}
+                                clickableFunction={this.showSidePanel}
+                                stressTestData={this.state.stressTestData}
+                                stressTestColumns={this.state.stressTestColumns}
                             />
                         </TabPanel>
                         <TabPanel>
@@ -218,6 +372,21 @@ export class VisualizeReport extends Component {
         return (
             <div>
                 {this.state.date !== null && this.showRender()}
+                <SlidingPane
+                    isOpen={this.state.openSidePanel}
+                    title={this.state.sidePanelInfo.title}
+                    subtitle={this.state.sidePanelInfo.subtitle}
+                    width="40%"
+                    onRequestClose={() => {
+                        // triggered on "<" on left top click or on outside click
+                        this.setState({
+                            openSidePanel: false,
+                            sidePanelInfo: {},
+                        });
+                    }}
+                >
+                    <div>{this.showSidePanelDetails()}</div>
+                </SlidingPane>
             </div>
         )
     }
