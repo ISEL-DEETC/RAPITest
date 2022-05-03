@@ -29,18 +29,21 @@ namespace ModelsLibrary.Verifications
 			Result res = new Result();
 			res.TestName = "Schema";
 			res.Success = false;
-			string body = await Response.Content.ReadAsStringAsync();
-
-			ALanguage language = ALanguage.GetLanguage(Response);
-
 			try
 			{
+				string body = await Response.Content.ReadAsStringAsync();
+
+				ALanguage language = ALanguage.GetLanguage(Response);
+
 				res.Success = language.ValidateSchema(schema, body);
-			}catch (Exception)
+
+				if (!res.Success) res.Description = string.Join(";", language.invalidMessageErrors);
+			}
+			catch (Exception)
 			{
 				res.Success = false;
+				res.Description = "Validation failed due to unkown error";
 			}
-			if (!res.Success) res.Description = string.Join(";", language.invalidMessageErrors);
 
 			return res;
 		}

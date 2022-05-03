@@ -42,7 +42,7 @@ namespace RunTestsWorkerService.RunTests
 				{
 					StressTests stressTests = new StressTests(workflow, httpUtils, workflow.StressTest.Threads, workflow.StressTest.Count, workflow.StressTest.Delay);
 					tasks.Add(stressTests.Run().ContinueWith(dic => {
-						stressTestResults = dic.Result;
+						httpUtils.Merge(stressTestResults, dic.Result);
 					}));
 				}
 				

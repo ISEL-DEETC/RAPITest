@@ -72,7 +72,7 @@ namespace ModelsLibrary.Models.AppSpecific
 			string fullPathComb = Server + Path;
 			string fullPathTest = test.Server + test.Path;
 
-			if (fullPathComb != fullPathTest)
+			if (!fullPathComb.Equals(fullPathTest))
 			{
 				return false;
 			}

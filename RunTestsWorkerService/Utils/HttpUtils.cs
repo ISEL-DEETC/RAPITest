@@ -113,5 +113,20 @@ namespace RunTestsWorkerService.Utils
 
 			test.RequestMetadata = requestMetadata;
 		}
+
+		public void Merge(Dictionary<string, List<long>> me, Dictionary<string, List<long>> merge)
+		{
+			foreach (var item in merge)
+			{
+				if (!me.ContainsKey(item.Key))
+				{
+					me[item.Key] = item.Value;
+				}
+				else
+				{
+					me[item.Key].AddRange(item.Value);
+				}
+			}
+		}
 	}
 }

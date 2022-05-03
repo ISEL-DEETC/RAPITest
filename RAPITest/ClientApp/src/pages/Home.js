@@ -180,8 +180,8 @@ export class Home extends Component {
                         </Figure>
                     </Col>
                 </Row>
-                <Row style={{ padding: "50px 550px 0px 550px" }}>
-                    <AwesomeButton type="primary" onPress={() => this.props.history.push('setupTest') }>Get Started!</AwesomeButton>
+                <Row className="justify-content-center" style={{ paddingTop: "50px" }}>
+                    <AwesomeButton style={{ width: "200px" }} type="primary" onPress={() => this.props.history.push('setupTest') }>Get Started!</AwesomeButton>
                 </Row >
             </div>
         );

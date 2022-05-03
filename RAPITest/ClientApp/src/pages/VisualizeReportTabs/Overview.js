@@ -29,8 +29,6 @@ export default class Overview extends Component {
         let pieChartData = this.props.pieChartData
         let barChartData = this.props.barChartData
 
-        console.log(barChartData)
-
         return (
             <div>
                 <Row style={{marginTop:"30px"}}>

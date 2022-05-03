@@ -17,7 +17,8 @@ namespace SetupTestsWorkerService.SetupTests
 		//step 7 - Check if any combination of server/endpoint/input/output/code isn't beeing tested
 		public static void Check(CompleteTest firstTestSetup)
 		{
-			List<Test> testCombinations = new List<Test>();
+			List<Test> testCombinationsGenerated = new List<Test>();
+			List<Test> testCombinationsMissing = new List<Test>();
 
 			List<string> servers = new List<string>();
 			foreach (OpenApiServer server in firstTestSetup.ApiSpecification.Servers)
@@ -46,13 +47,14 @@ namespace SetupTestsWorkerService.SetupTests
 											   select new AuxTest(server,consume,code,responseType);
 
 						Enum.TryParse<Method>(operation.Key.ToString(), out Method method);
-						testCombinations.AddRange(GenerateTests(cartesianProduct, path.Key, method, firstTestSetup));
+						testCombinationsGenerated.AddRange(GenerateTests(cartesianProduct, path.Key, method, firstTestSetup));
+						testCombinationsMissing.AddRange(GenerateTests(cartesianProduct, path.Key, method, firstTestSetup));
 					}
 				}
 			}
 
-			firstTestSetup.GeneratedTests = testCombinations;
-			firstTestSetup.MissingTests = testCombinations;
+			firstTestSetup.GeneratedTests = testCombinationsGenerated;
+			firstTestSetup.MissingTests = testCombinationsMissing;
 			RemoveTests(firstTestSetup);
 		}
 
@@ -89,7 +91,7 @@ namespace SetupTestsWorkerService.SetupTests
 					}
 				}
 
-				string testId = test.Server + path + method + test.ResponseTypes.Key + test.Consumes.Key;
+				string testId = test.Server + path + method + test.ResponseTypes.Key + test.Consumes.Key + test.Code;
 				Dictionary<string, string> headers = new Dictionary<string, string>();
 				headers.Add("Consumes", test.Consumes.Key);
 				headers.Add("Produces", test.ResponseTypes.Key);

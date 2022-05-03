@@ -5,15 +5,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Overview from './VisualizeReportTabs/Overview'
 import GeneratedTests from './VisualizeReportTabs/GeneratedTests'
 import TSLWorkflows from './VisualizeReportTabs/TSLWorkflows'
+import MissingTests from './VisualizeReportTabs/MissingTests'
 import { Row, Col, Table } from 'react-bootstrap'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import Xarrow from "react-xarrows";
 import 'react-tabs/style/react-tabs.css';
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
 import HttpRequestInfoComp from '../components/HttpRequestInfoComp'
 
-const boxStyle = { border: "grey solid 2px", borderRadius: "10px", padding: "5px" };
+const average = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
 
 export class VisualizeReport extends Component {
 
@@ -38,7 +38,9 @@ export class VisualizeReport extends Component {
             openSidePanel: false,
             sidePanelInfo: {},
             stressTestData: null,
-            stressTestColumns: null
+            stressTestColumns: null,
+            stressTestMetadata: null,
+            fullGeneratedTests: null
         }
 
         this.setupReport = this.setupReport.bind(this)
@@ -62,7 +64,6 @@ export class VisualizeReport extends Component {
     }
 
     setupReport(report) {
-        console.log(report)
         let newDates = [];
 
         report.allReportDates.forEach((element, index) => {
@@ -84,6 +85,7 @@ export class VisualizeReport extends Component {
 
         let stressTestData = []
         let stressTestColumns = []
+        let stressTestMetadata = []
 
         report.report.WorkflowResults.forEach((workflow, workflowindex) => {
 
@@ -91,6 +93,7 @@ export class VisualizeReport extends Component {
 
             let workflowStressData = []
             let workflowStressColumns = []
+            let workflowStressMetadata = []
 
             let workflowId = workflow.WorkflowID
             let workflowTotalTime = 0
@@ -101,7 +104,10 @@ export class VisualizeReport extends Component {
 
             workflow.Tests.forEach((test, testindex) => {
 
+                let testStressMetadata = []
+
                 workflowStressColumns.push(test.TestID)
+                testStressMetadata.push(test.TestID)
 
                 let currentTest = []
                 currentTest.push({ displayName: test.TestID, id: test.TestID, targetId: [] })
@@ -116,6 +122,13 @@ export class VisualizeReport extends Component {
                 workflowTotalTime += test.RequestMetadata.ResponseTime
 
                 if (test.StressTimes != null) {
+
+                    testStressMetadata.push(Math.min(...test.StressTimes))
+                    testStressMetadata.push(Math.max(...test.StressTimes))
+                    testStressMetadata.push(average(test.StressTimes))
+                    testStressMetadata.push(test.StressTimes[test.StressTimes.length - 1])
+                    testStressMetadata.push(test.StressTimes.length)
+
                     test.StressTimes.forEach((time, testresultindex) => {
                         totalCompletionTime += time;
                         workflowTotalTime += time
@@ -133,27 +146,39 @@ export class VisualizeReport extends Component {
                     })
                 }
 
+                workflowStressMetadata.push(testStressMetadata)
+
             })
 
             stressTestColumns.push(workflowStressColumns)
             stressTestData.push(workflowStressData)
+            stressTestMetadata.push(workflowStressMetadata)
             fullWorkflows.push(thisWorkflow)
             bardata.push({ name: workflowId, Total_Time: workflowTotalTime })
         })
 
-        console.log(stressTestColumns)
-
-        this.setupCircleTree(fullWorkflows)
+        this.setupCircleTreeMultiple(fullWorkflows)
 
         let generatedTestsCompletionTime = 0
 
+        let fullGeneratedTests = []
+        fullGeneratedTests.push([{ displayName: 'Generated', id: 'Generated', targetId: [] }])
+
         report.report.GeneratedTests.forEach((generatedTest, workflowindex) => {
+
+            let currentTest = []
+            currentTest.push({ displayName: generatedTest.TestID, id: generatedTest.TestID, targetId: [] })
+
             generatedTest.TestResults.forEach((testresult, testresultindex) => {
+                currentTest.push({ displayName: testresult.TestName, id: generatedTest.TestID + testresult.TestName, targetId: [], success: testresult.Success })
                 if (testresult.Success) totalsuccesses++;
             })
             generatedTestsCompletionTime += generatedTest.RequestMetadata.ResponseTime
             totalCompletionTime += generatedTest.RequestMetadata.ResponseTime
+            fullGeneratedTests.push(currentTest)
         })
+
+        this.setupCircleTree(fullGeneratedTests)
 
         bardata.push({ name: 'GeneratedTests', Total_Time: generatedTestsCompletionTime })
         piedata.push({ name: 'Total Successes', value: totalsuccesses })
@@ -174,37 +199,33 @@ export class VisualizeReport extends Component {
             totalCompletionTime: totalCompletionTime,
             fullWorkflows: fullWorkflows,
             stressTestData: stressTestData,
-            stressTestColumns: stressTestColumns
+            stressTestColumns: stressTestColumns,
+            stressTestMetadata: stressTestMetadata,
+            fullGeneratedTests: fullGeneratedTests
         })
     }
 
-    showSidePanel(id,workflowIndex,testIndex) {
+    showSidePanel(id, workflowIndex, testIndex, fromGenerated) {
         let information = {}
 
-        if (workflowIndex === 0) {
-            this.state.workflows.forEach((workflow, wi) => {
-                if (id === workflow.WorkflowID) {
-                    information.workflow = workflow
-                    information.title = id
-                    information.subtitle = "Workflow Details"
-                }
-            })
-        }
-        else {
-            if (testIndex === 0) {
-                this.state.workflows.forEach((workflow, wi) => {
-                    workflow.Tests.forEach((test, ti) => {
+        if (fromGenerated) {
+            if (workflowIndex === 0) {
+                information.workflow = { Tests: this.state.generatedTests }
+                information.title = id
+                information.subtitle = "Workflow Details"
+            }
+            else {
+                if (testIndex === 0) {
+                    this.state.generatedTests.forEach((test, wi) => {
                         if (id.includes(test.TestID)) {
                             information.test = test
                             information.title = id
                             information.subtitle = "Test Details"
                         }
                     })
-                })
-            }
-            else {
-                this.state.workflows.forEach((workflow, wi) => {
-                    workflow.Tests.forEach((test, ti) => {
+                }
+                else {
+                    this.state.generatedTests.forEach((test, wi) => {
                         if (id.includes(test.TestID)) {
                             let target = id.substring(test.TestID.length, id.length)
                             test.TestResults.forEach((result, ri) => {
@@ -216,9 +237,49 @@ export class VisualizeReport extends Component {
                             })
                         }
                     })
-                }) 
+                }
+            }
+        } else {
+            if (workflowIndex === 0) {
+                this.state.workflows.forEach((workflow, wi) => {
+                    if (id === workflow.WorkflowID) {
+                        information.workflow = workflow
+                        information.title = id
+                        information.subtitle = "Workflow Details"
+                    }
+                })
+            }
+            else {
+                if (testIndex === 0) {
+                    this.state.workflows.forEach((workflow, wi) => {
+                        workflow.Tests.forEach((test, ti) => {
+                            if (id.includes(test.TestID)) {
+                                information.test = test
+                                information.title = id
+                                information.subtitle = "Test Details"
+                            }
+                        })
+                    })
+                }
+                else {
+                    this.state.workflows.forEach((workflow, wi) => {
+                        workflow.Tests.forEach((test, ti) => {
+                            if (id.includes(test.TestID)) {
+                                let target = id.substring(test.TestID.length, id.length)
+                                test.TestResults.forEach((result, ri) => {
+                                    if (target === result.TestName) {
+                                        information.verification = result
+                                        information.title = result.TestName
+                                        information.subtitle = "Verification Details"
+                                    }
+                                })
+                            }
+                        })
+                    })
+                }
             }
         }
+        
 
         this.setState({
             openSidePanel: true,
@@ -227,8 +288,6 @@ export class VisualizeReport extends Component {
     }
 
     showSidePanelDetails() {
-        console.log(this.state.sidePanelInfo)
-        console.log(this.state.sidePanelInfo.workflow)
         if (this.state.sidePanelInfo.workflow !== undefined) {
             return <Table striped bordered hover>
                 <thead>
@@ -294,20 +353,24 @@ export class VisualizeReport extends Component {
         }
     }
 
-    setupCircleTree(fullWorkflows) {
+    setupCircleTreeMultiple(fullWorkflows) {
         fullWorkflows.forEach((workflow, workflowindex) => {
-            for (var i = 0; i < workflow.length; i++) {
-                if (i + 1 !== workflow.length) {
-                    workflow[i][0].targetId.push(workflow[i + 1][0].id)
-                }
-                let TestList = workflow[i]
-                for (var k = 0; k < TestList.length; k++) {
-                    if (k + 1 !== TestList.length) {
-                        TestList[k].targetId.push(TestList[k + 1].id)
-                    }
+            this.setupCircleTree(workflow)
+        })
+    }
+
+    setupCircleTree(workflow) {
+        for (var i = 0; i < workflow.length; i++) {
+            if (i + 1 !== workflow.length) {
+                workflow[i][0].targetId.push(workflow[i + 1][0].id)
+            }
+            let TestList = workflow[i]
+            for (var k = 0; k < TestList.length; k++) {
+                if (k + 1 !== TestList.length) {
+                    TestList[k].targetId.push(TestList[k + 1].id)
                 }
             }
-        })
+        }
     }
 
     showTime(value) {
@@ -320,7 +383,6 @@ export class VisualizeReport extends Component {
     }
 
     showRender() {
-        console.log(this.state)
         return (
             <div>
                 <Row>
@@ -337,6 +399,7 @@ export class VisualizeReport extends Component {
                             <Tab>Overview</Tab>
                             <Tab>TSL Workflows</Tab>
                             <Tab>Generated Tests</Tab>
+                            <Tab>Missing Tests</Tab>
                         </TabList>
                         <TabPanel>
                             <Overview
@@ -355,11 +418,18 @@ export class VisualizeReport extends Component {
                                 clickableFunction={this.showSidePanel}
                                 stressTestData={this.state.stressTestData}
                                 stressTestColumns={this.state.stressTestColumns}
+                                stressTestMetadata={this.state.stressTestMetadata}
                             />
                         </TabPanel>
                         <TabPanel>
                             <GeneratedTests
-
+                                fullGeneratedTests={this.state.fullGeneratedTests}
+                                clickableFunction={this.showSidePanel}
+                            />
+                        </TabPanel>
+                        <TabPanel>
+                            <MissingTests
+                                missingTests={this.state.missingTests}
                             />
                         </TabPanel>
                     </Tabs>

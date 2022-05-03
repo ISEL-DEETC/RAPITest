@@ -27,7 +27,7 @@ namespace RunTestsWorkerService.RunModels
 
 		public async Task<Dictionary<String, List<long>>> Run()
 		{
-			Dictionary<String, List<long>> ret = new Dictionary<string, List<long>>();
+			Dictionary<string, List<long>> ret = new Dictionary<string, List<long>>();
 
 			List<Task> tasks = new List<Task>();
 
@@ -37,28 +37,13 @@ namespace RunTestsWorkerService.RunModels
 			{
 				RunWorkflowMultiple twf = new RunWorkflowMultiple(workflow, httpUtils,iterationsPerThread,Delay);
 				tasks.Add(twf.Run().ContinueWith(dic =>{
-					Merge(ret, dic.Result);
+					httpUtils.Merge(ret, dic.Result);
 				}));
 			}
 
 			await Task.WhenAll(tasks);
 
 			return ret;
-		}
-
-		public void Merge(Dictionary<String, List<long>> me, Dictionary<String, List<long>> merge)
-		{
-			foreach (var item in merge)
-			{
-				if (!me.ContainsKey(item.Key))
-				{
-					me[item.Key] = item.Value;
-				}
-				else
-				{
-					me[item.Key].AddRange(item.Value);
-				}
-			}
 		}
 
 	}
