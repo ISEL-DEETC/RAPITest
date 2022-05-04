@@ -69,11 +69,69 @@ namespace ModelsLibrary.Models.AppSpecific
 				return false;
 			}
 
-			string fullPathComb = Server + Path;
-			string fullPathTest = test.Server + test.Path;
-
-			if (!fullPathComb.Equals(fullPathTest))
+			if (!test.Server.Equals(Server))
 			{
+				return false;
+			}
+
+
+			char[] testPath = test.Path.ToCharArray();
+			char[] myPath = Path.ToCharArray();
+
+
+			while (true)
+			{
+				if (testPath.Length != 0 && myPath.Length == 0 || myPath.Length != 0 && testPath.Length == 0) return false;
+
+				if(testPath[0] == myPath[0])
+				{
+					testPath = new string(testPath).Remove(0, 1).ToCharArray();
+					myPath = new string(myPath).Remove(0, 1).ToCharArray();
+					continue;
+				}
+				
+				if(testPath[0] == '{')
+				{
+					int end = new string(testPath).IndexOf('}');
+					testPath = new string(testPath).Remove(0, end+1).ToCharArray();
+
+					int myPathEnd = new string(myPath).IndexOf('/');
+					if (myPathEnd == -1)
+					{
+						if (testPath.Length == 0)
+						{
+							break;
+						}
+						else
+						{
+							return false;
+						}
+					}
+					myPath = new string(myPath).Remove(0, myPathEnd).ToCharArray();
+					continue;
+				}
+
+				if (myPath[0] == '{')
+				{
+					int end = new string(myPath).IndexOf('}');
+					myPath = new string(myPath).Remove(0, end+1).ToCharArray();
+
+					int myPathEnd = new string(testPath).IndexOf('/');
+					if (myPathEnd == -1)
+					{
+						if (myPath.Length == 0)
+						{
+							break;
+						}
+						else
+						{
+							return false;
+						}
+					}
+					testPath = new string(testPath).Remove(0, myPathEnd).ToCharArray();
+					continue;
+				}
+
 				return false;
 			}
 

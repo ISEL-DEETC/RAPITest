@@ -107,6 +107,7 @@ namespace SetupTestsWorkerService.SetupTests
 				foreach (Test test in worflow.Tests)
 				{
 					firstTestSetup.MissingTests.RemoveAll(item => item.CompareTests(test));
+					Console.WriteLine("boas");
 				}
 			}
 		}
