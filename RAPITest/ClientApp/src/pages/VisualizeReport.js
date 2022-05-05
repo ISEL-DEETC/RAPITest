@@ -6,12 +6,13 @@ import Overview from './VisualizeReportTabs/Overview'
 import GeneratedTests from './VisualizeReportTabs/GeneratedTests'
 import TSLWorkflows from './VisualizeReportTabs/TSLWorkflows'
 import MissingTests from './VisualizeReportTabs/MissingTests'
-import { Row, Col, Table } from 'react-bootstrap'
+import { Row, Col, Table, DropdownButton, Dropdown, Figure  } from 'react-bootstrap'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
 import HttpRequestInfoComp from '../components/HttpRequestInfoComp'
+import calendarIcon from '../assets/calendar.png'
 
 const average = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
 
@@ -46,6 +47,7 @@ export class VisualizeReport extends Component {
         this.setupReport = this.setupReport.bind(this)
         this.showSidePanelDetails = this.showSidePanelDetails.bind(this)
         this.showSidePanel = this.showSidePanel.bind(this)
+        this.loadPreviousReport = this.loadPreviousReport.bind(this)
     }
 
     async componentDidMount() {
@@ -373,6 +375,20 @@ export class VisualizeReport extends Component {
         }
     }
 
+    async loadPreviousReport(date) {
+        const token = await authService.getAccessToken();
+        let apiId = this.props.match.params.apiId
+
+        fetch(`MonitorTest/ReturnReportSpecific?apiId=${apiId}&date=${date}`, {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        }).then(res => res.json())
+            .then(resp => {
+                resp.report = JSON.parse(resp.report)
+                this.setupReport(resp)
+            })
+    }
+
     showTime(value) {
         if (value === null) return 0
         let time = value.split('T')
@@ -389,8 +405,23 @@ export class VisualizeReport extends Component {
                     <Col>
                         <h1>{this.state.apiTitle}</h1>
                     </Col>
-                    <Col>
-                        <h1>{this.state.date}</h1>
+                    <Col className="d-flex justify-content-end">
+                        <Figure style={{paddingRight:"10px"}}>
+                            <Figure.Image
+                                width={40}
+                                height={40}
+                                alt={"40x40"}
+                                src={calendarIcon}
+                            />
+                            <Figure.Caption>
+                            </Figure.Caption>
+                        </Figure>
+                        <DropdownButton id="dropdown-item-button" title={this.state.date}>
+                            {this.state.allReportsUIFriendly.map((o, i) => {
+                                if (o === this.state.date) return <div key={i}></div>
+                                return <Dropdown.Item key={i} as="button" onClick={() => this.loadPreviousReport(o)}>{o}</Dropdown.Item>
+                            })}
+                        </DropdownButton>
                     </Col>
                 </Row>
                 <Row style={{ paddingTop:"10px" }}>

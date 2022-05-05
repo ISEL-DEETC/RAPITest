@@ -111,6 +111,28 @@ namespace RAPITest.Controllers
 			return Ok(v);
 		}
 
+		[HttpGet]
+		public IActionResult ReturnReportSpecific([FromQuery] int apiId, DateTime date)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+
+			IOrderedQueryable<ModelsLibrary.Models.EFModels.Report> reports = _context.Report.Include(report => report.Api).Where(r => r.ApiId == apiId).OrderByDescending(r => r.ReportDate);
+			ModelsLibrary.Models.EFModels.Report report = reports.Where(x => x.ReportDate.Date == date.Date && x.ReportDate.Hour == date.Hour && x.ReportDate.Minute == date.Minute && x.ReportDate.Second == date.Second).FirstOrDefault();
+			if (report == null) return NotFound();
+
+			VisualizeReportModel v = new VisualizeReportModel();
+			v.Report = Encoding.Default.GetString(report.ReportFile);
+			v.ApiName = report.Api.ApiTitle;
+
+			List<DateTime> dateTimes = new List<DateTime>();
+
+			reports.AsEnumerable().ToList().ForEach(x => dateTimes.Add(x.ReportDate));
+
+			v.AllReportDates = dateTimes;
+
+			return Ok(v);
+		}
+
 		[HttpDelete]
 		public IActionResult RemoveApi([FromQuery] int apiId)
 		{
