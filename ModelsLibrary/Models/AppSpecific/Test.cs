@@ -82,6 +82,7 @@ namespace ModelsLibrary.Models.AppSpecific
 			while (true)
 			{
 				if (testPath.Length != 0 && myPath.Length == 0 || myPath.Length != 0 && testPath.Length == 0) return false;
+				if (testPath.Length == 0 && myPath.Length == 0) break;
 
 				if(testPath[0] == myPath[0])
 				{
