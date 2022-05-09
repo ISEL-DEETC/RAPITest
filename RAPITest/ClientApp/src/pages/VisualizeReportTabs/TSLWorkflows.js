@@ -19,10 +19,10 @@ export default class TSLWorkflows extends Component {
                     <thead>
                         <tr>
                             <th>Tests</th>
-                            <th>Min</th>
-                            <th>Max</th>
-                            <th>Average</th>
-                            <th>Last</th>
+                            <th>Min (ms)</th>
+                            <th>Max (ms)</th>
+                            <th>Average (ms)</th>
+                            <th>Last (ms)</th>
                             <th>Count</th>
                         </tr>
                     </thead>

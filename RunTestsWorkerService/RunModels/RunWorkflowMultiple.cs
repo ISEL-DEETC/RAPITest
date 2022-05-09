@@ -41,6 +41,10 @@ namespace RunTestsWorkerService.RunModels
 
 					var sw = Stopwatch.StartNew();
 					await task;
+					/*if (!task.Result.IsSuccessStatusCode)
+					{
+						Console.WriteLine(task.Result.StatusCode);
+					}*/
 					long time = sw.ElapsedMilliseconds;
 
 					elapsedTimes.GetValueOrDefault(test.TestID).Add(time);
