@@ -36,28 +36,28 @@ export class Home extends Component {
             }).then(res => {
                 if (res.status !== 204) {
                     res.json().then(details => {
-                        let lastLoginString = details.lastLogin.split('T')
+                        let lastLoginString = details.LastLogin.split('T')
                         let finalString = lastLoginString[0] + ' ' + lastLoginString[1].split('.')[0]
 
-                        details.latestActions.forEach(api => {
+                        details.LatestActions.forEach(api => {
                             let auxString = ""
                             let auxfinalString = ""
-                            if (api.reportDate !== "0001-01-01T00:00:00") {
-                                auxString = api.reportDate.split('T')
+                            if (api.ReportDate !== "0001-01-01T00:00:00") {
+                                auxString = api.ReportDate.split('T')
                                 auxfinalString = auxString[0] + ' ' + auxString[1].split('.')[0]
-                                api.reportDate = auxfinalString
+                                api.ReportDate = auxfinalString
                             }
-                            if (api.nextTest !== "0001-01-01T00:00:00") {
-                                auxString = api.nextTest.split('T')
+                            if (api.NextTest !== "0001-01-01T00:00:00") {
+                                auxString = api.NextTest.split('T')
                                 auxfinalString = auxString[0] + ' ' + auxString[1].split('.')[0]
-                                api.nextTest = auxfinalString
+                                api.NextTest = auxfinalString
                             }
                         })
 
                         this.setState({
                             Auth: true,
-                            currentSetupTests: details.setupApiCount,
-                            latestActions: details.latestActions,
+                            currentSetupTests: details.SetupApiCount,
+                            latestActions: details.LatestActions,
                             lastLogin: finalString,
                             render: true
                         })
@@ -78,8 +78,8 @@ export class Home extends Component {
 
     renderLastReports(latestReports) {
         return latestReports.map(report => {
-            if (report.reportDate === "0001-01-01T00:00:00") return null
-            return <button type="button" key={report.apiId} className="link-button" onClick={() => this.props.history.push('/monitorTests/report/' + report.apiId)}>The latest test for {report.title} completed on {report.reportDate}<br></br></button>
+            if (report.ReportDate === "0001-01-01T00:00:00") return null
+            return <button type="button" key={report.ApiId} className="link-button" onClick={() => this.props.history.push('/monitorTests/report/' + report.ApiId)}>The latest test for {report.Title} completed on {report.ReportDate}<br></br></button>
         })
     }
 
@@ -121,7 +121,7 @@ export class Home extends Component {
                         </thead>
                         <tbody>
                             {this.state.latestActions.map((report,index) => {
-                                return <tr key={index}><td>{index}</td><td>{report.title}</td><td>{report.nextTest === "0001-01-01T00:00:00" ? "-" : report.nextTest}</td></tr>
+                                return <tr key={index}><td>{index}</td><td>{report.Title}</td><td>{report.NextTest === "0001-01-01T00:00:00" ? "-" : report.NextTest}</td></tr>
                             })}
                         </tbody>
                     </Table>

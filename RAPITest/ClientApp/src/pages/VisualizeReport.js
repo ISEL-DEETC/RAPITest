@@ -59,24 +59,26 @@ export class VisualizeReport extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => res.json())
             .then(resp => {
-                resp.report = JSON.parse(resp.report)
+                resp.Report = JSON.parse(resp.Report)
                 this.setupReport(resp)
             })
 
     }
 
     setupReport(report) {
+        console.log(report)
         let newDates = [];
 
-        report.allReportDates.forEach((element, index) => {
+        report.AllReportDates.forEach((element, index) => {
             newDates.push(this.showTime(element))
         });
 
-        report.report.date = this.showTime(report.report.date)
+
+        report.Report.date = this.showTime(report.Report.date)
 
 
         let piedata = [];
-        piedata.push({ name: 'Total Errors', value: report.report.Errors })
+        piedata.push({ name: 'Total Errors', value: report.Report.Errors })
 
         let bardata = [];
 
@@ -89,7 +91,7 @@ export class VisualizeReport extends Component {
         let stressTestColumns = []
         let stressTestMetadata = []
 
-        report.report.WorkflowResults.forEach((workflow, workflowindex) => {
+        report.Report.WorkflowResults.forEach((workflow, workflowindex) => {
 
             let thisWorkflow = []
 
@@ -166,7 +168,7 @@ export class VisualizeReport extends Component {
         let fullGeneratedTests = []
         fullGeneratedTests.push([{ displayName: 'Generated', id: 'Generated', targetId: [] }])
 
-        report.report.GeneratedTests.forEach((generatedTest, workflowindex) => {
+        report.Report.GeneratedTests.forEach((generatedTest, workflowindex) => {
 
             let currentTest = []
             currentTest.push({ displayName: generatedTest.TestID, id: generatedTest.TestID, targetId: [] })
@@ -187,15 +189,15 @@ export class VisualizeReport extends Component {
         
 
         this.setState({
-            apiTitle: report.apiName,
-            allReportsOriginal: report.allReportDates,
+            apiTitle: report.ApiName,
+            allReportsOriginal: report.AllReportDates,
             allReportsUIFriendly: newDates,
-            errors: report.report.Errors,
-            warnings: report.report.Warnings,
-            workflows: report.report.WorkflowResults,
-            date: report.report.date,
-            generatedTests: report.report.GeneratedTests,
-            missingTests: report.report.MissingTests,
+            errors: report.Report.Errors,
+            warnings: report.Report.Warnings,
+            workflows: report.Report.WorkflowResults,
+            date: report.Report.date,
+            generatedTests: report.Report.GeneratedTests,
+            missingTests: report.Report.MissingTests,
             pieChartData: piedata,
             barChartData: bardata,
             totalCompletionTime: totalCompletionTime,
@@ -461,6 +463,8 @@ export class VisualizeReport extends Component {
                         <TabPanel>
                             <MissingTests
                                 missingTests={this.state.missingTests}
+                                apiId={this.props.match.params.apiId}
+                                apiTitle={this.state.apiTitle}
                             />
                         </TabPanel>
                     </Tabs>

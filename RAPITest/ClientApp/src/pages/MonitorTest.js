@@ -63,20 +63,20 @@ export class MonitorTest extends Component {
         const data = await response.json()
         var allAPIS = new Map()
         data.forEach(api => {
-            if (api.nextTest === "0001-01-01T00:00:00") {
-                api.nextTest = "-"
+            if (api.NextTest === "0001-01-01T00:00:00") {
+                api.NextTest = "-"
             } else {
-                api.nextTest = api.nextTest.replace("T", " ").substring(0, 19)
+                api.NextTest = api.NextTest.replace("T", " ").substring(0, 19)
             }
-            if (api.latestReport === "0001-01-01T00:00:00") {
-                api.latestReport = "-"
-                api.warnings = "-"
-                api.errors = "-"
+            if (api.LatestReport === "0001-01-01T00:00:00") {
+                api.LatestReport = "-"
+                api.Warnings = "-"
+                api.Errors = "-"
             } else {
-                api.latestReport = api.latestReport.replace("T", " ").substring(0, 19)
+                api.LatestReport = api.LatestReport.replace("T", " ").substring(0, 19)
             }
-            if (api.errorMessages !== null) api.errorMessages.pop()
-            allAPIS.set(api.apiId, api)
+            if (api.ErrorMessages !== null) api.ErrorMessages.pop()
+            allAPIS.set(api.ApiId, api)
         })
         this.setState({ apis: allAPIS })
     }
@@ -128,33 +128,33 @@ export class MonitorTest extends Component {
     }
 
     renderTestButtons(item) {
-        if (item.errorMessages !== null) return <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.apiId)}>Delete Test</AwesomeButton>
-        if (item.latestReport === "-" && item.nextTest === "-") {
+        if (item.ErrorMessages !== null) return <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}>Delete Test</AwesomeButton>
+        if (item.LatestReport === "-" && item.NextTest === "-") {
             return <div className="row" style={{ marginLeft: 10, marginRight: 10 }}><div style={{ marginRight: 10 }}>Running Tests..</div><Loader type="Grid" color="#00BFFF" height={35} width={35} /></div>
         }
-        if (item.latestReport === "-") {
-            return <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.apiId)}>Delete Test</AwesomeButton>
+        if (item.LatestReport === "-") {
+            return <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}>Delete Test</AwesomeButton>
         }
         return (
             <div>
                 <div style={{ display: "inline-block",paddingLeft:"5px", paddingRight: "10px" }}>
-                    <AwesomeButton type="primary" onPress={() => this.visualizeReport(item.apiId)}>Latest Report</AwesomeButton>
+                    <AwesomeButton type="primary" onPress={() => this.visualizeReport(item.ApiId)}>Latest Report</AwesomeButton>
                 </div>
                 <div style={{ display: "inline-block", paddingRight: "10px" }}>
-                    <AwesomeButton type="primary" onPress={() => this.DownloadReport(item.apiId, item.apiTitle, item.latestReport)}>Download Latest Report</AwesomeButton>
+                    <AwesomeButton type="primary" onPress={() => this.DownloadReport(item.ApiId, item.APITitle, item.LatestReport)}>Download Latest Report</AwesomeButton>
                 </div>
-                <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.apiId)}>Delete Test</AwesomeButton>
+                <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}>Delete Test</AwesomeButton>
             </div>
         )
     }
 
     renderMetaData(item) {
-        if (item.errorMessages !== null) {
+        if (item.ErrorMessages !== null) {
             return (
                 <div style={{ marginBottom:"10px" }}>
                     <h4>Validation failed with the following errors:</h4>
                     <ul className="list-group">
-                        {item.errorMessages.map((item,i) => {
+                        {item.ErrorMessages.map((item,i) => {
                             return <li key={i} className="list-group-item">{item}</li>
                         })}
                     </ul>
@@ -164,10 +164,10 @@ export class MonitorTest extends Component {
         return (
             <table className="table table-striped">
                 <tbody>
-                    <tr><th>Errors</th><td>{item.errors}</td></tr>
-                    <tr><th>Warnings</th><td>{item.warnings}</td></tr>
-                    <tr><th>Latest Report</th><td>{item.latestReport}</td></tr>
-                    <tr><th>Next Test</th><td>{item.nextTest}</td></tr>
+                    <tr><th>Errors</th><td>{item.Errors}</td></tr>
+                    <tr><th>Warnings</th><td>{item.Warnings}</td></tr>
+                    <tr><th>Latest Report</th><td>{item.LatestReport}</td></tr>
+                    <tr><th>Next Test</th><td>{item.NextTest}</td></tr>
                 </tbody>
             </table>
         )
@@ -196,10 +196,10 @@ export class MonitorTest extends Component {
                             </InputGroup>
                           
                                 <Nav variant="pills" className="flex-column">
-                                {Array.from(this.state.apis).map(([key, item]) => {
-                                    if (item.apiTitle.toLowerCase().includes(this.state.searchByName.toLowerCase()))
+                                    {Array.from(this.state.apis).map(([key, item]) => {
+                                        if (item.APITitle.toLowerCase().includes(this.state.searchByName.toLowerCase()))
                                         return <div style={{ paddingBottom:"5px" }} key={key}><Nav.Item style={{ borderColor: "#dfdfdf", borderStyle: "solid", borderRadius: "7px", boxShadow: "1px 3px 1px #9E9E9E" }} >
-                                            <Nav.Link style={{}} eventKey={"#details-" + item.apiId}><svg className="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clipRule="evenodd" /><path fillRule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clipRule="evenodd" /></svg>{item.apiTitle.length > 55 ? item.apiTitle.substring(0, 52) + '...' : item.apiTitle}</Nav.Link>
+                                            <Nav.Link style={{}} eventKey={"#details-" + item.ApiId}><svg className="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clipRule="evenodd" /><path fillRule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clipRule="evenodd" /></svg>{item.APITitle.length > 55 ? item.APITitle.substring(0, 52) + '...' : item.APITitle}</Nav.Link>
                                         </Nav.Item></div>
                                     return <div key={key}></div>
                                 })}
@@ -209,7 +209,7 @@ export class MonitorTest extends Component {
                         <Col>
                             <Tab.Content>
                                     {Array.from(this.state.apis).map(([key, item]) => {
-                                        return <Tab.Pane key={key} style={{ borderColor: "#45ABD1", borderStyle: "solid", borderRadius: "20px", padding: 7, boxShadow: "1px 3px 1px #9E9E9E"}} eventKey={"#details-" + item.apiId} aria-labelledby={'list-' + item.apiTitle}>
+                                        return <Tab.Pane key={key} style={{ borderColor: "#45ABD1", borderStyle: "solid", borderRadius: "20px", padding: 7, boxShadow: "1px 3px 1px #9E9E9E" }} eventKey={"#details-" + item.ApiId} aria-labelledby={'list-' + item.APITitle}>
                                         {this.renderMetaData(item)}
                                         {this.renderTestButtons(item)}
                                     </Tab.Pane>

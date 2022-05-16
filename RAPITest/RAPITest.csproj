@@ -42,7 +42,6 @@
     <Compile Remove="Models\Results\**" />
     <Compile Remove="RunTests\**" />
     <Compile Remove="SetupTests\**" />
-    <Compile Remove="Utils\**" />
     <Compile Remove="Verifications\**" />
     <Content Remove="$(SpaRoot)**" />
     <Content Remove="Models\Deserialize\**" />
@@ -51,7 +50,6 @@
     <Content Remove="Models\Results\**" />
     <Content Remove="RunTests\**" />
     <Content Remove="SetupTests\**" />
-    <Content Remove="Utils\**" />
     <Content Remove="Verifications\**" />
     <EmbeddedResource Remove="Models\Deserialize\**" />
     <EmbeddedResource Remove="Models\EFModels\**" />
@@ -59,7 +57,6 @@
     <EmbeddedResource Remove="Models\Results\**" />
     <EmbeddedResource Remove="RunTests\**" />
     <EmbeddedResource Remove="SetupTests\**" />
-    <EmbeddedResource Remove="Utils\**" />
     <EmbeddedResource Remove="Verifications\**" />
     <None Remove="$(SpaRoot)**" />
     <None Remove="Models\Deserialize\**" />
@@ -68,7 +65,6 @@
     <None Remove="Models\Results\**" />
     <None Remove="RunTests\**" />
     <None Remove="SetupTests\**" />
-    <None Remove="Utils\**" />
     <None Remove="Verifications\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>

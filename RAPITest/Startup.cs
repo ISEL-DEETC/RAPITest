@@ -48,6 +48,12 @@ namespace RAPITest
 			services.AddAuthentication()
 				.AddIdentityServerJwt();
 
+			services.AddControllers()
+				.AddJsonOptions(options =>
+				{
+					options.JsonSerializerOptions.PropertyNamingPolicy = null;
+				});
+
 			services.AddAuthentication()
 				.AddGoogle(options =>
 				{

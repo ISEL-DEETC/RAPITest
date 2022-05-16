@@ -72,7 +72,6 @@ export class SetupTest extends Component {
     }
 
     async sendTestSetup() {
-        console.log(this.state)
         let data = new FormData();
         data.append('apiSpecification', this.state.apiSpecification);
         if (this.state.dictionary !== null) {

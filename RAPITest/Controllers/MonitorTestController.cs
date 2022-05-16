@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using ModelsLibrary.Models.EFModels;
 using Newtonsoft.Json;
 using ModelsLibrary.Models.AppSpecific;
+using RAPITest.Utils;
 
 namespace RAPITest.Controllers
 {
@@ -131,6 +132,29 @@ namespace RAPITest.Controllers
 			v.AllReportDates = dateTimes;
 
 			return Ok(v);
+		}
+
+		[HttpGet]
+		public IActionResult GenerateMissingTestsTSL([FromQuery] int apiId)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+
+			IOrderedQueryable<ModelsLibrary.Models.EFModels.Report> reports = _context.Report.Include(report => report.Api).Where(r => r.ApiId == apiId).OrderByDescending(r => r.ReportDate);
+			ModelsLibrary.Models.EFModels.Report report = reports.FirstOrDefault();
+			if (report == null) return NotFound();
+
+			ModelsLibrary.Models.Report rep = Newtonsoft.Json.JsonConvert.DeserializeObject<ModelsLibrary.Models.Report>(Encoding.Default.GetString(report.ReportFile));
+
+			List<Workflow> workflows = new List<Workflow>();
+			Workflow w = new Workflow();
+			w.Tests = rep.MissingTests;
+			w.WorkflowID = "MissingTestsTSL";
+			
+			workflows.Add(w);
+
+			List<ModelsLibrary.Models.Workflow_D> file = TSLGenerator.GenerateTSL(workflows);
+
+			return Ok(file);
 		}
 
 		[HttpDelete]

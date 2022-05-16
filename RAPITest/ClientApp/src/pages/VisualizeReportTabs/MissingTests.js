@@ -5,6 +5,9 @@ import "react-awesome-button/dist/styles.css";
 import { Row, Col, Table } from 'react-bootstrap'
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
+import authService from '../api-authorization/AuthorizeService'
+
+const YAML = require('json-to-pretty-yaml');
 
 export default class MissingTests extends Component {
 
@@ -23,8 +26,27 @@ export default class MissingTests extends Component {
         }
     }
 
-    generateTSLFile() {
+    async generateTSLFile() {
+        const token = await authService.getAccessToken();
+        let apiId = this.props.apiId
+        let apiTitle = this.props.apiTitle
 
+        fetch(`MonitorTest/GenerateMissingTestsTSL?apiId=${apiId}`, {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        }).then(res => res.json())
+            .then(resp => {
+                resp = YAML.stringify(resp);
+                console.log(resp)
+                var blob = new Blob([resp], {
+                    type: 'text/plain'
+                });
+                let url = window.URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.href = url;
+                a.download = apiTitle + '_' + 'MissingTests_TSL.yaml';
+                a.click();
+            })
     }
 
     render() {
