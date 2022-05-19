@@ -20,13 +20,15 @@ export class TimeLoop extends Component {
             selectedRadioLabel: "1 hour",
             radioButtons: [],
             group: "group1",
-            showWarning: false
+            showWarning: false,
+            rungenerated: true
         }
 
         this.finalizeCallback = this.finalizeCallback.bind(this)
         this.changeSelectedRadio = this.changeSelectedRadio.bind(this)
         this.handleCheck = this.handleCheck.bind(this)
         this.closeWarning = this.closeWarning.bind(this)
+        this.handleCheckGenerated = this.handleCheckGenerated.bind(this)
     }
 
     componentDidMount() {
@@ -82,7 +84,8 @@ export class TimeLoop extends Component {
         }
         let ret = {
             runimmediately: this.state.runimmediately,
-            interval: this.state.selectedRadioLabel
+            interval: this.state.selectedRadioLabel,
+            rungenerated: this.state.rungenerated
         }
         this.props.handlerTime(ret)
     }
@@ -96,11 +99,17 @@ export class TimeLoop extends Component {
         this.setState({ runimmediately: newrun })
     }
 
+    handleCheckGenerated() {
+        let newrun = !this.state.rungenerated
+        this.setState({ rungenerated: newrun })
+    }
+
     closeWarning() {
         this.setState({ showWarning: false })
     }
 
     render() {
+        let isEmpty = this.props.tslFiles === null
         return (
             <div>
                 <Row>
@@ -116,6 +125,14 @@ export class TimeLoop extends Component {
                                     id={`testImmediately`}
                                     label={`Run tests immediately after this?`}
                                     onChange={this.handleCheck}
+                                />
+                                <Form.Check
+                                    disabled={isEmpty}
+                                    defaultChecked
+                                    type={'checkbox'}
+                                    id={`runGenerated`}
+                                    label={`Run generated tests?`}
+                                    onChange={this.handleCheckGenerated}
                                 />
                                 <div style={{ fontSize: "25px", padding: "30px 0px 30px 0px", fontWeight:"bold" }}>Run tests every:</div>
                                 <RadioComp

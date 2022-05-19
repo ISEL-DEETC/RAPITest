@@ -21,6 +21,7 @@ using ModelsLibrary.Models.EFModels;
 using Newtonsoft.Json;
 using ModelsLibrary.Models.AppSpecific;
 using RAPITest.Utils;
+using RabbitMQ.Client;
 
 namespace RAPITest.Controllers
 {
@@ -31,11 +32,15 @@ namespace RAPITest.Controllers
 	{
 		private readonly ILogger<MonitorTestController> _logger;
 		private readonly RAPITestDBContext _context;
+		private readonly string RabbitMqHostName;
+		private readonly int RabbitMqPort;
 
 		public MonitorTestController(ILogger<MonitorTestController> logger, RAPITestDBContext context, IConfiguration config)
 		{
 			_logger = logger;
 			_context = context;
+			RabbitMqHostName = config.GetValue<string>("RabbitMqHostName");
+			RabbitMqPort = config.GetValue<int>("RabbitMqPort");
 		}
 
 		[HttpGet]
@@ -167,6 +172,41 @@ namespace RAPITest.Controllers
 			_context.Api.Remove(api);
 			_context.SaveChanges();
 			return Ok();
+		}
+
+		[HttpGet]
+		public IActionResult RunNow([FromQuery] int apiId)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			Api api = _context.Api.Include(api => api.ExternalDll).Include(api => api.Report).Where(a => a.UserId == userId && a.ApiId == apiId).FirstOrDefault();
+			if (api == null) return NotFound();
+
+			Sender(apiId);
+			return Ok();
+		}
+
+		public void Sender(int apiId)
+		{
+			var factory = new ConnectionFactory() { HostName = RabbitMqHostName, Port = RabbitMqPort };   //as longs as it is running in the same machine
+			using (var connection = factory.CreateConnection())
+			using (var channel = connection.CreateModel())
+			{
+				channel.QueueDeclare(queue: "run",
+									 durable: false,
+									 exclusive: false,
+									 autoDelete: false,
+									 arguments: null);
+
+				string message = apiId + "";
+				var body = Encoding.UTF8.GetBytes(message);
+
+				channel.BasicPublish(exchange: "",
+									 routingKey: "run",
+									 basicProperties: null,
+									 body: body);
+
+				_logger.LogInformation("[x] Sent {0} ", message);
+			}
 		}
 	}
 }

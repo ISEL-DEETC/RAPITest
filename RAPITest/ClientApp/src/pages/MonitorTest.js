@@ -28,6 +28,7 @@ export class MonitorTest extends Component {
         this.Remove = this.Remove.bind(this)
         this.handleOnChange = this.handleOnChange.bind(this)
         this.checkTestCompletions = this.checkTestCompletions.bind(this)
+        this.RunNow = this.RunNow.bind(this)
     }
 
     handleOnChange(e) {
@@ -127,13 +128,33 @@ export class MonitorTest extends Component {
         })
     }
 
+    async RunNow(apiId,item) {
+        const token = await authService.getAccessToken();
+
+        item.RunningNow = true;
+        fetch(`MonitorTest/RunNow?` + new URLSearchParams({
+            apiId: apiId,
+        }), {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        })
+        this.setState({})
+    }
+
     renderTestButtons(item) {
         if (item.ErrorMessages !== null) return <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}>Delete Test</AwesomeButton>
-        if (item.LatestReport === "-" && item.NextTest === "-") {
+        if (item.LatestReport === "-" && item.NextTest === "-" || item.RunningNow !== undefined) {
             return <div className="row" style={{ marginLeft: 10, marginRight: 10 }}><div style={{ marginRight: 10 }}>Running Tests..</div><Loader type="Grid" color="#00BFFF" height={35} width={35} /></div>
         }
         if (item.LatestReport === "-") {
-            return <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}>Delete Test</AwesomeButton>
+            return (
+                <div>
+                    <div style={{ display: "inline-block", paddingRight: "10px" }}>
+                        <AwesomeButton type="primary" onPress={() => this.RunNow(item.ApiId)}>Run Tests</AwesomeButton>
+                    </div>
+                    <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}>Delete Test</AwesomeButton>                   
+                </div>
+            )
         }
         return (
             <div>
@@ -143,7 +164,12 @@ export class MonitorTest extends Component {
                 <div style={{ display: "inline-block", paddingRight: "10px" }}>
                     <AwesomeButton type="primary" onPress={() => this.DownloadReport(item.ApiId, item.APITitle, item.LatestReport)}>Download Latest Report</AwesomeButton>
                 </div>
-                <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}>Delete Test</AwesomeButton>
+                <div style={{ display: "inline-block", paddingRight: "10px" }}>
+                    <AwesomeButton type="primary" onPress={() => this.RunNow(item.ApiId,item)}>Run Tests</AwesomeButton>
+                </div>
+                <div style={{ display: "inline-block", paddingLeft: "5px", paddingRight: "10px", paddingTop: "5px" }}>
+                    <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}>Delete Test</AwesomeButton>
+                </div>
             </div>
         )
     }

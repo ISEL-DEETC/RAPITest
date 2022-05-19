@@ -93,6 +93,7 @@ export class SetupTest extends Component {
         data.append('name', this.state.name);
         data.append('runimmediately', this.state.timeSpecification.runimmediately);
         data.append('interval', this.state.timeSpecification.interval);
+        data.append('rungenerated', this.state.timeSpecification.rungenerated);
 
         const token = await authService.getAccessToken();
         fetch(`SetupTest/UploadFile`, {
@@ -155,7 +156,10 @@ export class SetupTest extends Component {
             case 3:
                 return <UploadTestSpecification handlerTest={this.handlerTest}/>;
             case 4:
-                return <TimeLoop handlerTime={this.handlerTime} />;
+                return <TimeLoop
+                    handlerTime={this.handlerTime}
+                    tslFiles={this.state.testSpecification}
+                />;
             case 5:
                 title = <div style={{ textAlign: "center", fontSize: "35px", fontWeight: "bold" }}>Success!</div>
                 message = <div style={{ paddingTop: "50px", textAlign: "center", fontSize: "30px" }}><AwesomeButton type="primary" onPress={this.goToMonitorTests}>Check Results</AwesomeButton><br></br>or<br></br><AwesomeButton type="primary" onPress={this.restartCallback}>Setup Another Test</AwesomeButton></div>

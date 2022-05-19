@@ -85,23 +85,36 @@ namespace SetupTestsWorkerService
 
         private void Work(string message)
         {
-            int apiId = int.Parse(message.Split("|")[0]);
-            bool runNow = bool.Parse(message.Split("|")[1]);
+            string[] args = message.Split("|");
 
-			if (runNow)
-			{
-                RunNow(apiId);
-			}
-			else
-			{
-                RAPITestDBContext _context;
-                var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
-                optionsBuilder.UseSqlServer(options.DefaultConnection);
+            int apiId = int.Parse(args[0]);
+            bool runNow = bool.Parse(args[1]);
 
-                using (_context = new RAPITestDBContext(optionsBuilder.Options))
+            RAPITestDBContext _context;
+            var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
+            optionsBuilder.UseSqlServer(options.DefaultConnection);
+
+            using (_context = new RAPITestDBContext(optionsBuilder.Options))
+            {
+                if (SetupTestRun.Run(apiId, _context))
                 {
-                    Api api = _context.Api.Find(apiId);
-                    SetupSpecificTimer(api);
+                    if (runNow)
+                    {
+                        Sender(apiId);
+                        Api api = _context.Api.Find(apiId);
+                        if (api.TestTimeLoop.HasValue)
+                        {
+                            SetupNextTest(api, _context);
+                        }
+                    }
+					else
+					{
+                        _logger.LogInformation("Api {0} - Work Complete", apiId);
+                    }
+                }
+				else
+				{
+                    _logger.LogInformation("Api {0} - Work Complete", apiId);
                 }
             }
         }
@@ -170,28 +183,6 @@ namespace SetupTestsWorkerService
                     Sender(apiId);
                     Api api = _context.Api.Find(apiId);
                     if (api.TestTimeLoop.HasValue)
-                    {
-                        SetupNextTest(api, _context);
-                    }
-                }
-            }
-
-            _logger.LogInformation("Api {0} - Work Complete", apiId);
-        }
-
-        public void RunNow(int apiId)
-        {
-            RAPITestDBContext _context;
-            var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
-            optionsBuilder.UseSqlServer(options.DefaultConnection);
-
-            using (_context = new RAPITestDBContext(optionsBuilder.Options))
-            {
-                if (SetupTestRun.Run(apiId, _context))
-                {
-                    Sender(apiId);
-                    Api api = _context.Api.Find(apiId);
-                    if (api.TestTimeLoop.HasValue) 
                     {
                         SetupNextTest(api, _context);
                     }

@@ -55,6 +55,7 @@ namespace DataAnnotation.Controllers
 			Api newApi = new Api();
 			newApi.ApiTitle = apiTitle;
 			newApi.UserId = userId;
+			newApi.RunGenerated = data["rungenerated"] == "true";
 
 			List<IFormFile> tsls = new List<IFormFile>();
 			List<IFormFile> externalDlls = new List<IFormFile>();

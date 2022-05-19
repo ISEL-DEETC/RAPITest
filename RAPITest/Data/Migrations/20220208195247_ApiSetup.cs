@@ -19,7 +19,8 @@ namespace RAPITest.Data.Migrations
 					TSL = table.Column<byte[]>(nullable: false),
 					Dictionary = table.Column<byte[]>(nullable: true),
 					NextTest = table.Column<DateTime>(nullable: true),
-					TestTimeLoop = table.Column<int>(nullable: true)
+					TestTimeLoop = table.Column<int>(nullable: true),
+					RunGenerated = table.Column<bool>(nullable: false)
 				},
 				constraints: table =>
 				{

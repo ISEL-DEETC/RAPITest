@@ -15,7 +15,7 @@ namespace SetupTestsWorkerService.SetupTests
 	public class CheckWarnings
 	{
 		//step 7 - Check if any combination of server/endpoint/input/output/code isn't beeing tested
-		public static void Check(CompleteTest firstTestSetup)
+		public static void Check(CompleteTest firstTestSetup, bool runGenerated)
 		{
 			List<Test> testCombinationsGenerated = new List<Test>();
 			List<Test> testCombinationsMissing = new List<Test>();
@@ -53,7 +53,14 @@ namespace SetupTestsWorkerService.SetupTests
 				}
 			}
 
-			firstTestSetup.GeneratedTests = testCombinationsGenerated;
+			if (runGenerated)
+			{
+				firstTestSetup.GeneratedTests = testCombinationsGenerated;
+			}
+			else
+			{
+				firstTestSetup.GeneratedTests = new List<Test>();
+			}			
 			firstTestSetup.MissingTests = testCombinationsMissing;
 			RemoveTests(firstTestSetup);
 		}

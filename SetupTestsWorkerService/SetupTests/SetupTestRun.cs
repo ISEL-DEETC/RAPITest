@@ -50,7 +50,7 @@ namespace SetupTestsWorkerService.SetupTests
 			}
 
 			//step 7 - Check if any combination of server/endpoint/input/output/code isn't beeing tested
-			CheckWarnings.Check(firstTestSetup);
+			CheckWarnings.Check(firstTestSetup, api.RunGenerated);
 
 			//step 8 - Persisting model objects, so verifications and parsing isnt required for future tests
 			api.SerializedTests = Encoding.Default.GetBytes(JsonConvert.SerializeObject(firstTestSetup, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto }));

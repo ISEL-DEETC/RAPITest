@@ -66,7 +66,6 @@ export class VisualizeReport extends Component {
     }
 
     setupReport(report) {
-        console.log(report)
         let newDates = [];
 
         report.AllReportDates.forEach((element, index) => {
@@ -386,7 +385,7 @@ export class VisualizeReport extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => res.json())
             .then(resp => {
-                resp.report = JSON.parse(resp.report)
+                resp.Report = JSON.parse(resp.Report)
                 this.setupReport(resp)
             })
     }

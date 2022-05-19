@@ -24,6 +24,7 @@ namespace ModelsLibrary.Models.EFModels
         public byte[] Dictionary { get; set; }
         public DateTime? NextTest { get; set; }
         public int? TestTimeLoop { get; set; }
+        public bool RunGenerated { get; set; }
 
         public virtual AspNetUsers User { get; set; }
         public virtual ICollection<ExternalDll> ExternalDll { get; set; }

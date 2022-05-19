@@ -37,7 +37,6 @@
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Compile Remove="Models\Deserialize\**" />
-    <Compile Remove="Models\EFModels\**" />
     <Compile Remove="Models\NewFolder1\**" />
     <Compile Remove="Models\Results\**" />
     <Compile Remove="RunTests\**" />
@@ -45,14 +44,12 @@
     <Compile Remove="Verifications\**" />
     <Content Remove="$(SpaRoot)**" />
     <Content Remove="Models\Deserialize\**" />
-    <Content Remove="Models\EFModels\**" />
     <Content Remove="Models\NewFolder1\**" />
     <Content Remove="Models\Results\**" />
     <Content Remove="RunTests\**" />
     <Content Remove="SetupTests\**" />
     <Content Remove="Verifications\**" />
     <EmbeddedResource Remove="Models\Deserialize\**" />
-    <EmbeddedResource Remove="Models\EFModels\**" />
     <EmbeddedResource Remove="Models\NewFolder1\**" />
     <EmbeddedResource Remove="Models\Results\**" />
     <EmbeddedResource Remove="RunTests\**" />
@@ -60,7 +57,6 @@
     <EmbeddedResource Remove="Verifications\**" />
     <None Remove="$(SpaRoot)**" />
     <None Remove="Models\Deserialize\**" />
-    <None Remove="Models\EFModels\**" />
     <None Remove="Models\NewFolder1\**" />
     <None Remove="Models\Results\**" />
     <None Remove="RunTests\**" />
