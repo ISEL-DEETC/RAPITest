@@ -28,11 +28,11 @@ export class TestName extends Component {
         let formString = document.getElementById("formBasicEmail").value
         if (formString.length === 0) {
             this.setState({ showWarning: true, warningMessage: "Please fill out the required form" })
-            return
+            return <div></div>
         }
         if (formString.length > 40) {
             this.setState({ showWarning: true, warningMessage: "Limit of 40 characters exceeded" })
-            return
+            return <div></div>
         }
         var format = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
         if (format.test(formString)) {
@@ -60,11 +60,10 @@ export class TestName extends Component {
                                   The name of the API you want to test.
                                 </Form.Text>
                               </Form.Group>
-
-                            <div style={{ textAlign: "center" }}>
-                                <AwesomeButton type="primary" onPress={this.finalizeCallback}>Continue</AwesomeButton>
-                            </div>
                         </Form>
+                        <div style={{ textAlign: "center" }}>
+                            <AwesomeButton type="primary" onPress={() => this.finalizeCallback()}>Continue</AwesomeButton>
+                        </div>
                     </Col>
                     <Col sm={8}>
                         <Figure style={{padding: "100px 0px 0px 250px"}}>
