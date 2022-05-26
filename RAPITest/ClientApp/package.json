@@ -34,7 +34,8 @@
     "d3-scale-chromatic": "3.0.0",
     "react-xarrows": "2.0.2",
     "react-tabs": "4.2.1",
-    "json-to-pretty-yaml": "1.2.2"
+    "json-to-pretty-yaml": "1.2.2",
+    "react-widgets": "5.8.4"
   },
   "devDependencies": {
     "@babel/core": "^7.16.10",

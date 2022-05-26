@@ -6,7 +6,10 @@ import './UploadFile.css';
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import ModalCompWorkflow from '../../components/ModalCompWorkflow.js'
+import ModalCompTest from '../../components/ModalCompTest.js'
+import ModalCompStressTest from '../../components/ModalCompStressTest.js'
 import workflowIcon from '../../assets/share.png'
+import authService from '../api-authorization/AuthorizeService';
 
 export class CreateTSL extends Component {
 
@@ -20,12 +23,38 @@ export class CreateTSL extends Component {
             acceptDLL: null,
             workflows: [],
             showWorkflowModal: false,
+            showTestModal: false,
+            showStressTestModal: false,
+            paths: [],
+            servers: [],
+            schemas: []
         }
 
         this.addWorkflow = this.addWorkflow.bind(this)
+        this.addTest = this.addTest.bind(this)
+        this.addStressTest = this.addStressTest.bind(this)
         this.renderWorkflows = this.renderWorkflows.bind(this)
         this.createWorkflow = this.createWorkflow.bind(this)
+        this.createTest = this.createTest.bind(this)
+        this.createStressTest = this.createStressTest.bind(this)
         this.disableWorkflowModal = this.disableWorkflowModal.bind(this)
+        this.disableTestModal = this.disableTestModal.bind(this)
+        this.disableStressTestModal = this.disableStressTestModal.bind(this)
+    }
+
+    async componentDidMount() {
+        let data = new FormData();
+        data.append('apiSpecification', this.props.apiSpecification);
+        const token = await authService.getAccessToken();
+        fetch(`SetupTest/GetSpecificationDetails`, {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
+            body: data
+        }).then(res => {
+            res.json().then(response => {
+                this.setState({ paths: response.Paths, servers: response.Servers, schemas: response.Schemas})
+            })
+        })
     }
 
     renderStressTest(stress) {
@@ -65,8 +94,8 @@ export class CreateTSL extends Component {
                                 return this.renderTest(test, testindex)
                             })}
                             <div>
-                                <AwesomeButton style={{ marginRight:"20px" }} size="large" type="primary" onPress={this.addWorkflow}>Add Test</AwesomeButton>
-                                <AwesomeButton size="large" type="primary" onPress={this.addWorkflow}>Add Stress Test</AwesomeButton>
+                                <AwesomeButton style={{ marginRight: "20px" }} size="large" type="primary" onPress={this.addTest}>Add Test</AwesomeButton>
+                                <AwesomeButton size="large" type="primary" onPress={this.addStressTest}>Add Stress Test</AwesomeButton>
                             </div>
                         </Accordion.Body>
                     </Accordion.Item >
@@ -77,7 +106,15 @@ export class CreateTSL extends Component {
 
 
     addWorkflow() {
-        this.setState({ showWorkflowModal:true })
+        this.setState({ showWorkflowModal: true })
+    }
+
+    addTest() {
+        this.setState({ showTestModal:true })
+    }
+
+    addStressTest() {
+        this.setState({ showStressTestModal:true })
     }
 
     createWorkflow(WorkflowID) {
@@ -89,7 +126,19 @@ export class CreateTSL extends Component {
         this.setState({ workflows: this.state.workflows.concat([workflow]), showWorkflowModal: false })
     }
 
+    createTest() {
+        console.log("add test")
+    }
+
+    createStressTest() {
+        console.log("add stress test")
+    }
+
     disableWorkflowModal() { this.setState({ showWorkflowModal: false }) }
+
+    disableTestModal() { this.setState({ showTestModal: false }) }
+
+    disableStressTestModal() { this.setState({ showStressTestModal: false }) }
 
     render() {
         return (
@@ -103,6 +152,20 @@ export class CreateTSL extends Component {
                     cancelButtonFunc={this.disableWorkflowModal}
                     visible={this.state.showWorkflowModal}
                     currentWorkflows={this.state.workflows}
+                />
+                <ModalCompTest
+                    okButtonFunc={this.createTest}
+                    cancelButtonFunc={this.disableTestModal}
+                    visible={this.state.showTestModal}
+                    servers={this.state.servers}
+                    paths={this.state.paths}
+                    schemas={this.state.schemas}
+                />
+                <ModalCompStressTest
+                    okButtonFunc={this.createStressTest}
+                    cancelButtonFunc={this.disableStressTestModal}
+                    visible={this.state.showStressTestModal}
+                    
                 />
             </div>
         )

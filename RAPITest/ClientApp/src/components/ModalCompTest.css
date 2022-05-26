@@ -1,0 +1,27 @@
+﻿.InputValueItem {
+    border: 1px solid #ced4da;
+    height: 38px;
+    border-radius: 0.3rem;
+    margin-top: 5px;
+    width: 100%;
+}
+
+.InputKeyItem {
+    border: 1px solid #ced4da;
+    height: 38px;
+    border-radius: 0.3rem;
+    margin-top: 5px;
+    width:100%;
+}
+
+.key-value-add-new:hover {
+    color: cornflowerblue;
+    cursor: pointer;
+}
+
+.removeButtonBin {
+    height: 38px;
+    border: 0;
+    background-color:white;
+    justify-content:center;
+}

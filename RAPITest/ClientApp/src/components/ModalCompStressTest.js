@@ -4,7 +4,7 @@ import { AwesomeButton, AwesomeButtonProgress } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import { warningMessage } from './AlertComp'
 
-export default class ModalCompWorkflow extends React.Component {
+export default class ModalCompStressTest extends React.Component {
 
     constructor() {
 
@@ -64,7 +64,7 @@ export default class ModalCompWorkflow extends React.Component {
             <div>
                 <Modal show={visible} onHide={cancelButtonFunc}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Workflow</Modal.Title>
+                        <Modal.Title>Add Stress Test</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {this.state.showWarning ? warningMessage(this.state.warningMessage, this.closeWarning) : <div></div>}

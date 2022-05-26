@@ -17,6 +17,8 @@ using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System.Threading;
+using RAPITest.Utils;
+using ModelsLibrary.Models.AppSpecific;
 
 namespace DataAnnotation.Controllers
 {
@@ -156,6 +158,16 @@ namespace DataAnnotation.Controllers
 			Sender(identityId, data["runimmediately"] == "true");
 
 			return Created(nameof(SetupTestController), null);
+		}
+
+		[HttpPost]
+		[DisableRequestSizeLimit]
+		[DisableFormValueModelBinding]
+		public IActionResult GetSpecificationDetails(IFormCollection data)
+		{
+			List<IFormFile> files = data.Files.ToList();
+
+			return Ok(GetAPISpecificationInfo.GetSpecInfo(files.Single()));
 		}
 
 		public void Sender(int apiId, bool runImmediately)

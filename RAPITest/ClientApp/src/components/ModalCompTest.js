@@ -3,8 +3,13 @@ import { Modal, Form } from 'react-bootstrap'
 import { AwesomeButton, AwesomeButtonProgress } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import { warningMessage } from './AlertComp'
+import "react-widgets/styles.css";
+import Combobox from "react-widgets/Combobox";
+import KeyValue  from "./KeyValueComp";
+import './ModalCompTest.css';
+import addIcon from '../assets/add.png'
 
-export default class ModalCompWorkflow extends React.Component {
+export default class ModalCompTest extends React.Component {
 
     constructor() {
 
@@ -13,11 +18,15 @@ export default class ModalCompWorkflow extends React.Component {
         this.state = {
             name: "",
             showWarning: false,
-            warningMessage: ""
+            warningMessage: "",
+            selectedPath: "",
+            headers: []
         }
 
         this.finalizeCallback = this.finalizeCallback.bind(this)
         this.closeWarning = this.closeWarning.bind(this)
+        this.pathValue = this.pathValue.bind(this)
+        this.updateHeaders = this.updateHeaders.bind(this)
     }
 
     closeWarning() {
@@ -56,15 +65,24 @@ export default class ModalCompWorkflow extends React.Component {
         }
     }
 
+    pathValue(selectedPaths) {
+        this.setState({ selectedPath: selectedPaths })
+    }
+
+    updateHeaders(headersValue) {
+        this.setState({ headers: headersValue })
+        console.log(headersValue)
+    }
+
     render() {
         let cancelButtonFunc = this.props.cancelButtonFunc
         let visible = this.props.visible
 
         return (
             <div>
-                <Modal show={visible} onHide={cancelButtonFunc}>
+                <Modal size="lg" show={visible} onHide={cancelButtonFunc}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Workflow</Modal.Title>
+                        <Modal.Title>Add Test</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {this.state.showWarning ? warningMessage(this.state.warningMessage, this.closeWarning) : <div></div>}
@@ -76,6 +94,26 @@ export default class ModalCompWorkflow extends React.Component {
                                     The ID of the added workflow, must be unique
                                 </Form.Text>
                             </Form.Group>
+                            <Combobox
+                                data={this.props.paths}
+                                filter={false}
+                                onChange={value => this.pathValue(value)}
+                            />
+                            <KeyValue
+                                hideLabels={true}
+                                rows={[{
+                                    keyItem: '',
+                                    valueItem: ''
+                                }]}
+                                customAddButtonRenderer={handleAddNew => (
+                                    <div className="key-value-add-new" style={{marginTop: "5px"}}>
+                                        <div onClick={handleAddNew}>
+                                            <img style={{ marginBottom: "5px" }} width="30" height="30" src={addIcon} alt="LogoBin" /> Add new meta data
+                                        </div>
+                                    </div>
+                                )}
+                                onChange={rows => this.updateHeaders(rows)}
+                            />
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>

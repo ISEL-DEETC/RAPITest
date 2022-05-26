@@ -154,7 +154,10 @@ export class SetupTest extends Component {
             case 2:
                 return <UploadApiSpecification handlerAPI={this.handlerAPI} /> ;
             case 3:
-                return <UploadTestSpecification handlerTest={this.handlerTest}/>;
+                return <UploadTestSpecification
+                    handlerTest={this.handlerTest}
+                    apiSpecification={this.state.apiSpecification}
+                />;
             case 4:
                 return <TimeLoop
                     handlerTime={this.handlerTime}
