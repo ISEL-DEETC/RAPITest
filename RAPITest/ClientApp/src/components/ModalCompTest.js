@@ -20,6 +20,7 @@ export default class ModalCompTest extends React.Component {
             showWarning: false,
             warningMessage: "",
             selectedPath: "",
+            selectedServer: "",
             headers: []
         }
 
@@ -27,6 +28,7 @@ export default class ModalCompTest extends React.Component {
         this.closeWarning = this.closeWarning.bind(this)
         this.pathValue = this.pathValue.bind(this)
         this.updateHeaders = this.updateHeaders.bind(this)
+        this.serverValue = this.serverValue.bind(this)
     }
 
     closeWarning() {
@@ -69,6 +71,10 @@ export default class ModalCompTest extends React.Component {
         this.setState({ selectedPath: selectedPaths })
     }
 
+    serverValue(selectedServers) {
+        this.setState({ selectedServer: selectedServers })
+    }
+
     updateHeaders(headersValue) {
         this.setState({ headers: headersValue })
         console.log(headersValue)
@@ -88,17 +94,40 @@ export default class ModalCompTest extends React.Component {
                         {this.state.showWarning ? warningMessage(this.state.warningMessage, this.closeWarning) : <div></div>}
                         <Form>
                             <Form.Group className="mb-3" controlId="formWorkflowId">
-                                <Form.Label>Workflow ID</Form.Label>
+                                <Form.Label>Test ID</Form.Label>
                                 <Form.Control placeholder="Enter ID" />
                                 <Form.Text className="text-muted">
-                                    The ID of the added workflow, must be unique
+                                    The ID of the added test, must be unique across all tests
                                 </Form.Text>
                             </Form.Group>
+                        </Form>
+                        <div>
+                            Server
+                            <Combobox
+                                data={this.props.servers}
+                                filter={false}
+                                onChange={value => this.serverValue(value)}
+                                />
+                        </div>
+                        <div style={{marginTop:"10px"}}>
+                            Path
                             <Combobox
                                 data={this.props.paths}
                                 filter={false}
                                 onChange={value => this.pathValue(value)}
                             />
+                        </div>
+                        <div style={{ marginTop: "20px" }}>
+                            Method
+                            <Form.Select aria-label="Default select example">
+                                <option value="0">Get</option>
+                                <option value="1">Post</option>
+                                <option value="2">Put</option>
+                                <option value="3">Delete</option>
+                                </Form.Select>
+                        </div>
+                        <div style={{ marginTop: "15px" }}>
+                            Headers, Key/Value
                             <KeyValue
                                 hideLabels={true}
                                 rows={[{
@@ -108,12 +137,18 @@ export default class ModalCompTest extends React.Component {
                                 customAddButtonRenderer={handleAddNew => (
                                     <div className="key-value-add-new" style={{marginTop: "5px"}}>
                                         <div onClick={handleAddNew}>
-                                            <img style={{ marginBottom: "5px" }} width="30" height="30" src={addIcon} alt="LogoBin" /> Add new meta data
+                                            <img style={{ marginBottom: "5px" }} width="30" height="30" src={addIcon} alt="LogoBin" /> Add Header
                                         </div>
                                     </div>
                                 )}
                                 onChange={rows => this.updateHeaders(rows)}
-                            />
+                                />
+                        </div>
+                        <Form style={{ marginTop: "15px" }}>
+                            <Form.Group className="mb-3" controlId="formBody">
+                                <Form.Label>Body</Form.Label>
+                                <Form.Control placeholder="Body Data" />
+                            </Form.Group>
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
