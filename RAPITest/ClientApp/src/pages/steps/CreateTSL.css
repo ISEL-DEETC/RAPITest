@@ -1,0 +1,49 @@
+﻿.buttonEdit {
+    --button-default-height: 60px !important;
+    --button-default-font-size: 14px !important;
+    --button-default-border-radius: 3px !important;
+    --button-horizontal-padding: 20px !important;
+    --button-raise-level: 4px !important;
+    --button-hover-pressure: 2 !important;
+    --transform-speed: 0.185s !important;
+    --button-primary-color: #ffb366 !important;
+    --button-primary-color-dark: #ff8000 !important;
+    --button-primary-color-light: #ffffff !important;
+    --button-primary-color-hover: #ff8000 !important;
+    --button-primary-border: none !important;
+    --button-secondary-color: #d53434 !important;
+    --button-secondary-color-dark: #b80000 !important;
+    --button-secondary-color-light: #ffffff !important;
+    --button-secondary-color-hover: #bd0000 !important;
+    --button-secondary-border: none !important;
+    --button-anchor-color: #f3c8ad !important;
+    --button-anchor-color-dark: #734922 !important;
+    --button-anchor-color-light: #4c3016 !important;
+    --button-anchor-color-hover: #f1bfa0 !important;
+    --button-anchor-border: 1px solid #8c633c !important;
+}
+
+.buttonAdd {
+    --button-default-height: 60px !important;
+    --button-default-font-size: 14px !important;
+    --button-default-border-radius: 3px !important;
+    --button-horizontal-padding: 20px !important;
+    --button-raise-level: 4px !important;
+    --button-hover-pressure: 2 !important;
+    --transform-speed: 0.185s !important;
+    --button-primary-color: #108ee9 !important;
+    --button-primary-color-dark: #0867af !important;
+    --button-primary-color-light: #ffffff !important;
+    --button-primary-color-hover: #0867af !important;
+    --button-primary-border: none !important;
+    --button-secondary-color: #db3d3d !important;
+    --button-secondary-color-dark: #ac2f2f !important;
+    --button-secondary-color-light: #ffffff !important;
+    --button-secondary-color-hover: #ac2f2f !important;
+    --button-secondary-border: none !important;
+    --button-anchor-color: #f3c8ad !important;
+    --button-anchor-color-dark: #734922 !important;
+    --button-anchor-color-light: #4c3016 !important;
+    --button-anchor-color-hover: #f1bfa0 !important;
+    --button-anchor-border: 1px solid #8c633c !important;
+}

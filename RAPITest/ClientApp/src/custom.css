@@ -12,3 +12,30 @@ code {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
+
+.aws-btn {
+    --button-default-height: 48px;
+    --button-default-font-size: 14px;
+    --button-default-border-radius: 3px;
+    --button-horizontal-padding: 20px;
+    --button-raise-level: 4px;
+    --button-hover-pressure: 2;
+    --transform-speed: 0.185s;
+    --button-primary-color: #108ee9;
+    --button-primary-color-dark: #0867af;
+    --button-primary-color-light: #ffffff;
+    --button-primary-color-hover: #0867af;
+    --button-primary-border: none;
+    --button-secondary-color: #db3d3d;
+    --button-secondary-color-dark: #ac2f2f;
+    --button-secondary-color-light: #ffffff;
+    --button-secondary-color-hover: #ac2f2f;
+    --button-secondary-border: none;
+    --button-anchor-color: #f3c8ad;
+    --button-anchor-color-dark: #734922;
+    --button-anchor-color-light: #4c3016;
+    --button-anchor-color-hover: #f1bfa0;
+    --button-anchor-border: 1px solid #8c633c;
+}
+
+

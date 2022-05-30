@@ -12,3 +12,8 @@
     --button-secondary-color-hover: #d40c0c;
     --button-secondary-border: none;
 }
+
+.testItem:hover {
+    color: black;
+    cursor: pointer;
+}

@@ -3,6 +3,7 @@ import { Modal, Form } from 'react-bootstrap'
 import { AwesomeButton, AwesomeButtonProgress } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import { warningMessage } from './AlertComp'
+import workflowIcon from '../assets/share.png'
 
 export default class ModalCompWorkflow extends React.Component {
 
@@ -64,7 +65,7 @@ export default class ModalCompWorkflow extends React.Component {
             <div>
                 <Modal show={visible} onHide={cancelButtonFunc}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Workflow</Modal.Title>
+                        <Modal.Title><img style={{ marginRight: "15px" }} width="50" height="50" src={workflowIcon} alt="Logo" />Add Workflow</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {this.state.showWarning ? warningMessage(this.state.warningMessage, this.closeWarning) : <div></div>}

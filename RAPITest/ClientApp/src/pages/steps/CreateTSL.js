@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
-import { Container, Row, Col, Accordion } from 'react-bootstrap'
+import { Container, Row, Col, Accordion,Table } from 'react-bootstrap'
 import './UploadFile.css';
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
@@ -9,7 +9,11 @@ import ModalCompWorkflow from '../../components/ModalCompWorkflow.js'
 import ModalCompTest from '../../components/ModalCompTest.js'
 import ModalCompStressTest from '../../components/ModalCompStressTest.js'
 import workflowIcon from '../../assets/share.png'
+import testIcon from '../../assets/test.png'
+import editIcon from '../../assets/pencil.png'
+import deleteIcon from '../../assets/bin.png'
 import authService from '../api-authorization/AuthorizeService';
+import './CreateTSL.css';
 
 export class CreateTSL extends Component {
 
@@ -25,6 +29,7 @@ export class CreateTSL extends Component {
             showWorkflowModal: false,
             showTestModal: false,
             showStressTestModal: false,
+            currentAddTestWorkflow: "",
             paths: [],
             servers: [],
             schemas: []
@@ -62,24 +67,65 @@ export class CreateTSL extends Component {
     }
 
     renderTest(test, testindex) {
-        /*return (
-            <Accordion.Item key={test.TestID + testindex} eventKey={test.TestID}>
-                <Accordion.Header>{test.TestID}</Accordion.Header>
-                <Accordion.Body>
-                    <ListGroup as="ol">
-                        {test.TestResults.map((testresult, testresultindex) => {
-                            return <ListGroup.Item key={test.TestID + testresult.TestName + testresult.Success + testresult.Description} as="li" className="d-flex justify-content-between align-items-start" >
-                                <div className="ms-2 me-auto">
-                                    <div className="fw-bold" style={{ textAlign: "left" }}>{testresult.TestName}</div>
-                                    <div style={{ textAlign: "left" }}>  {testresult.Description}</div>
+        return (
+            <Accordion key={testindex} defaultActiveKey={test.TestID}>
+                <Accordion.Item key={test.TestID + testindex} eventKey={test.TestID}>
+                    <Accordion.Header><img style={{ marginRight: "15px" }} width="40" height="40" src={testIcon} alt="LogoTest" />{test.TestID}</Accordion.Header>
+                    <Accordion.Body>
+                        <Row>
+                            <Col>
+                                <h4>Request</h4>
+                                <Table striped bordered hover>
+                                    <tbody>
+                                        <tr>
+                                            <td>{test.Method}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>{test.Server}{test.Path}</td>
+                                        </tr>
+                                        {test.Header.length !== 0 &&
+                                            <tr>
+                                                <td>
+                                                    {test.Header.map((item, index) => {
+                                                        return <p key={index}>{item.keyItem + "  " + item.valueItem}</p>
+                                                    })}
+                                                </td>
+                                            </tr>
+                                        }
+                                        {test.Body.data !== "" &&
+                                            <tr>
+                                                <td>{test.Body.data}</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </Table>
+                                <h4>Verifications</h4>
+                                <Table striped bordered hover>
+                                    <tbody>
+                                        <tr>
+                                            <td>Code: {test.Verifications.Code}</td>
+                                        </tr>
+                                        {test.Verifications.Schema !== "" &&
+                                            <tr>
+                                                <td>Schema: {test.Verifications.Schema}</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </Table>
+                            </Col>
+                            <Col>
+                                <div style={{ marginTop:"55px", textAlign:"center" }}>
+                                    <AwesomeButton className="buttonEdit"  type="primary" onPress={this.addStressTest}><img  width="50" height="50" src={editIcon} alt="Logo" /></AwesomeButton>
                                 </div>
-                                {this.printBadge(testresult)}
-                            </ListGroup.Item>
-                        })}
-                    </ListGroup>
-                </Accordion.Body>
-            </Accordion.Item >
-        )*/
+                                <div style={{ marginTop: "20px",  textAlign: "center" }}>
+                                    <AwesomeButton className="buttonEdit" type="secondary" onPress={this.addStressTest}><img  width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Accordion.Body>
+                </Accordion.Item >
+            </Accordion>
+        )
     }
 
     renderWorkflows() {
@@ -93,9 +139,12 @@ export class CreateTSL extends Component {
                             {item.Tests.map((test, testindex) => {
                                 return this.renderTest(test, testindex)
                             })}
-                            <div>
-                                <AwesomeButton style={{ marginRight: "20px" }} size="large" type="primary" onPress={this.addTest}>Add Test</AwesomeButton>
+                            <div style={{marginTop:"20px"}}>
+                                <AwesomeButton style={{ marginRight: "20px" }} size="large" type="primary" onPress={() => this.addTest(item)}>Add Test</AwesomeButton>
                                 <AwesomeButton size="large" type="primary" onPress={this.addStressTest}>Add Stress Test</AwesomeButton>
+                                <div style={{ textAlign: "right" }} >
+                                    <AwesomeButton className="buttonEdit" type="secondary" onPress={this.addStressTest}><img width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
+                                </div>
                             </div>
                         </Accordion.Body>
                     </Accordion.Item >
@@ -109,8 +158,8 @@ export class CreateTSL extends Component {
         this.setState({ showWorkflowModal: true })
     }
 
-    addTest() {
-        this.setState({ showTestModal:true })
+    addTest(workflow) {
+        this.setState({ showTestModal: true, currentAddTestWorkflow: workflow })
     }
 
     addStressTest() {
@@ -126,8 +175,16 @@ export class CreateTSL extends Component {
         this.setState({ workflows: this.state.workflows.concat([workflow]), showWorkflowModal: false })
     }
 
-    createTest() {
-        console.log("add test")
+    createTest(test) {
+        let aux = this.state.workflows
+
+        aux.forEach((item, index) => {
+            if (item.WorkflowID === this.state.currentAddTestWorkflow.WorkflowID) {
+                item.Tests.push(test)
+            }
+        })
+
+        this.setState({ workflows:aux,  showTestModal: false })
     }
 
     createStressTest() {
@@ -144,8 +201,8 @@ export class CreateTSL extends Component {
         return (
             <div>
                 {this.renderWorkflows()}
-                <div style={{paddingTop:"30px"}}>
-                    <AwesomeButton size="large" type="primary" onPress={this.addWorkflow}>Add Workflow</AwesomeButton>
+                <div style={{marginTop:"30px"}}>
+                    <AwesomeButton className="buttonAdd" type="primary" onPress={this.addWorkflow}><img style={{ marginRight: "15px" }} width="50" height="50" src={workflowIcon} alt="Logo" />Add Workflow</AwesomeButton>
                 </div>
                 <ModalCompWorkflow
                     okButtonFunc={this.createWorkflow}
@@ -160,6 +217,7 @@ export class CreateTSL extends Component {
                     servers={this.state.servers}
                     paths={this.state.paths}
                     schemas={this.state.schemas}
+                    currentWorkflows={this.state.workflows}
                 />
                 <ModalCompStressTest
                     okButtonFunc={this.createStressTest}

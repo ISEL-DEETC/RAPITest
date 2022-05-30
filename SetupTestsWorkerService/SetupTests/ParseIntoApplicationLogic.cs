@@ -205,10 +205,7 @@ namespace SetupTestsWorkerService.SetupTests
 			List<Verification> allVerifications = new List<Verification>();
 			Verification_D verification = verifications[0];
 
-			if (verification.Code != 0)
-			{
-				allVerifications.Add(new Code(verification.Code));
-			}
+			allVerifications.Add(new Code(verification.Code));
 
 			if (verification.Match != null)
 			{
