@@ -85,6 +85,8 @@ export default class ModalCompTest extends React.Component {
         super()
 
         this.state = {
+            title: "Add Test",
+            okButton: "Add",
             name: "",
             showWarning: false,
             warningMessage: "",
@@ -93,7 +95,15 @@ export default class ModalCompTest extends React.Component {
             selectedSchema: "",
             selectedMethod: "Get",
             selectedCode: 200,
-            headers: []
+            paths: [],
+            servers: [],
+            schemas: [],
+            edit: false,
+            previousTest: null,
+            headers: [{
+                keyItem: '',
+                valueItem: ''
+            }]
         }
 
         this.finalizeCallback = this.finalizeCallback.bind(this)
@@ -108,8 +118,13 @@ export default class ModalCompTest extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.paths !== prevProps.paths) {
-            this.setState({ selectedPath: this.props.paths[0], selectedServer: this.props.servers[0] })
+        if (this.props.visible !== prevProps.visible) {
+            if (!this.props.edit) {
+                this.setState({ okButton:"Add", showWarning: false, headers: [{keyItem: '',valueItem: ''}], edit: false, title: "Add Test", previousTest: null, selectedPath: this.props.paths[0], selectedServer: this.props.servers[0], selectedMethod: "Get", selectedCode: "200", selectedSchema:"", paths: this.props.paths, servers: this.props.servers, schemas: this.props.schemas})
+            }
+            else {
+                this.setState({ okButton:"Edit", showWarning: false, edit: true, title: "Edit Test", headers: this.props.previousTest.Headers, previousTest: this.props.previousTest, selectedPath: this.props.previousTest.Path, selectedServer: this.props.previousTest.Server, selectedMethod: this.props.previousTest.Method, selectedCode: this.props.previousTest.Verifications.Code, selectedSchema: this.props.previousTest.Verifications.Schema, paths: this.props.paths, servers: this.props.servers, schemas: this.props.schemas })
+            }
         }
     }
 
@@ -156,6 +171,7 @@ export default class ModalCompTest extends React.Component {
             currentWorkflows.forEach((item, index) => {
                 item.Tests.forEach((test, indextest) => {
                     if (test.TestID === formString) {
+                        if (this.state.edit && formString === this.state.previousTest.TestID) return
                         this.setState({ showWarning: true, warningMessage: "ID already used, must be unique" })
                         found = true
                     }
@@ -163,7 +179,6 @@ export default class ModalCompTest extends React.Component {
             })
 
             if (!found) {
-                console.log(this.state)
                 if (this.state.selectedPath.includes("{")) {
                     this.setState({ showWarning: true, warningMessage: "Path not valid, please change variable path {..} to concrete value" })
                 }
@@ -172,7 +187,7 @@ export default class ModalCompTest extends React.Component {
                     test.Server = this.state.selectedServer
                     test.Path = this.state.selectedPath
                     test.Method = this.state.selectedMethod
-                    test.Header = this.state.headers
+                    test.Headers = this.state.headers
                     test.Body.id = formString + "Body"
                     test.Body.data = document.getElementById("formBody").value
                     test.Verifications.Code = this.state.selectedCode
@@ -197,7 +212,7 @@ export default class ModalCompTest extends React.Component {
     }
 
     codeValue(selectedCodes) {
-        this.setState({ selectedCode: selectedCodes })
+        this.setState({ selectedCode: selectedCodes.id })
     }
 
     methodValue(e) {
@@ -216,14 +231,14 @@ export default class ModalCompTest extends React.Component {
             <div>
                 <Modal size="lg" show={visible} onHide={cancelButtonFunc}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Test</Modal.Title>
+                        <Modal.Title>{this.state.title}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {this.state.showWarning ? warningMessage(this.state.warningMessage, this.closeWarning) : <div></div>}
                         <Form>
                             <Form.Group className="mb-3" controlId="formTestId">
                                 <Form.Label>Test ID</Form.Label>
-                                <Form.Control placeholder="Enter ID" />
+                                {this.state.edit ? <Form.Control defaultValue={this.state.previousTest.TestID} /> : <Form.Control placeholder="Enter ID" /> }
                                 <Form.Text className="text-muted">
                                     The ID of the added test, must be unique across all tests
                                 </Form.Text>
@@ -232,19 +247,19 @@ export default class ModalCompTest extends React.Component {
                         <div>
                             Server
                             <Combobox
-                                data={this.props.servers}
+                                data={this.state.servers}
                                 filter={false}
                                 onChange={value => this.serverValue(value)}
-                                defaultValue={this.props.servers[0]}
+                                defaultValue={this.props.defaultValues.defaultServer}
                                 />
                         </div>
                         <div style={{marginTop:"10px"}}>
                             Path
                             <Combobox
-                                data={this.props.paths}
+                                data={this.state.paths}
                                 filter={false}
                                 onChange={value => this.pathValue(value)}
-                                defaultValue={this.props.paths[0]}
+                                defaultValue={this.props.defaultValues.defaultPath}
                             />
                         </div>
                         <div style={{ marginTop: "20px" }}>
@@ -260,10 +275,7 @@ export default class ModalCompTest extends React.Component {
                             Headers, Key/Value
                             <KeyValue
                                 hideLabels={true}
-                                rows={[{
-                                    keyItem: '',
-                                    valueItem: ''
-                                }]}
+                                rows={this.props.defaultValues.defaultHeaders}
                                 customAddButtonRenderer={handleAddNew => (
                                     <div className="key-value-add-new" style={{marginTop: "5px"}}>
                                         <div onClick={handleAddNew}>
@@ -277,7 +289,7 @@ export default class ModalCompTest extends React.Component {
                         <Form style={{ marginTop: "15px" }}>
                             <Form.Group className="mb-3" controlId="formBody">
                                 <Form.Label>Body</Form.Label>
-                                <Form.Control placeholder="Body Data" />
+                                {this.state.edit ? <Form.Control defaultValue={this.state.previousTest.Body.data} /> : <Form.Control placeholder="Body Data" />}
                             </Form.Group>
                         </Form>
                         <div style={{ marginTop: "20px" }}>
@@ -287,19 +299,20 @@ export default class ModalCompTest extends React.Component {
                                 data={statusMessages}
                                 dataKey='id'
                                 textField='name'
-                                defaultValue={'200'}
+                                defaultValue={this.props.defaultValues.defaultCode}
                                 onChange={value => this.codeValue(value)}
                             />
                             <div>Schema</div>
                             <Combobox
-                                data={this.props.schemas}
+                                data={this.state.schemas}
                                 filter={false}
+                                defaultValue={this.props.defaultValues.defaultSchema}
                                 onChange={value => this.schemaValue(value)}
                             />
                         </div>
                     </Modal.Body>
                     <Modal.Footer>
-                        <AwesomeButton type="primary" onPress={this.finalizeCallback}>Add</AwesomeButton>
+                        <AwesomeButton type="primary" onPress={this.finalizeCallback}>{this.state.okButton}</AwesomeButton>
                         <AwesomeButton type="secondary" onPress={cancelButtonFunc}>Cancel</AwesomeButton>
                     </Modal.Footer>
                 </Modal>
