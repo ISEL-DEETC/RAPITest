@@ -25,35 +25,26 @@ export default class ModalCompStressTest extends React.Component {
     }
 
     finalizeCallback() {
-        let formString = document.getElementById("formWorkflowId").value
-        if (formString.length === 0) {
-            this.setState({ showWarning: true, warningMessage: "Please fill out the required form" })
+        let formCount = document.getElementById("formCount").value
+        let formThreads = document.getElementById("formThreads").value
+        let formDelay = document.getElementById("formDelay").value
+
+        if (!Number.isInteger(formCount) || formCount <= 0) {
+            this.setState({ showWarning: true, warningMessage: "Count must be integer and greater then 0" })
+            return;
+        }
+
+        if (!Number.isInteger(formThreads) || formThreads <= 0) {
+            this.setState({ showWarning: true, warningMessage: "Threads must be integer and greater then 0" })
             return
         }
-        if (formString.length > 40) {
-            this.setState({ showWarning: true, warningMessage: "Limit of 40 characters exceeded" })
+
+        if (!Number.isInteger(formDelay) || formDelay < 0) {
+            this.setState({ showWarning: true, warningMessage: "Delay must be integer and atleast 0" })
             return
         }
-        var format = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
-        if (format.test(formString)) {
-            this.setState({ showWarning: true, warningMessage: "Invalid characters, no special characters allowed" })
-        } else {
 
-            let currentWorkflows = this.props.currentWorkflows
-
-            let found = false
-
-            currentWorkflows.forEach((item, index) => {
-                if (item.WorkflowID === formString) {
-                    this.setState({ showWarning: true, warningMessage: "ID already used, must be unique" })
-                    found = true
-                }
-            })
-
-            if (!found) {
-                this.props.okButtonFunc(formString)
-            }
-        }
+        this.props.okButtonFunc(formCount, formThreads, formDelay)
     }
 
     render() {
@@ -69,11 +60,29 @@ export default class ModalCompStressTest extends React.Component {
                     <Modal.Body>
                         {this.state.showWarning ? warningMessage(this.state.warningMessage, this.closeWarning) : <div></div>}
                         <Form>
-                            <Form.Group className="mb-3" controlId="formWorkflowId">
-                                <Form.Label>Workflow ID</Form.Label>
-                                <Form.Control placeholder="Enter ID" />
+                            <Form.Group className="mb-3" controlId="formCount">
+                                <Form.Label>Count</Form.Label>
+                                <Form.Control placeholder="1 or Greater" />
                                 <Form.Text className="text-muted">
-                                    The ID of the added workflow, must be unique
+                                    The number of times this workflow will be executed
+                                </Form.Text>
+                            </Form.Group>
+                        </Form>
+                        <Form>
+                            <Form.Group className="mb-3" controlId="formThreads">
+                                <Form.Label>Threads</Form.Label>
+                                <Form.Control placeholder="1 or Greater" />
+                                <Form.Text className="text-muted">
+                                    The number of threads in which the count will be divided
+                                </Form.Text>
+                            </Form.Group>
+                        </Form>
+                        <Form>
+                            <Form.Group className="mb-3" controlId="formDelay">
+                                <Form.Label>Delay (ms)</Form.Label>
+                                <Form.Control placeholder="0 or Greater" />
+                                <Form.Text className="text-muted">
+                                    The delay, in milliseconds, between each workflow execution
                                 </Form.Text>
                             </Form.Group>
                         </Form>

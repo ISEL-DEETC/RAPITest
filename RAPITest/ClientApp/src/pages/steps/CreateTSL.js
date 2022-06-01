@@ -176,7 +176,7 @@ export class CreateTSL extends Component {
                             })}
                             <div style={{marginTop:"20px"}}>
                                 <AwesomeButton style={{ marginRight: "20px" }} size="large" type="primary" onPress={() => this.addTest(item)}>Add Test</AwesomeButton>
-                                <AwesomeButton size="large" type="primary" onPress={this.addStressTest}>Add Stress Test</AwesomeButton>
+                                <AwesomeButton size="large" type="primary" onPress={() => this.addStressTest(item)}>Add Stress Test</AwesomeButton>
                                 <div style={{ textAlign: "right" }} >
                                     <AwesomeButton className="buttonEdit" type="secondary" onPress={() => this.showRemoveWorkflow(item)}><img width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
                                 </div>
@@ -208,8 +208,8 @@ export class CreateTSL extends Component {
         this.setState({ showTestModal: true, currentAddTestWorkflow: workflow })
     }
 
-    addStressTest() {
-        this.setState({ showStressTestModal:true })
+    addStressTest(workflow) {
+        this.setState({ showStressTestModal: true, currentAddTestWorkflow: workflow })
     }
 
     createWorkflow(WorkflowID) {
@@ -222,7 +222,6 @@ export class CreateTSL extends Component {
     }
 
     createTest(test) {
-        console.log(test)
         let auxdefault = {
             defaultServer: this.state.servers[0],
             defaultPath: this.state.paths[0],
@@ -235,7 +234,6 @@ export class CreateTSL extends Component {
             defaultSchema: ""
         }
         let aux = this.state.workflows
-        console.log(this.state)
         aux.forEach((item, index) => {
             if (item.WorkflowID === this.state.currentAddTestWorkflow.WorkflowID) {
                 if (!this.state.editTest) {
@@ -261,8 +259,19 @@ export class CreateTSL extends Component {
         this.setState({ defaultTestValues: auxdefault, workflows: aux, showTestModal: false, editTest: false })
     }
 
-    createStressTest() {
-        console.log("add stress test")
+    createStressTest(formCount, formThreads, formDelay) {
+        let aux = this.state.workflows
+        let newStress = {
+            Count: formCount,
+            Threads: formThreads,
+            Delay: formDelay
+        }
+        aux.forEach((item, index) => {
+            if (this.state.currentAddTestWorkflow.WorkflowID === item.WorkflowID) {
+                item.StressTest = newStress
+            }
+        })
+        this.setState({ workflows: aux, showStressTestModal: false, currentAddTestWorkflow: null })
     }
 
     disableWorkflowModal() { this.setState({ showWorkflowModal: false }) }
@@ -283,7 +292,7 @@ export class CreateTSL extends Component {
         this.setState({ defaultTestValues:aux, editTest: false, showTestModal: false })
     }
 
-    disableStressTestModal() { this.setState({ showStressTestModal: false }) }
+    disableStressTestModal() { this.setState({ showStressTestModal: false, currentAddTestWorkflow: null}) }
 
     showRemoveTest(test,workflow) {
         this.setState({ testToRemove: test, workflowToRemove: workflow, showRemoveTestModal: true })
