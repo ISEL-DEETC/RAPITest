@@ -97,8 +97,43 @@ export class CreateTSL extends Component {
         })
     }
 
-    renderStressTest(stress) {
-
+    renderStressTest(stress, index, workflow) {
+        if(stress === null) return
+        return (
+            <Accordion key={index} defaultActiveKey={index}>
+                <Accordion.Item key={index} eventKey={index}>
+                    <Accordion.Header><img style={{ marginRight: "15px" }} width="40" height="40" src={testIcon} alt="LogoTest" />Stress Test</Accordion.Header>
+                    <Accordion.Body>
+                        <Row>
+                            <Col>
+                                <h4>Data</h4>
+                                <Table striped bordered hover>
+                                    <tbody>
+                                        <tr>
+                                            <td>Count: {stress.Count}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Threads: {stress.Threads}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Delay: {stress.Delay}</td>
+                                        </tr>
+                                    </tbody>
+                                </Table>
+                            </Col>
+                            <Col>
+                                <div style={{ marginTop: "55px", textAlign: "center" }}>
+                                    <AwesomeButton className="buttonEdit" type="primary" onPress={() => this.editTest(test, workflow)}><img width="50" height="50" src={editIcon} alt="Logo" /></AwesomeButton>
+                                </div>
+                                <div style={{ marginTop: "20px", textAlign: "center" }}>
+                                    <AwesomeButton className="buttonEdit" type="secondary" onPress={() => this.showRemoveTest(test, workflow)}><img width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Accordion.Body>
+                </Accordion.Item >
+            </Accordion>
+        )
     }
 
     renderTest(test, testindex, workflow) {
@@ -170,7 +205,7 @@ export class CreateTSL extends Component {
                     return <Accordion.Item key={item.WorkflowID} eventKey={item.WorkflowID}>
                         <Accordion.Header><img style={{ marginRight: "15px" }} width="50" height="50" src={workflowIcon} alt="Logo" />{item.WorkflowID}</Accordion.Header>
                         <Accordion.Body>
-                            {this.renderStressTest(item.StressTest)}
+                            {this.renderStressTest(item.StressTest,index,item)}
                             {item.Tests.map((test, testindex) => {
                                 return this.renderTest(test, testindex, item)
                             })}

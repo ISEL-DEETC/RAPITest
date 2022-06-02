@@ -29,17 +29,22 @@ export default class ModalCompStressTest extends React.Component {
         let formThreads = document.getElementById("formThreads").value
         let formDelay = document.getElementById("formDelay").value
 
-        if (!Number.isInteger(formCount) || formCount <= 0) {
+        console.log(formCount)
+        console.log(formThreads)
+        console.log(formDelay)
+        console.log(Number.isInteger(parseInt(formCount)))
+
+        if (!Number.isInteger(parseInt(formCount)) || formCount <= 0) {
             this.setState({ showWarning: true, warningMessage: "Count must be integer and greater then 0" })
             return;
         }
 
-        if (!Number.isInteger(formThreads) || formThreads <= 0) {
+        if (!Number.isInteger(parseInt(formThreads)) || formThreads <= 0) {
             this.setState({ showWarning: true, warningMessage: "Threads must be integer and greater then 0" })
             return
         }
 
-        if (!Number.isInteger(formDelay) || formDelay < 0) {
+        if (!Number.isInteger(parseInt(formDelay)) || formDelay < 0) {
             this.setState({ showWarning: true, warningMessage: "Delay must be integer and atleast 0" })
             return
         }
@@ -71,7 +76,7 @@ export default class ModalCompStressTest extends React.Component {
                         <Form>
                             <Form.Group className="mb-3" controlId="formThreads">
                                 <Form.Label>Threads</Form.Label>
-                                <Form.Control placeholder="1 or Greater" />
+                                <Form.Control  placeholder="1 or Greater" />
                                 <Form.Text className="text-muted">
                                     The number of threads in which the count will be divided
                                 </Form.Text>
