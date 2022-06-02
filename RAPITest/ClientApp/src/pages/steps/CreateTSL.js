@@ -9,12 +9,17 @@ import ModalCompWorkflow from '../../components/ModalCompWorkflow.js'
 import ModalCompTest from '../../components/ModalCompTest.js'
 import ModalCompStressTest from '../../components/ModalCompStressTest.js'
 import ModalComp from '../../components/ModalComp.js'
+import SimpleModalComp from '../../components/SimpleModalComp.js'
 import workflowIcon from '../../assets/share.png'
 import testIcon from '../../assets/test.png'
 import editIcon from '../../assets/pencil.png'
 import deleteIcon from '../../assets/bin.png'
+import stressIcon from '../../assets/analysis.png'
+import searchIcon from '../../assets/search.png'
 import authService from '../api-authorization/AuthorizeService';
 import './CreateTSL.css';
+
+const YAML = require('json-to-pretty-yaml');
 
 export class CreateTSL extends Component {
 
@@ -33,12 +38,21 @@ export class CreateTSL extends Component {
             showStressTestModal: false,
             workflowToRemove: null,
             showRemoveWorkflowModal: false,
+            showRemoveStressTestModal: false,
             currentAddTestWorkflow: "",
             testToRemove: null,
+            showBodyModal: false,
+            showBodyData: null,
             paths: [],
             servers: [],
             schemas: [],
             editTest: false,
+            editStressTest: false,
+            defaultStressTestValues: {
+                defaultCount: 1,
+                defaultThreads: 1,
+                defaultDelay:0
+            },
             defaultTestValues: {
                 defaultServer: "",
                 defaultPath: "",
@@ -47,7 +61,7 @@ export class CreateTSL extends Component {
                     keyItem: '',
                     valueItem: ''
                 }],
-                defaultCode: "200",
+                defaultCode: 200,
                 defaultSchema: ""
             },
             currentTest: null
@@ -69,6 +83,14 @@ export class CreateTSL extends Component {
         this.showRemoveWorkflow = this.showRemoveWorkflow.bind(this)
         this.RemoveWorkflow = this.RemoveWorkflow.bind(this)
         this.disableRemoveWorkflowModal = this.disableRemoveWorkflowModal.bind(this)
+        this.editStressTest = this.editStressTest.bind(this)
+        this.showRemoveStressTest = this.showRemoveStressTest.bind(this)
+        this.RemoveStressTest = this.RemoveStressTest.bind(this)
+        this.disableRemoveStressTestModal = this.disableRemoveStressTestModal.bind(this)
+        this.showFinalizeButton = this.showFinalizeButton.bind(this)
+        this.finalize = this.finalize.bind(this)
+        this.showBody = this.showBody.bind(this)
+        this.disableShowBodyModal = this.disableShowBodyModal.bind(this)
     }
 
     async componentDidMount() {
@@ -89,7 +111,7 @@ export class CreateTSL extends Component {
                         keyItem: '',
                         valueItem: ''
                     }],
-                    defaultCode: "200",
+                    defaultCode: 200,
                     defaultSchema: ""
                 }
                 this.setState({ defaultTestValues:aux, paths: response.Paths, servers: response.Servers, schemas: response.Schemas})
@@ -97,44 +119,79 @@ export class CreateTSL extends Component {
         })
     }
 
-    renderStressTest(stress, index, workflow) {
-        if(stress === null) return
+    // ---------------------------------------
+
+    // --- WORKFLOW METHODS --- 
+
+    renderWorkflows() {
         return (
-            <Accordion key={index} defaultActiveKey={index}>
-                <Accordion.Item key={index} eventKey={index}>
-                    <Accordion.Header><img style={{ marginRight: "15px" }} width="40" height="40" src={testIcon} alt="LogoTest" />Stress Test</Accordion.Header>
-                    <Accordion.Body>
-                        <Row>
-                            <Col>
-                                <h4>Data</h4>
-                                <Table striped bordered hover>
-                                    <tbody>
-                                        <tr>
-                                            <td>Count: {stress.Count}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Threads: {stress.Threads}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Delay: {stress.Delay}</td>
-                                        </tr>
-                                    </tbody>
-                                </Table>
-                            </Col>
-                            <Col>
-                                <div style={{ marginTop: "55px", textAlign: "center" }}>
-                                    <AwesomeButton className="buttonEdit" type="primary" onPress={() => this.editTest(test, workflow)}><img width="50" height="50" src={editIcon} alt="Logo" /></AwesomeButton>
+            <Accordion defaultActiveKey="0">
+                {this.state.workflows.map((item, index) => {
+                    return <Accordion.Item key={item.WorkflowID} eventKey={item.WorkflowID}>
+                        <Accordion.Header><img style={{ marginRight: "15px" }} width="50" height="50" src={workflowIcon} alt="Logo" />{item.WorkflowID}</Accordion.Header>
+                        <Accordion.Body>
+                            {this.renderStressTest(item.Stress, index, item)}
+                            {item.Tests.map((test, testindex) => {
+                                return this.renderTest(test, testindex, item)
+                            })}
+                            <div style={{ marginTop: "20px" }}>
+                                <AwesomeButton className="buttonAdd" style={{ marginRight: "20px" }} type="primary" onPress={() => this.addTest(item)}><img style={{ marginRight: "15px" }} width="50" height="50" src={testIcon} alt="Logo" />Add Test</AwesomeButton>
+                                <AwesomeButton className="buttonAdd" disabled={item.Stress !== null} type="primary" onPress={() => this.addStressTest(item)}><img style={{ marginRight: "15px" }} width="50" height="50" src={stressIcon} alt="Logo" />Add Stress Test</AwesomeButton>
+                                <div style={{ textAlign: "right" }} >
+                                    <AwesomeButton className="buttonEdit" type="secondary" onPress={() => this.showRemoveWorkflow(item)}><img width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
                                 </div>
-                                <div style={{ marginTop: "20px", textAlign: "center" }}>
-                                    <AwesomeButton className="buttonEdit" type="secondary" onPress={() => this.showRemoveTest(test, workflow)}><img width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Accordion.Body>
-                </Accordion.Item >
+                            </div>
+                        </Accordion.Body>
+                    </Accordion.Item >
+                })}
             </Accordion>
         )
     }
+
+    // Add workflow
+
+    addWorkflow() {
+        this.setState({ showWorkflowModal: true })
+    }
+
+    createWorkflow(WorkflowID) {
+        let workflow = {
+            WorkflowID: WorkflowID,
+            Stress: null,
+            Tests: []
+        }
+        this.setState({ workflows: this.state.workflows.concat([workflow]), showWorkflowModal: false })
+    }
+
+    disableWorkflowModal() { this.setState({ showWorkflowModal: false }) }
+
+    // Remove Workflow
+
+    showRemoveWorkflow(workflow) {
+        this.setState({ workflowToRemove: workflow, showRemoveWorkflowModal: true })
+    }
+
+    RemoveWorkflow() {
+        let aux = this.state.workflows
+
+        aux.forEach((item, index) => {
+            if (item.WorkflowID === this.state.workflowToRemove.WorkflowID) {
+                aux.splice(index, 1)
+            }
+        })
+
+        this.setState({ workflows: aux, showRemoveWorkflowModal: false })
+    }
+
+    disableRemoveWorkflowModal() {
+        this.setState({ showRemoveWorkflowModal: false })
+    }
+
+
+    // -------------------------------------------------------------
+
+
+    // --- TEST METHODS ---
 
     renderTest(test, testindex, workflow) {
         return (
@@ -153,18 +210,10 @@ export class CreateTSL extends Component {
                                         <tr>
                                             <td>{test.Server}{test.Path}</td>
                                         </tr>
-                                        {test.Headers.length !== 0 &&
+                                        {this.renderHeaders(test.Headers)}
+                                        {test.Body !== "" &&
                                             <tr>
-                                                <td>
-                                                    {test.Headers.map((item, index) => {
-                                                        return <p key={index}>{item.keyItem + "  " + item.valueItem}</p>
-                                                    })}
-                                                </td>
-                                            </tr>
-                                        }
-                                        {test.Body.data !== "" &&
-                                            <tr>
-                                                <td>{test.Body.data}</td>
+                                            {test.Body.length <= 50 ? <td>{test.Body}</td> : <td>{test.Body.substring(0, 50) + '...'}<img className="seeMoreBody" onClick={() => this.showBody(test.Body)} style={{ marginLeft: "15px" }} width="25" height="25" src={searchIcon} alt="Logo" /></td>}
                                             </tr>
                                         }
                                     </tbody>
@@ -184,11 +233,11 @@ export class CreateTSL extends Component {
                                 </Table>
                             </Col>
                             <Col>
-                                <div style={{ marginTop:"55px", textAlign:"center" }}>
-                                    <AwesomeButton className="buttonEdit"  type="primary" onPress={() => this.editTest(test,workflow)}><img  width="50" height="50" src={editIcon} alt="Logo" /></AwesomeButton>
+                                <div style={{ marginTop: "55px", textAlign: "center" }}>
+                                    <AwesomeButton className="buttonEdit" type="primary" onPress={() => this.editTest(test, workflow)}><img width="50" height="50" src={editIcon} alt="Logo" /></AwesomeButton>
                                 </div>
-                                <div style={{ marginTop: "20px",  textAlign: "center" }}>
-                                    <AwesomeButton className="buttonEdit" type="secondary" onPress={() => this.showRemoveTest(test,workflow)}><img  width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
+                                <div style={{ marginTop: "20px", textAlign: "center" }}>
+                                    <AwesomeButton className="buttonEdit" type="secondary" onPress={() => this.showRemoveTest(test, workflow)}><img width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
                                 </div>
                             </Col>
                         </Row>
@@ -198,62 +247,36 @@ export class CreateTSL extends Component {
         )
     }
 
-    renderWorkflows() {
-        return (
-            <Accordion defaultActiveKey="0">
-                {this.state.workflows.map((item, index) => {
-                    return <Accordion.Item key={item.WorkflowID} eventKey={item.WorkflowID}>
-                        <Accordion.Header><img style={{ marginRight: "15px" }} width="50" height="50" src={workflowIcon} alt="Logo" />{item.WorkflowID}</Accordion.Header>
-                        <Accordion.Body>
-                            {this.renderStressTest(item.StressTest,index,item)}
-                            {item.Tests.map((test, testindex) => {
-                                return this.renderTest(test, testindex, item)
-                            })}
-                            <div style={{marginTop:"20px"}}>
-                                <AwesomeButton style={{ marginRight: "20px" }} size="large" type="primary" onPress={() => this.addTest(item)}>Add Test</AwesomeButton>
-                                <AwesomeButton size="large" type="primary" onPress={() => this.addStressTest(item)}>Add Stress Test</AwesomeButton>
-                                <div style={{ textAlign: "right" }} >
-                                    <AwesomeButton className="buttonEdit" type="secondary" onPress={() => this.showRemoveWorkflow(item)}><img width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
-                                </div>
-                            </div>
-                        </Accordion.Body>
-                    </Accordion.Item >
-                })}
-            </Accordion>
-        )
-    }
-
-    editTest(test, workflow) {
-        let aux = {
-            defaultServer: test.Server,
-            defaultPath: test.Path,
-            defaultMethod: test.Method,
-            defaultHeaders: test.Headers,
-            defaultCode: test.Verifications.Code,
-            defaultSchema: test.Verifications.Schema
+    renderHeaders(header) {
+        if (header.length !== 0) {
+            if (header.length === 1 && header[0].keyItem === "" && header[0].valueItem === "") {
+                return
+            }
+            return (
+                <tr>
+                    <td>
+                        {header.map((item, index) => {
+                            return <p key={index}>{item.keyItem + ":" + item.valueItem}</p>
+                        })}
+                    </td>
+                </tr>
+            )
         }
-        this.setState({ defaultTestValues: aux, showTestModal: true, currentAddTestWorkflow: workflow, editTest: true, currentTest: test })
+        return
     }
 
-    addWorkflow() {
-        this.setState({ showWorkflowModal: true })
+    showBody(body) {
+        this.setState({ showBodyModal: true, showBodyData:body})
     }
+
+    disableShowBodyModal() {
+        this.setState({ showBodyModal:false })
+    }
+
+    // Add Test
 
     addTest(workflow) {
         this.setState({ showTestModal: true, currentAddTestWorkflow: workflow })
-    }
-
-    addStressTest(workflow) {
-        this.setState({ showStressTestModal: true, currentAddTestWorkflow: workflow })
-    }
-
-    createWorkflow(WorkflowID) {
-        let workflow = {
-            WorkflowID: WorkflowID,
-            Tests: [],
-            StressTest: null
-        }
-        this.setState({ workflows: this.state.workflows.concat([workflow]), showWorkflowModal: false })
     }
 
     createTest(test) {
@@ -265,7 +288,7 @@ export class CreateTSL extends Component {
                 keyItem: '',
                 valueItem: ''
             }],
-            defaultCode: "200",
+            defaultCode: 200,
             defaultSchema: ""
         }
         let aux = this.state.workflows
@@ -294,23 +317,6 @@ export class CreateTSL extends Component {
         this.setState({ defaultTestValues: auxdefault, workflows: aux, showTestModal: false, editTest: false })
     }
 
-    createStressTest(formCount, formThreads, formDelay) {
-        let aux = this.state.workflows
-        let newStress = {
-            Count: formCount,
-            Threads: formThreads,
-            Delay: formDelay
-        }
-        aux.forEach((item, index) => {
-            if (this.state.currentAddTestWorkflow.WorkflowID === item.WorkflowID) {
-                item.StressTest = newStress
-            }
-        })
-        this.setState({ workflows: aux, showStressTestModal: false, currentAddTestWorkflow: null })
-    }
-
-    disableWorkflowModal() { this.setState({ showWorkflowModal: false }) }
-
     disableTestModal() {
         let aux = {
             defaultServer: this.state.servers[0],
@@ -320,16 +326,30 @@ export class CreateTSL extends Component {
                 keyItem: '',
                 valueItem: ''
             }],
-            defaultCode: "200",
+            defaultCode: 200,
             defaultSchema: ""
         }
 
-        this.setState({ defaultTestValues:aux, editTest: false, showTestModal: false })
+        this.setState({ defaultTestValues: aux, editTest: false, showTestModal: false })
     }
 
-    disableStressTestModal() { this.setState({ showStressTestModal: false, currentAddTestWorkflow: null}) }
+    // Edit Test
 
-    showRemoveTest(test,workflow) {
+    editTest(test, workflow) {
+        let aux = {
+            defaultServer: test.Server,
+            defaultPath: test.Path,
+            defaultMethod: test.Method,
+            defaultHeaders: test.Headers,
+            defaultCode: test.Verifications.Code,
+            defaultSchema: test.Verifications.Schema
+        }
+        this.setState({ defaultTestValues: aux, showTestModal: true, currentAddTestWorkflow: workflow, editTest: true, currentTest: test })
+    }
+
+    // Remove Test
+
+    showRemoveTest(test, workflow) {
         this.setState({ testToRemove: test, workflowToRemove: workflow, showRemoveTestModal: true })
     }
 
@@ -340,7 +360,7 @@ export class CreateTSL extends Component {
             if (item.WorkflowID === this.state.workflowToRemove.WorkflowID) {
                 item.Tests.forEach((testaux, testindex) => {
                     if (testaux.TestID === this.state.testToRemove.TestID) {
-                        item.Tests.splice(testindex,1)
+                        item.Tests.splice(testindex, 1)
                     }
                 })
             }
@@ -353,25 +373,198 @@ export class CreateTSL extends Component {
         this.setState({ showRemoveTestModal: false })
     }
 
-    showRemoveWorkflow(workflow) {
-        this.setState({ workflowToRemove: workflow, showRemoveWorkflowModal: true })
+
+    // -------------------------------------------
+
+    // --- STRESS TEST METHODS
+
+    renderStressTest(stress, index, workflow) {
+        if(stress === null) return
+        return (
+            <Accordion key={index} defaultActiveKey={index}>
+                <Accordion.Item key={index} eventKey={index}>
+                    <Accordion.Header><img style={{ marginRight: "15px" }} width="40" height="40" src={stressIcon} alt="LogoTest" />Stress Test</Accordion.Header>
+                    <Accordion.Body>
+                        <Row>
+                            <Col>
+                                <h4>Data</h4>
+                                <Table striped bordered hover>
+                                    <tbody>
+                                        <tr>
+                                            <td>Count: {stress.Count}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Threads: {stress.Threads}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Delay: {stress.Delay}</td>
+                                        </tr>
+                                    </tbody>
+                                </Table>
+                            </Col>
+                            <Col>
+                                <div style={{ marginTop: "55px", textAlign: "center" }}>
+                                    <AwesomeButton className="buttonEdit" type="primary" onPress={() => this.editStressTest(stress,workflow)}><img width="50" height="50" src={editIcon} alt="Logo" /></AwesomeButton>
+                                </div>
+                                <div style={{ marginTop: "20px", textAlign: "center" }}>
+                                    <AwesomeButton className="buttonEdit" type="secondary" onPress={() => this.showRemoveStressTest(workflow)}><img width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Accordion.Body>
+                </Accordion.Item >
+            </Accordion>
+        )
     }
 
-    RemoveWorkflow() {
+    // Add Stress Test
+
+    addStressTest(workflow) {
+        this.setState({ showStressTestModal: true, currentAddTestWorkflow: workflow })
+    }
+
+    createStressTest(formCount, formThreads, formDelay) {
+        let aux = this.state.workflows
+        let newStress = {
+            Count: formCount,
+            Threads: formThreads,
+            Delay: formDelay
+        }
+        aux.forEach((item, index) => {
+            if (this.state.currentAddTestWorkflow.WorkflowID === item.WorkflowID) {
+                item.Stress = newStress
+            }
+        })
+        this.setState({ workflows: aux, showStressTestModal: false, currentAddTestWorkflow: null, editStressTest: false  })
+    }
+
+    disableStressTestModal() { this.setState({ showStressTestModal: false, currentAddTestWorkflow: null, editStressTest: false,  }) }
+
+    // Edit Stress Test
+
+    editStressTest(stress,workflow) {
+        let aux = {
+            defaultCount: stress.Count,
+            defaultThreads: stress.Threads,
+            defaultDelay: stress.Delay
+        }
+        this.setState({ defaultStressTestValues: aux, showStressTestModal: true, currentAddTestWorkflow: workflow, editStressTest: true })
+    }
+
+    // Remove Stress Test
+
+    showRemoveStressTest(workflow) {
+        this.setState({  workflowToRemove: workflow, showRemoveStressTestModal: true })
+    }
+
+    RemoveStressTest() {
         let aux = this.state.workflows
 
         aux.forEach((item, index) => {
             if (item.WorkflowID === this.state.workflowToRemove.WorkflowID) {
-                aux.splice(index, 1)
+                item.Stress = null
             }
         })
 
-        this.setState({ workflows: aux, showRemoveWorkflowModal: false })
+        this.setState({ workflows: aux, showRemoveStressTestModal: false })
     }
 
-    disableRemoveWorkflowModal() {
-        this.setState({ showRemoveWorkflowModal: false })
+    disableRemoveStressTestModal() {
+        this.setState({ showRemoveStressTestModal: false })
     }
+
+    // --- FINALIZE METHODS ---
+
+    showFinalizeButton() {
+        let found = true
+        if (this.state.workflows.length >= 1) {
+            this.state.workflows.forEach((item, index) => {
+                if (item.Tests.length >= 1) {
+                    found = false;
+                }
+            })
+        }
+        return found
+    }
+
+    async finalize() {
+        let aux = this.state.workflows
+        let dictionaryFile = ""
+
+        aux.forEach((item, index) => {
+
+            if (item.Stress === null) {
+                delete item.Stress
+            }
+
+            item.Tests.forEach((testaux, testindex) => {
+                
+
+                testaux.Headers = this.setupHeaders(testaux.Headers)
+                if (testaux.Headers.length === 0) {
+                    delete testaux.Headers
+                }
+
+                testaux.Verifications = this.setupVerifications(testaux.Verifications)
+                if (testaux.Body === "") {
+                    delete testaux.Body
+                }
+                else {
+                    dictionaryFile += "dictionaryID:" + testaux.TestID + "Body\n" + testaux.Body+"\n\n"
+                    testaux.Body = "$ref/dictionary/"+testaux.TestID+"Body"
+                }
+            })
+        })
+
+        let newFile = YAML.stringify(aux);
+        var blob = new Blob([newFile], {
+            type: 'text/plain'
+        });
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = 'Created_TSL.yaml';
+        a.click();
+
+        var blobDic = new Blob([dictionaryFile], {
+            type: 'text/plain'
+        });
+        let urlDic = window.URL.createObjectURL(blobDic);
+        let aDic = document.createElement('a');
+        aDic.href = urlDic;
+        aDic.download = 'dictionary.txt';
+        aDic.click();
+
+        const file = new File([blob], 'sample.txt')
+        const fileDic = new File([blobDic], 'dic.txt')
+
+        this.props.handlerTest([file], fileDic, null)
+    }
+
+    setupHeaders(headers) {
+        let newHeaders = []
+
+        headers.forEach((item, index) => {
+            if (item.keyItem === "") return
+            newHeaders.push(item.keyItem+":"+item.valueItem)
+        })
+
+        return newHeaders
+    }
+
+    setupVerifications(verifications) {
+        let newVerifications = []
+        if (verifications.Schema === "") {
+            delete verifications.Schema
+        }
+        verifications.Schema = "$ref/definitions/" + verifications.Schema
+        newVerifications.push(verifications)
+
+        return newVerifications
+    }
+
+    // --------------------------------------------
+
 
     render() {
         return (
@@ -379,6 +572,9 @@ export class CreateTSL extends Component {
                 {this.renderWorkflows()}
                 <div style={{marginTop:"30px"}}>
                     <AwesomeButton className="buttonAdd" type="primary" onPress={this.addWorkflow}><img style={{ marginRight: "15px" }} width="50" height="50" src={workflowIcon} alt="Logo" />Add Workflow</AwesomeButton>
+                </div>
+                <div style={{ marginTop: "30px" }}>
+                    <AwesomeButton className="buttonFinalize" disabled={this.showFinalizeButton()} type="primary" onPress={this.finalize}>Finalize</AwesomeButton>
                 </div>
                 <ModalCompWorkflow
                     okButtonFunc={this.createWorkflow}
@@ -402,7 +598,8 @@ export class CreateTSL extends Component {
                     okButtonFunc={this.createStressTest}
                     cancelButtonFunc={this.disableStressTestModal}
                     visible={this.state.showStressTestModal}
-                    
+                    edit={this.state.editStressTest}
+                    defaultValues={this.state.defaultStressTestValues}
                 />
                 <ModalComp
                     title="Delete Test"
@@ -419,6 +616,20 @@ export class CreateTSL extends Component {
                     okButtonFunc={this.RemoveWorkflow}
                     cancelButtonFunc={this.disableRemoveWorkflowModal}
                     visible={this.state.showRemoveWorkflowModal}
+                />
+                <ModalComp
+                    title="Delete Stress Test"
+                    body="Are you sure you want to delete this stress test. This will delete everything related to the stress test."
+                    okButtonText="Delete"
+                    okButtonFunc={this.RemoveStressTest}
+                    cancelButtonFunc={this.disableRemoveStressTestModal}
+                    visible={this.state.showRemoveStressTestModal}
+                />
+                <SimpleModalComp
+                    title="Body Data"
+                    body={this.state.showBodyData}
+                    cancelButtonFunc={this.disableShowBodyModal}
+                    visible={this.state.showBodyModal}
                 />
             </div>
         )

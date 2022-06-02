@@ -47,3 +47,33 @@
     --button-anchor-color-hover: #f1bfa0 !important;
     --button-anchor-border: 1px solid #8c633c !important;
 }
+
+.buttonFinalize {
+    --button-default-height: 60px !important;
+    --button-default-font-size: 14px !important;
+    --button-default-border-radius: 3px !important;
+    --button-horizontal-padding: 20px !important;
+    --button-raise-level: 4px !important;
+    --button-hover-pressure: 2 !important;
+    --transform-speed: 0.185s !important;
+    --button-primary-color: #29d31d !important;
+    --button-primary-color-dark: #4e9315 !important;
+    --button-primary-color-light: #ffffff !important;
+    --button-primary-color-hover: #4e9315 !important;
+    --button-primary-border: none !important;
+    --button-secondary-color: #fffc6c !important;
+    --button-secondary-color-dark: #b9b500 !important;
+    --button-secondary-color-light: #6c6a00 !important;
+    --button-secondary-color-hover: #fffb3e !important;
+    --button-secondary-border: none !important;
+    --button-anchor-color: #f3c8ad !important;
+    --button-anchor-color-dark: #734922 !important;
+    --button-anchor-color-light: #4c3016 !important;
+    --button-anchor-color-hover: #f1bfa0 !important;
+    --button-anchor-border: 1px solid #8c633c !important;
+}
+
+.seeMoreBody:hover {
+    color: cornflowerblue;
+    cursor: pointer;
+}

@@ -8,74 +8,75 @@ import Combobox from "react-widgets/Combobox";
 import KeyValue  from "./KeyValueComp";
 import './ModalCompTest.css';
 import addIcon from '../assets/add.png'
+import testIcon from '../assets/test.png'
 
 const statusMessages = [
-    { id: '200', name:'200' },
-    { id: '201', name:'201' },
-    { id: '202', name: '202' },
-    { id: '203', name: '203' },
-    { id: '204', name: '204' },
-    { id: '205', name: '205' },
-    { id: '206', name: '206' },
-    { id: '207', name: '207' },
-    { id: '208', name: '208' },
-    { id: '226', name: '226' },
-    { id: '300', name: '300' },
-    { id: '301', name: '301' },
-    { id: '302', name: '302' },
-    { id: '303', name: '303' },
-    { id: '304', name: '304' },
-    { id: '305', name: '305' },
-    { id: '306', name: '306' },
-    { id: '307', name: '307' },
-    { id: '308', name: '308' },
-    { id: '400', name: '400' },
-    { id: '401', name: '401' },
-    { id: '402', name: '402' },
-    { id: '403', name: '403' },
-    { id: '404', name: '404' },
-    { id: '405', name: '405' },
-    { id: '406', name: '406' },
-    { id: '407', name: '407' },
-    { id: '408', name: '408' },
-    { id: '409', name: '409' },
-    { id: '410', name: '410' },
-    { id: '411', name: '411' },
-    { id: '412', name: '412' },
-    { id: '413', name: '413' },
-    { id: '414', name: '414' },
-    { id: '415', name: '415' },
-    { id: '416', name: '416' },
-    { id: '417', name: '417' },
-    { id: '418', name: '418'},
-    { id: '420', name: '420' },
-    { id: '422', name: '422' },
-    { id: '423', name: '423' },
-    { id: '424', name: '424' },
-    { id: '425', name: '425' },
-    { id: '426', name: '426' },
-    { id: '428', name: '428' },
-    { id: '429', name: '429' },
-    { id: '431', name: '431' },
-    { id: '444', name: '444' },
-    { id: '449', name: '449' },
-    { id: '450', name: '450' },
-    { id: '451', name: '451' },
-    { id: '499', name: '499' },
-    { id: '500', name: '500' },
-    { id: '501', name: '501' },
-    { id: '502', name: '502' },
-    { id: '503', name: '503' },
-    { id: '504', name: '504' },
-    { id: '505', name: '505' },
-    { id: '506', name: '506' },
-    { id: '507', name: '507' },
-    { id: '508', name: '508' },
-    { id: '509', name: '509' },
-    { id: '510', name: '510' },
-    { id: '511', name: '511' },
-    { id: '598', name: '598' },
-    { id: '599', name: '599' },
+    { id: 200, name: 200 },
+    { id: 201, name: 201 },
+    { id: 202, name: 202 },
+    { id: 203, name: 203 },
+    { id: 204, name: 204 },
+    { id: 205, name: 205 },
+    { id: 206, name: 206 },
+    { id: 207, name: 207 },
+    { id: 208, name: 208 },
+    { id: 226, name: 226 },
+    { id: 300, name: 300 },
+    { id: 301, name: 301 },
+    { id: 302, name: 302 },
+    { id: 303, name: 303 },
+    { id: 304, name: 304 },
+    { id: 305, name: 305 },
+    { id: 306, name: 306 },
+    { id: 307, name: 307 },
+    { id: 308, name: 308 },
+    { id: 400, name: 400 },
+    { id: 401, name: 401 },
+    { id: 402, name: 402 },
+    { id: 403, name: 403 },
+    { id: 404, name: 404 },
+    { id: 405, name: 405 },
+    { id: 406, name: 406 },
+    { id: 407, name: 407 },
+    { id: 408, name: 408 },
+    { id: 409, name: 409 },
+    { id: 410, name: 410 },
+    { id: 411, name: 411 },
+    { id: 412, name: 412 },
+    { id: 413, name: 413 },
+    { id: 414, name: 414 },
+    { id: 415, name: 415 },
+    { id: 416, name: 416 },
+    { id: 417, name: 417 },
+    { id: 418, name: 418 },
+    { id: 420, name: 420 },
+    { id: 422, name: 422 },
+    { id: 423, name: 423 },
+    { id: 424, name: 424 },
+    { id: 425, name: 425 },
+    { id: 426, name: 426 },
+    { id: 428, name: 428 },
+    { id: 429, name: 429 },
+    { id: 431, name: 431 },
+    { id: 444, name: 444 },
+    { id: 449, name: 449 },
+    { id: 450, name: 450 },
+    { id: 451, name: 451 },
+    { id: 499, name: 499 },
+    { id: 500, name: 500 },
+    { id: 501, name: 501 },
+    { id: 502, name: 502 },
+    { id: 503, name: 503 },
+    { id: 504, name: 504 },
+    { id: 505, name: 505 },
+    { id: 506, name: 506 },
+    { id: 507, name: 507 },
+    { id: 508, name: 508 },
+    { id: 509, name: 509 },
+    { id: 510, name: 510 },
+    { id: 511, name: 511 },
+    { id: 598, name: 598 },
+    { id: 599, name: 599 },
 ];
 
 export default class ModalCompTest extends React.Component {
@@ -120,7 +121,7 @@ export default class ModalCompTest extends React.Component {
     componentDidUpdate(prevProps) {
         if (this.props.visible !== prevProps.visible) {
             if (!this.props.edit) {
-                this.setState({ okButton:"Add", showWarning: false, headers: [{keyItem: '',valueItem: ''}], edit: false, title: "Add Test", previousTest: null, selectedPath: this.props.paths[0], selectedServer: this.props.servers[0], selectedMethod: "Get", selectedCode: "200", selectedSchema:"", paths: this.props.paths, servers: this.props.servers, schemas: this.props.schemas})
+                this.setState({ okButton:"Add", showWarning: false, headers: [{keyItem: '',valueItem: ''}], edit: false, title: "Add Test", previousTest: null, selectedPath: this.props.paths[0], selectedServer: this.props.servers[0], selectedMethod: "Get", selectedCode: 200, selectedSchema:"", paths: this.props.paths, servers: this.props.servers, schemas: this.props.schemas})
             }
             else {
                 this.setState({ okButton:"Edit", showWarning: false, edit: true, title: "Edit Test", headers: this.props.previousTest.Headers, previousTest: this.props.previousTest, selectedPath: this.props.previousTest.Path, selectedServer: this.props.previousTest.Server, selectedMethod: this.props.previousTest.Method, selectedCode: this.props.previousTest.Verifications.Code, selectedSchema: this.props.previousTest.Verifications.Schema, paths: this.props.paths, servers: this.props.servers, schemas: this.props.schemas })
@@ -140,10 +141,7 @@ export default class ModalCompTest extends React.Component {
             Path: "",
             Method: "",
             Headers: [],
-            Body: {
-                id: "",
-                data: ""
-            },
+            Body: "",
             Verifications: {
                 Code: 0,
                 Schema: ""
@@ -179,22 +177,32 @@ export default class ModalCompTest extends React.Component {
             })
 
             if (!found) {
-                if (this.state.selectedPath.includes("{")) {
+                if (this.state.selectedPath.includes("{") || this.state.selectedPath.includes("}")) {
                     this.setState({ showWarning: true, warningMessage: "Path not valid, please change variable path {..} to concrete value" })
+                    return 
                 }
-                else {
-                    test.TestID = formString
-                    test.Server = this.state.selectedServer
-                    test.Path = this.state.selectedPath
-                    test.Method = this.state.selectedMethod
-                    test.Headers = this.state.headers
-                    test.Body.id = formString + "Body"
-                    test.Body.data = document.getElementById("formBody").value
-                    test.Verifications.Code = this.state.selectedCode
-                    test.Verifications.Schema = this.state.selectedSchema
 
-                    this.props.okButtonFunc(test)
+                if (this.state.selectedPath === "") {
+                    this.setState({ showWarning: true, warningMessage: "Path cannot be empty" })
+                    return
                 }
+
+                if (this.state.selectedServer === "") {
+                    this.setState({ showWarning: true, warningMessage: "Server cannot be empty" })
+                    return
+                }
+                
+                test.TestID = formString
+                test.Server = this.state.selectedServer
+                test.Path = this.state.selectedPath
+                test.Method = this.state.selectedMethod
+                test.Headers = this.state.headers
+                test.Body = document.getElementById("formBody").value
+                test.Verifications.Code = this.state.selectedCode
+                test.Verifications.Schema = this.state.selectedSchema
+
+                this.props.okButtonFunc(test)
+                
             }
         }
     }
@@ -231,7 +239,7 @@ export default class ModalCompTest extends React.Component {
             <div>
                 <Modal size="lg" show={visible} onHide={cancelButtonFunc}>
                     <Modal.Header closeButton>
-                        <Modal.Title>{this.state.title}</Modal.Title>
+                        <Modal.Title><img style={{ marginRight: "15px" }} width="50" height="50" src={testIcon} alt="Logo" />{this.state.title}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {this.state.showWarning ? warningMessage(this.state.warningMessage, this.closeWarning) : <div></div>}
@@ -289,7 +297,7 @@ export default class ModalCompTest extends React.Component {
                         <Form style={{ marginTop: "15px" }}>
                             <Form.Group className="mb-3" controlId="formBody">
                                 <Form.Label>Body</Form.Label>
-                                {this.state.edit ? <Form.Control defaultValue={this.state.previousTest.Body.data} /> : <Form.Control placeholder="Body Data" />}
+                                {this.state.edit ? <Form.Control defaultValue={this.state.previousTest.Body} /> : <Form.Control placeholder="Body Data" />}
                             </Form.Group>
                         </Form>
                         <div style={{ marginTop: "20px" }}>

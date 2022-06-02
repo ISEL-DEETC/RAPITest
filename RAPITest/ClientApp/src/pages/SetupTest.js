@@ -56,7 +56,8 @@ export class SetupTest extends Component {
         })
     }
 
-    handlerTest(tsl,dictionary,dll) {
+    handlerTest(tsl, dictionary, dll) {
+        console.log(tsl,dictionary,dll)
         this.setState({
             testSpecification: tsl,
             dictionary: dictionary,

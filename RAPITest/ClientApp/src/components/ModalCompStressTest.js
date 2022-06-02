@@ -3,6 +3,7 @@ import { Modal, Form } from 'react-bootstrap'
 import { AwesomeButton, AwesomeButtonProgress } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import { warningMessage } from './AlertComp'
+import stressIcon from '../assets/analysis.png'
 
 export default class ModalCompStressTest extends React.Component {
 
@@ -29,11 +30,6 @@ export default class ModalCompStressTest extends React.Component {
         let formThreads = document.getElementById("formThreads").value
         let formDelay = document.getElementById("formDelay").value
 
-        console.log(formCount)
-        console.log(formThreads)
-        console.log(formDelay)
-        console.log(Number.isInteger(parseInt(formCount)))
-
         if (!Number.isInteger(parseInt(formCount)) || formCount <= 0) {
             this.setState({ showWarning: true, warningMessage: "Count must be integer and greater then 0" })
             return;
@@ -49,7 +45,7 @@ export default class ModalCompStressTest extends React.Component {
             return
         }
 
-        this.props.okButtonFunc(formCount, formThreads, formDelay)
+        this.props.okButtonFunc(parseInt(formCount), parseInt(formThreads), parseInt(formDelay))
     }
 
     render() {
@@ -60,14 +56,14 @@ export default class ModalCompStressTest extends React.Component {
             <div>
                 <Modal show={visible} onHide={cancelButtonFunc}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Stress Test</Modal.Title>
+                        {this.props.edit ? <Modal.Title><img style={{ marginRight: "15px" }} width="50" height="50" src={stressIcon} alt="Logo" />Edit Stress Test</Modal.Title> : <Modal.Title><img style={{ marginRight: "15px" }} width="50" height="50" src={stressIcon} alt="Logo" />Add Stress Test</Modal.Title>}
                     </Modal.Header>
                     <Modal.Body>
                         {this.state.showWarning ? warningMessage(this.state.warningMessage, this.closeWarning) : <div></div>}
                         <Form>
                             <Form.Group className="mb-3" controlId="formCount">
                                 <Form.Label>Count</Form.Label>
-                                <Form.Control placeholder="1 or Greater" />
+                                {this.props.edit ? <Form.Control defaultValue={this.props.defaultValues.defaultCount} /> : <Form.Control placeholder="1 or Greater" />}
                                 <Form.Text className="text-muted">
                                     The number of times this workflow will be executed
                                 </Form.Text>
@@ -76,7 +72,7 @@ export default class ModalCompStressTest extends React.Component {
                         <Form>
                             <Form.Group className="mb-3" controlId="formThreads">
                                 <Form.Label>Threads</Form.Label>
-                                <Form.Control  placeholder="1 or Greater" />
+                                {this.props.edit ? <Form.Control defaultValue={this.props.defaultValues.defaultThreads} /> : <Form.Control placeholder="1 or Greater" />}
                                 <Form.Text className="text-muted">
                                     The number of threads in which the count will be divided
                                 </Form.Text>
@@ -85,7 +81,7 @@ export default class ModalCompStressTest extends React.Component {
                         <Form>
                             <Form.Group className="mb-3" controlId="formDelay">
                                 <Form.Label>Delay (ms)</Form.Label>
-                                <Form.Control placeholder="0 or Greater" />
+                                {this.props.edit ? <Form.Control defaultValue={this.props.defaultValues.defaultDelay} /> : <Form.Control placeholder="0 or Greater" />}
                                 <Form.Text className="text-muted">
                                     The delay, in milliseconds, between each workflow execution
                                 </Form.Text>
@@ -93,7 +89,7 @@ export default class ModalCompStressTest extends React.Component {
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <AwesomeButton type="primary" onPress={this.finalizeCallback}>Add</AwesomeButton>
+                        <AwesomeButton type="primary" onPress={this.finalizeCallback}>{this.props.edit ? <div>Edit</div> : <div>Add</div>}</AwesomeButton>
                         <AwesomeButton type="secondary" onPress={cancelButtonFunc}>Cancel</AwesomeButton>
                     </Modal.Footer>
                 </Modal>

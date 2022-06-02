@@ -73,9 +73,9 @@ export class UploadTestSpecification extends Component {
                     <Row>
                         <Figure style={{ padding: "50px 0px 0px 250px" }}>
                             <Figure.Image
-                                width={130}
-                                height={130}
-                                alt="130x130"
+                                width={128}
+                                height={128}
+                                alt="128x128"
                                 src={InfoIcon}
                             />
                             <Figure.Caption>

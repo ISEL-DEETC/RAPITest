@@ -37,7 +37,6 @@ export default class MissingTests extends Component {
         }).then(res => res.json())
             .then(resp => {
                 resp = YAML.stringify(resp);
-                console.log(resp)
                 var blob = new Blob([resp], {
                     type: 'text/plain'
                 });
