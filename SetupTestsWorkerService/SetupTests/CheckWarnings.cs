@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Net.Http.Headers;
 
 namespace SetupTestsWorkerService.SetupTests
 {
@@ -100,8 +101,8 @@ namespace SetupTestsWorkerService.SetupTests
 
 				string testId = test.Server + path + method + test.ResponseTypes.Key + test.Consumes.Key + test.Code;
 				Dictionary<string, string> headers = new Dictionary<string, string>();
-				headers.Add("Consumes", test.Consumes.Key);
-				headers.Add("Produces", test.ResponseTypes.Key);
+				headers.Add(HeaderNames.ContentType, test.Consumes.Key);
+				headers.Add(HeaderNames.Accept, test.ResponseTypes.Key);
 				newTests.Add(new Test(testId, test.Server, path, method, headers, body, nativeVerifications));
 			}
 			return newTests;

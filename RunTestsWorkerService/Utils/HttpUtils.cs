@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Diagnostics;
 using ModelsLibrary.Models.Language;
+using Microsoft.Net.Http.Headers;
 
 namespace RunTestsWorkerService.Utils
 {
@@ -77,13 +78,13 @@ namespace RunTestsWorkerService.Utils
 
 			var requestMessage = new HttpRequestMessage(Convert(test.Method), uri);
 			
-			if (test.Headers.ContainsKey("Produces") && test.Headers.GetValueOrDefault("Produces") != null) requestMessage.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse(test.Headers.GetValueOrDefault("Produces")));
+			if (test.Headers.ContainsKey(HeaderNames.Accept) && test.Headers.GetValueOrDefault(HeaderNames.Accept) != null) requestMessage.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse(test.Headers.GetValueOrDefault(HeaderNames.Accept)));
 
-			if (test.Body != null) requestMessage.Content = new StringContent(test.Body, Encoding.UTF8, test.Headers.GetValueOrDefault("Consumes"));
+			if (test.Body != null) requestMessage.Content = new StringContent(test.Body, Encoding.UTF8, test.Headers.GetValueOrDefault(HeaderNames.ContentType));
 
 			foreach (KeyValuePair<string, string> entry in test.Headers)
 			{
-				if (entry.Key.Equals("Produces") || entry.Key.Equals("Consumes")) continue;
+				if (entry.Key.Equals(HeaderNames.Accept) || entry.Key.Equals(HeaderNames.ContentType)) continue;
 
 				requestMessage.Headers.Add(entry.Key, entry.Value);
 			}
