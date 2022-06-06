@@ -46,6 +46,7 @@ export class CreateTSL extends Component {
             paths: [],
             servers: [],
             schemas: [],
+            schemasValues: [],
             editTest: false,
             editStressTest: false,
             defaultStressTestValues: {
@@ -94,29 +95,18 @@ export class CreateTSL extends Component {
     }
 
     async componentDidMount() {
-        let data = new FormData();
-        data.append('apiSpecification', this.props.apiSpecification);
-        const token = await authService.getAccessToken();
-        fetch(`SetupTest/GetSpecificationDetails`, {
-            method: 'POST',
-            headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
-            body: data
-        }).then(res => {
-            res.json().then(response => {
-                let aux = {
-                    defaultServer: response.Servers[0],
-                    defaultPath: response.Paths[0],
-                    defaultMethod: "Get",
-                    defaultHeaders: [{
-                        keyItem: '',
-                        valueItem: ''
-                    }],
-                    defaultCode: 200,
-                    defaultSchema: ""
-                }
-                this.setState({ defaultTestValues:aux, paths: response.Paths, servers: response.Servers, schemas: response.Schemas})
-            })
-        })
+        let aux = {
+            defaultServer: this.props.servers[0],
+            defaultPath: this.props.paths[0],
+            defaultMethod: "Get",
+            defaultHeaders: [{
+                keyItem: '',
+                valueItem: ''
+            }],
+            defaultCode: 200,
+            defaultSchema: ""
+        }
+        this.setState({ defaultTestValues: aux, paths: this.props.paths, servers: this.props.servers, schemas: this.props.schemas, schemasValues: this.props.schemasValues})
     }
 
     // ---------------------------------------
@@ -136,7 +126,7 @@ export class CreateTSL extends Component {
                             })}
                             <div style={{ marginTop: "20px" }}>
                                 <AwesomeButton className="buttonAdd" style={{ marginRight: "20px" }} type="primary" onPress={() => this.addTest(item)}><img style={{ marginRight: "15px" }} width="50" height="50" src={testIcon} alt="Logo" />Add Test</AwesomeButton>
-                                <AwesomeButton className="buttonAdd" disabled={item.Stress !== null} type="primary" onPress={() => this.addStressTest(item)}><img style={{ marginRight: "15px" }} width="50" height="50" src={stressIcon} alt="Logo" />Add Stress Test</AwesomeButton>
+                                <AwesomeButton className="buttonAdd" disabled={item.Stress !== null || item.Tests.length === 0} type="primary" onPress={() => this.addStressTest(item)}><img style={{ marginRight: "15px" }} width="50" height="50" src={stressIcon} alt="Logo" />Add Stress Test</AwesomeButton>
                                 <div style={{ textAlign: "right" }} >
                                     <AwesomeButton className="buttonEdit" type="secondary" onPress={() => this.showRemoveWorkflow(item)}><img width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
                                 </div>
@@ -266,7 +256,7 @@ export class CreateTSL extends Component {
     }
 
     showBody(body) {
-        this.setState({ showBodyModal: true, showBodyData:body})
+        this.setState({ showBodyModal: true, showBodyData: body })
     }
 
     disableShowBodyModal() {
@@ -554,10 +544,13 @@ export class CreateTSL extends Component {
 
     setupVerifications(verifications) {
         let newVerifications = []
+        console.log(verifications)
         if (verifications.Schema === "") {
             delete verifications.Schema
         }
-        verifications.Schema = "$ref/definitions/" + verifications.Schema
+        else {
+            verifications.Schema = "$ref/definitions/" + verifications.Schema
+        }
         newVerifications.push(verifications)
 
         return newVerifications
@@ -574,7 +567,7 @@ export class CreateTSL extends Component {
                     <AwesomeButton className="buttonAdd" type="primary" onPress={this.addWorkflow}><img style={{ marginRight: "15px" }} width="50" height="50" src={workflowIcon} alt="Logo" />Add Workflow</AwesomeButton>
                 </div>
                 <div style={{ marginTop: "30px" }}>
-                    <AwesomeButton className="buttonFinalize" disabled={this.showFinalizeButton()} type="primary" onPress={this.finalize}>Finalize</AwesomeButton>
+                    <AwesomeButton className="buttonFinalize" disabled={this.showFinalizeButton()} type="primary" onPress={this.finalize}>Download & Finalize</AwesomeButton>
                 </div>
                 <ModalCompWorkflow
                     okButtonFunc={this.createWorkflow}
@@ -589,6 +582,7 @@ export class CreateTSL extends Component {
                     servers={this.state.servers}
                     paths={this.state.paths}
                     schemas={this.state.schemas}
+                    schemasValues={this.state.schemasValues}
                     currentWorkflows={this.state.workflows}
                     edit={this.state.editTest}
                     previousTest={this.state.currentTest}

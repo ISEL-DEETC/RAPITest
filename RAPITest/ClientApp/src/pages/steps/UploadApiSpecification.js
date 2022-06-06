@@ -1,9 +1,14 @@
 ﻿import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
+import { Row, Col } from 'react-bootstrap'
 import Dropzone from '../../components/Dropzone'
 import './UploadFile.css';
-import { warningMessage } from '../../components/AlertComp'
+import { warningMessage, dangerMessage } from '../../components/AlertComp'
+import authService from '../api-authorization/AuthorizeService';
+import Loader from 'react-loader-spinner'
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
 
 export class UploadApiSpecification extends Component {
 
@@ -12,11 +17,14 @@ export class UploadApiSpecification extends Component {
         super()
 
         this.state = {
+            showInput: true,
+            showDanger: false,
             showWarning: false
         }
 
         this.onDrop = this.onDrop.bind(this)
         this.closeWarning = this.closeWarning.bind(this)
+        this.closeDanger = this.closeDanger.bind(this)
     }
 
     //callback for dropzone
@@ -25,7 +33,29 @@ export class UploadApiSpecification extends Component {
             this.setState({ showWarning: true })
         }
         else {
-            this.props.handlerAPI(accept[0])
+            this.setState({ showInput: false }, async () => {
+
+                let data = new FormData();
+                data.append('apiSpecification', accept[0]);
+                data.append('title', this.props.apiTitle);
+                const token = await authService.getAccessToken();
+                fetch(`SetupTest/GetSpecificationDetails`, {
+                    method: 'POST',
+                    headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
+                    body: data
+                }).then(async (res) => {
+                    if (!res.ok) {
+                        await delay(2000);
+                        this.setState({ showDanger: true, showInput: true })
+                    }
+                    else {
+                        await delay(2500);
+                        res.json().then(response => {
+                            this.props.handlerAPI(response.Paths, response.Servers, response.Schemas, response.SchemasValues)
+                        })
+                    }
+                })
+            })
         }
     }
 
@@ -33,11 +63,16 @@ export class UploadApiSpecification extends Component {
         this.setState({ showWarning: false })
     }
 
+    closeDanger() {
+        this.setState({ showDanger: false })
+    }
+
     render() {
         return (
             <div>
-                {this.state.showWarning ? warningMessage("Please upload only one yaml or json file", this.closeWarning) : <div></div> }
-                <div className="root-dropzone">
+                {this.state.showWarning ? warningMessage("Please upload only one yaml or json file", this.closeWarning) : <div></div>}
+                {this.state.showDanger ? dangerMessage("Error while validating OpenAPI Specification, please upload a valid version 2 specification", this.closeDanger) : <div></div>}
+                {this.state.showInput && <div className="root-dropzone">
                     <Dropzone
                         accept=".yaml, .json"
                         onDrop={this.onDrop}
@@ -48,7 +83,18 @@ export class UploadApiSpecification extends Component {
                                 <p>Only .yaml or .json files will be accepted</p>
                             </div>}
                     />
-                </div>
+                </div>}
+                {!this.state.showInput && <div>
+                    <Row>
+                        <Col style={{marginTop:'15px'}}>
+                            <h4>Please wait while the OpenAPI Specification is processed</h4>
+                        </Col>
+                        <Col>
+                            <Loader type="Grid" color="#00BFFF" height={55} width={55} />
+                        </Col>
+                    </Row>
+                </div>}
+                
              </div>
              
         )

@@ -103,7 +103,10 @@ export class UploadTestSpecification extends Component {
             case 3:
                 return <CreateTSL
                     handlerTest={this.props.handlerTest}
-                    apiSpecification={this.props.apiSpecification}
+                    paths={this.props.paths}
+                    servers={this.props.servers}
+                    schemas={this.props.schemas}
+                    schemasValues={this.props.schemasValues}
                 />
         }
     }

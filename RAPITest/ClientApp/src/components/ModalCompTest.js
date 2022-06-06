@@ -1,5 +1,5 @@
 ﻿import React from 'react'
-import { Modal, Form } from 'react-bootstrap'
+import { Modal, Form, Row,Col } from 'react-bootstrap'
 import { AwesomeButton, AwesomeButtonProgress } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import { warningMessage } from './AlertComp'
@@ -9,6 +9,8 @@ import KeyValue  from "./KeyValueComp";
 import './ModalCompTest.css';
 import addIcon from '../assets/add.png'
 import testIcon from '../assets/test.png'
+import searchIcon from '../assets/search.png'
+import SimpleModalComp from './SimpleModalComp.js'
 
 const statusMessages = [
     { id: 200, name: 200 },
@@ -99,6 +101,9 @@ export default class ModalCompTest extends React.Component {
             paths: [],
             servers: [],
             schemas: [],
+            schemasValues: [],
+            showSchemaData: null,
+            showSchemaModal: false,
             edit: false,
             previousTest: null,
             headers: [{
@@ -115,16 +120,17 @@ export default class ModalCompTest extends React.Component {
         this.schemaValue = this.schemaValue.bind(this)
         this.methodValue = this.methodValue.bind(this)
         this.codeValue = this.codeValue.bind(this)
-
+        this.showFullSchema = this.showFullSchema.bind(this)
+        this.disableShowSchemaModal = this.disableShowSchemaModal.bind(this)
     }
 
     componentDidUpdate(prevProps) {
         if (this.props.visible !== prevProps.visible) {
             if (!this.props.edit) {
-                this.setState({ okButton:"Add", showWarning: false, headers: [{keyItem: '',valueItem: ''}], edit: false, title: "Add Test", previousTest: null, selectedPath: this.props.paths[0], selectedServer: this.props.servers[0], selectedMethod: "Get", selectedCode: 200, selectedSchema:"", paths: this.props.paths, servers: this.props.servers, schemas: this.props.schemas})
+                this.setState({ okButton:"Add", showWarning: false, headers: [{keyItem: '',valueItem: ''}], edit: false, title: "Add Test", previousTest: null, selectedPath: this.props.paths[0], selectedServer: this.props.servers[0], selectedMethod: "Get", selectedCode: 200, selectedSchema:"", paths: this.props.paths, servers: this.props.servers, schemas: this.props.schemas, schemasValues: this.props.schemasValues})
             }
             else {
-                this.setState({ okButton:"Edit", showWarning: false, edit: true, title: "Edit Test", headers: this.props.previousTest.Headers, previousTest: this.props.previousTest, selectedPath: this.props.previousTest.Path, selectedServer: this.props.previousTest.Server, selectedMethod: this.props.previousTest.Method, selectedCode: this.props.previousTest.Verifications.Code, selectedSchema: this.props.previousTest.Verifications.Schema, paths: this.props.paths, servers: this.props.servers, schemas: this.props.schemas })
+                this.setState({ okButton: "Edit", showWarning: false, edit: true, title: "Edit Test", headers: this.props.previousTest.Headers, previousTest: this.props.previousTest, selectedPath: this.props.previousTest.Path, selectedServer: this.props.previousTest.Server, selectedMethod: this.props.previousTest.Method, selectedCode: this.props.previousTest.Verifications.Code, selectedSchema: this.props.previousTest.Verifications.Schema, paths: this.props.paths, servers: this.props.servers, schemas: this.props.schemas, schemasValues: this.props.schemasValues })
             }
         }
     }
@@ -215,8 +221,8 @@ export default class ModalCompTest extends React.Component {
         this.setState({ selectedServer: selectedServers })
     }
 
-    schemaValue(selectedSchemas) {
-        this.setState({ selectedSchema: selectedSchemas })
+    schemaValue(e) {
+        this.setState({ selectedSchema: e.target.value })
     }
 
     codeValue(selectedCodes) {
@@ -229,6 +235,29 @@ export default class ModalCompTest extends React.Component {
 
     updateHeaders(headersValue) {
         this.setState({ headers: headersValue })
+    }
+
+    showFullSchema() {
+        console.log(this.state.selectedSchema)
+        console.log(this.state.schemas)
+        let myindex = -1
+        this.state.schemas.forEach((item, index) => {
+            if (item === this.state.selectedSchema) {
+                myindex = index
+            }
+        })
+        if (myindex === -1) {
+            this.setState({ showWarning: true, warningMessage: "Please choose a schema to view it in more detail" })
+        }
+        else {
+            this.setState({ showSchemaModal: true, showSchemaData: this.state.schemasValues[myindex] })
+        }
+    }
+
+    disableShowSchemaModal() {
+        this.setState({
+            showSchemaModal: false
+        })
     }
 
     render() {
@@ -302,21 +331,32 @@ export default class ModalCompTest extends React.Component {
                         </Form>
                         <div style={{ marginTop: "20px" }}>
                             <h4>Verifications</h4>
-                            <div>Code</div>
-                            <Combobox
-                                data={statusMessages}
-                                dataKey='id'
-                                textField='name'
-                                defaultValue={this.props.defaultValues.defaultCode}
-                                onChange={value => this.codeValue(value)}
-                            />
-                            <div>Schema</div>
-                            <Combobox
-                                data={this.state.schemas}
-                                filter={false}
-                                defaultValue={this.props.defaultValues.defaultSchema}
-                                onChange={value => this.schemaValue(value)}
-                            />
+                            <div>
+                                Code
+                                <Combobox
+                                    data={statusMessages}
+                                    dataKey='id'
+                                    textField='name'
+                                    defaultValue={this.props.defaultValues.defaultCode}
+                                    onChange={value => this.codeValue(value)}
+                                />
+                            </div>
+                            <Row>
+                                <Col sm={10}>
+                                    Schema
+                                    <Form.Select aria-label="Default select example" value={this.state.selectedSchema} onChange={this.schemaValue} >
+                                        <option value=""></option>
+                                        {this.state.schemas.map((item, index) => {
+                                            return (
+                                                <option key={index} value={item}>{item}</option>
+                                              )
+                                        })}
+                                    </Form.Select>
+                                </Col>
+                                <Col sm={2} style={{ paddingTop: '10px', paddingLeft:'25px', verticalAlign: 'middle', lineHeight: '62px' }}>
+                                    <img className="seeMoreBody" onClick={this.showFullSchema} width="25" height="25" src={searchIcon} alt="Logo" />
+                                </Col>
+                            </Row>
                         </div>
                     </Modal.Body>
                     <Modal.Footer>
@@ -324,6 +364,12 @@ export default class ModalCompTest extends React.Component {
                         <AwesomeButton type="secondary" onPress={cancelButtonFunc}>Cancel</AwesomeButton>
                     </Modal.Footer>
                 </Modal>
+                <SimpleModalComp
+                    title={this.state.selectedSchema + " Schema"}
+                    body={this.state.showSchemaData}
+                    cancelButtonFunc={this.disableShowSchemaModal}
+                    visible={this.state.showSchemaModal}
+                />
             </div>
         )
     }

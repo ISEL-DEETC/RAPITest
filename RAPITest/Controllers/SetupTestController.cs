@@ -21,6 +21,7 @@ using RAPITest.Utils;
 using ModelsLibrary.Models.AppSpecific;
 using Newtonsoft.Json.Linq;
 using ModelsLibrary.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAnnotation.Controllers
 {
@@ -52,96 +53,89 @@ namespace DataAnnotation.Controllers
 		public IActionResult UploadFile(IFormCollection data)
 		{
 			List<IFormFile> files = data.Files.ToList();
-			string apiTitle = data["name"];
 
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-
-			Api newApi = new Api();
-			newApi.ApiTitle = apiTitle;
-			newApi.UserId = userId;
-			newApi.RunGenerated = data["rungenerated"] == "true";
-
-			List<IFormFile> tsls = new List<IFormFile>();
-			List<IFormFile> externalDlls = new List<IFormFile>();
-
-			foreach (var formFile in files)
-			{
-				if (formFile.Length > 0)
-				{
-					if (formFile.Name.Contains("tsl_"))
-					{
-						tsls.Add(formFile);
-					}
-					else if(formFile.Name.Contains("apiSpecification"))
-					{
-						using (var ms = new MemoryStream())
-						{
-							formFile.CopyTo(ms);
-							newApi.ApiSpecification = ms.ToArray();
-						}
-					}
-					else if(formFile.Name.Contains("dictionary"))
-					{
-						using (var ms = new MemoryStream())
-						{
-							formFile.CopyTo(ms);
-							newApi.Dictionary = ms.ToArray();
-						}
-					}
-					else
-					{
-						externalDlls.Add(formFile);
-					}
-				}
-			}
-
-			string filesConcatenated = "";
-			using (var ms = new MemoryStream())
-			{
-				foreach (IFormFile tsl in tsls)
-				{
-					using (var reader = new StreamReader(tsl.OpenReadStream()))
-					{
-						filesConcatenated += reader.ReadToEnd();
-					}
-				}
-			}
-
-			newApi.Tsl = Encoding.Default.GetBytes(filesConcatenated);
-
-			//radioButtons: [button1H, button12H, button24H, button1W, button1M, buttonNever] 
-			switch (data["interval"])
-			{
-				case "1 hour":
-					newApi.NextTest = DateTime.Now.AddHours(1);
-					newApi.TestTimeLoop = 1;
-					break;
-				case "12 hours":
-					newApi.NextTest = DateTime.Now.AddHours(12);
-					newApi.TestTimeLoop = 12;
-					break;
-				case "24 hours":
-					newApi.NextTest = DateTime.Now.AddDays(1);
-					newApi.TestTimeLoop = 24;
-					break;
-				case "1 week":
-					newApi.NextTest = DateTime.Now.AddDays(7);
-					newApi.TestTimeLoop = 168;
-					break;
-				case "1 month":
-					newApi.NextTest = DateTime.Now.AddMonths(1);
-					newApi.TestTimeLoop = 720;
-					break;
-				default:  //Never
-					break;
-			}
-			int identityId;
 			using (_context)
 			{
-				_context.Api.Add(newApi);
-				_context.SaveChanges();
+				Api newApi = _context.Api.OrderByDescending(x => x.ApiId).FirstOrDefault();
 
-				identityId = newApi.ApiId;
+				newApi.RunGenerated = data["rungenerated"] == "true";
+
+				List<IFormFile> tsls = new List<IFormFile>();
+				List<IFormFile> externalDlls = new List<IFormFile>();
+
+				foreach (var formFile in files)
+				{
+					if (formFile.Length > 0)
+					{
+						if (formFile.Name.Contains("tsl_"))
+						{
+							tsls.Add(formFile);
+						}
+						else if (formFile.Name.Contains("apiSpecification"))
+						{
+							using (var ms = new MemoryStream())
+							{
+								formFile.CopyTo(ms);
+								newApi.ApiSpecification = ms.ToArray();
+							}
+						}
+						else if (formFile.Name.Contains("dictionary"))
+						{
+							using (var ms = new MemoryStream())
+							{
+								formFile.CopyTo(ms);
+								newApi.Dictionary = ms.ToArray();
+							}
+						}
+						else
+						{
+							externalDlls.Add(formFile);
+						}
+					}
+				}
+
+				string filesConcatenated = "";
+				using (var ms = new MemoryStream())
+				{
+					foreach (IFormFile tsl in tsls)
+					{
+						using (var reader = new StreamReader(tsl.OpenReadStream()))
+						{
+							filesConcatenated += reader.ReadToEnd();
+						}
+					}
+				}
+
+				newApi.Tsl = Encoding.Default.GetBytes(filesConcatenated);
+
+				//radioButtons: [button1H, button12H, button24H, button1W, button1M, buttonNever] 
+				switch (data["interval"])
+				{
+					case "1 hour":
+						newApi.NextTest = DateTime.Now.AddHours(1);
+						newApi.TestTimeLoop = 1;
+						break;
+					case "12 hours":
+						newApi.NextTest = DateTime.Now.AddHours(12);
+						newApi.TestTimeLoop = 12;
+						break;
+					case "24 hours":
+						newApi.NextTest = DateTime.Now.AddDays(1);
+						newApi.TestTimeLoop = 24;
+						break;
+					case "1 week":
+						newApi.NextTest = DateTime.Now.AddDays(7);
+						newApi.TestTimeLoop = 168;
+						break;
+					case "1 month":
+						newApi.NextTest = DateTime.Now.AddMonths(1);
+						newApi.TestTimeLoop = 720;
+						break;
+					default:  //Never
+						break;
+				}
+				int identityId = newApi.ApiId;
 
 				foreach (IFormFile external in externalDlls)
 				{
@@ -155,10 +149,9 @@ namespace DataAnnotation.Controllers
 					_context.ExternalDll.Add(externalDll);
 				}
 				_context.SaveChanges();
+
+				Sender(identityId, data["runimmediately"] == "true");
 			}
-
-			Sender(identityId, data["runimmediately"] == "true");
-
 			return Created(nameof(SetupTestController), null);
 		}
 
@@ -169,14 +162,52 @@ namespace DataAnnotation.Controllers
 		{
 			List<IFormFile> files = data.Files.ToList();
 
-			return Ok(GetAPISpecificationInfo.GetSpecInfo(files.Single()));
+			IFormFile apispec = files.Single();
+
+			APISpecificationInfo aPISpecificationInfo = GetAPISpecificationInfo.GetSpecInfo(apispec);
+
+			if(aPISpecificationInfo.Error == null)
+			{
+				var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+
+				Api newApi = new Api();
+				newApi.ApiTitle = data["title"];
+				newApi.UserId = userId;
+
+				using (var ms = new MemoryStream())
+				{
+					apispec.CopyTo(ms);
+					newApi.ApiSpecification = ms.ToArray();
+				}
+
+				newApi.RunGenerated = false;
+				newApi.Tsl = Encoding.Default.GetBytes("");
+
+				using (_context)
+				{
+					_context.Api.Add(newApi);
+					_context.SaveChanges();
+				}
+
+				return Ok(aPISpecificationInfo);
+			}
+
+			return BadRequest(aPISpecificationInfo);
 		}
 
 		[HttpPost]
-		public IActionResult CreateTSL([FromBody] List<Workflow_D> body)  //saves a edited file
+		public IActionResult RemoveUnfinishedSetup()
 		{
-			Console.WriteLine("YO");
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			using (_context)
+			{
+				Api newApi = _context.Api.OrderByDescending(x => x.ApiId).FirstOrDefault();
 
+				if (newApi == null) return NotFound();
+
+				_context.Api.Remove(newApi);
+				_context.SaveChanges();
+			}
 			return Ok();
 		}
 

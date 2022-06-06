@@ -51,6 +51,8 @@ namespace RAPITest.Controllers
 			List<UserInfoAPI> allAPIS = new List<UserInfoAPI>();
 
 			List<Api> apis = _context.Api.Where(a => a.UserId == userId).ToList();
+			apis = apis.FindAll(api => !(Encoding.Default.GetString(api.Tsl).Equals("") && !api.RunGenerated));
+
 			foreach(Api api in apis)
 			{
 				UserInfoAPI userInfoAPI = new UserInfoAPI();

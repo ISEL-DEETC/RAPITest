@@ -12,12 +12,12 @@ export default class SimpleModalComp extends React.Component {
 
         return (
             <div>
-                <Modal show={visible} onHide={cancelButtonFunc}>
+                <Modal size="lg" show={visible} onHide={cancelButtonFunc}>
                     <Modal.Header closeButton>
                         <Modal.Title>{title}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        {body}
+                        <pre>{body}</pre>
                     </Modal.Body>
                     <Modal.Footer>
                         <AwesomeButton type="secondary" onPress={cancelButtonFunc}>Close</AwesomeButton>

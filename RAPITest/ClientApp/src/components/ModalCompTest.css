@@ -25,3 +25,8 @@
     background-color:white;
     justify-content:center;
 }
+
+.seeMoreBody:hover {
+    color: cornflowerblue;
+    cursor: pointer;
+}

@@ -10,5 +10,7 @@ namespace ModelsLibrary.Models.AppSpecific
 		public List<string> Servers { get; set; }
 		public List<string> Paths { get; set; }
 		public List<string> Schemas { get; set; }
+		public List<string> SchemasValues { get; set; }
+		public string Error { get; set; }
 	}
 }

@@ -25,11 +25,14 @@ export class SetupTest extends Component {
         this.state = {
             step: 1,
             name: "",
-            apiSpecification: null,
             testSpecification: null,
             dictionary: null,
             dllFiles: null,
             timeSpecification: null,
+            paths: [],
+            servers: [],
+            schemas: [],
+            schemasValues: [],
             errorMessage: ""
         }
 
@@ -42,6 +45,16 @@ export class SetupTest extends Component {
         this.goToMonitorTests = this.goToMonitorTests.bind(this)
     }
 
+    async componentWillUnmount() {
+        if (this.state.step === 3 || this.state.step === 4) {
+            const token = await authService.getAccessToken();
+            fetch(`SetupTest/RemoveUnfinishedSetup`, {
+                method: 'POST',
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
+            })
+        }
+    }
+
     handlerName(nameTest) {
         this.setState({
             name: nameTest,
@@ -49,9 +62,12 @@ export class SetupTest extends Component {
         })
     }
 
-    handlerAPI(api) {
+    handlerAPI(paths,servers,schemas,schemasValues) {
         this.setState({
-            apiSpecification: api,
+            paths: paths,
+            servers: servers,
+            schemas: schemas,
+            schemasValues: schemasValues,
             step:3
         })
     }
@@ -74,7 +90,6 @@ export class SetupTest extends Component {
 
     async sendTestSetup() {
         let data = new FormData();
-        data.append('apiSpecification', this.state.apiSpecification);
         if (this.state.dictionary !== null) {
             data.append('dictionary.txt', this.state.dictionary);
         }
@@ -91,7 +106,6 @@ export class SetupTest extends Component {
                 data.append(file.name, file)
             }
         }
-        data.append('name', this.state.name);
         data.append('runimmediately', this.state.timeSpecification.runimmediately);
         data.append('interval', this.state.timeSpecification.interval);
         data.append('rungenerated', this.state.timeSpecification.rungenerated);
@@ -153,11 +167,17 @@ export class SetupTest extends Component {
             case 1:
                 return <TestName handlerName={this.handlerName} />;
             case 2:
-                return <UploadApiSpecification handlerAPI={this.handlerAPI} /> ;
+                return <UploadApiSpecification
+                    handlerAPI={this.handlerAPI}
+                    apiTitle={this.state.name}
+                />;
             case 3:
                 return <UploadTestSpecification
                     handlerTest={this.handlerTest}
-                    apiSpecification={this.state.apiSpecification}
+                    paths={this.state.paths}
+                    servers={this.state.servers}
+                    schemas={this.state.schemas}
+                    schemasValues={this.state.schemasValues}
                 />;
             case 4:
                 return <TimeLoop

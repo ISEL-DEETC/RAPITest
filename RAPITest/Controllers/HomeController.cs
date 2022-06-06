@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using System.Diagnostics.CodeAnalysis;
 using ModelsLibrary.Models.EFModels;
 using RAPITest.Models;
+using System.Text;
 
 namespace RAPITest.Controllers
 {
@@ -37,8 +38,9 @@ namespace RAPITest.Controllers
 			HomeUserInfo ret = new HomeUserInfo();
 			ret.LatestActions = new List<ApiInfo>();
 			List<Api> apis = _context.Api.Where(a => a.UserId == userId).ToList();
+			apis = apis.FindAll(api => !(Encoding.Default.GetString(api.Tsl).Equals("") && !api.RunGenerated));
 
-			foreach(Api api in apis)
+			foreach (Api api in apis)
 			{
 				ApiInfo apiInfo = new ApiInfo();
 				apiInfo.ApiId = api.ApiId;

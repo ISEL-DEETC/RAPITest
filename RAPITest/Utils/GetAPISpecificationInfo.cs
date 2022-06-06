@@ -51,11 +51,14 @@ namespace RAPITest.Utils
 				JToken tok = obj.SelectToken("$.components.schemas");
 
 				List<string> schemas = new List<string>();
+				List<string> schemasValues = new List<string>();
 
 				if (tok.Count() > 0)
 				{
 					foreach (JToken schema in tok.AsEnumerable())
 					{
+						string originalSchema = schema.First.ToString();
+						schemasValues.Add(originalSchema);
 						schemas.Add(schema.Path.Split(".").Last());
 					}
 				}
@@ -63,15 +66,14 @@ namespace RAPITest.Utils
 				ret.Paths = paths;
 				ret.Servers = servers;
 				ret.Schemas = schemas;
+				ret.SchemasValues = schemasValues;
 
 				return ret;
 			}
 			catch (Exception e)
 			{
 				APISpecificationInfo ret = new APISpecificationInfo();
-				ret.Paths = new List<string>();
-				ret.Servers = new List<string>();
-				ret.Schemas = new List<string>();
+				ret.Error = e.Message;
 
 				return ret;
 			}
