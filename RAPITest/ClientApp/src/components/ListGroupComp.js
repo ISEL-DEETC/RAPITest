@@ -19,7 +19,7 @@ export default class ListGroupComp extends Component {
                         files.map((f, i) => <ListGroup.Item as="li" key={i}>
                             <Row>
                                 <Col sm={2}>
-                                    {symbol}
+                                    <img style={{ marginRight: "15px" }} width="35" height="35" src={symbol} alt="Logo" />
                                 </Col>
                                 <Col sm={10}>
                                     {toShow(f)}

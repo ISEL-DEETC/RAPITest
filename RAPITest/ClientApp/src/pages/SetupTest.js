@@ -202,7 +202,7 @@ export class SetupTest extends Component {
                 <Row style={{paddingTop: "25px"}}>
                     <Steps labelPlacement="horizontal" current={this.state.step-1}>
                         <Steps.Step title="Test Name" description="Configure the test name, usually the API name" />
-                        <Steps.Step title="API Specification" description="Browse or Drag'n'Drop to upload the API's specification" />
+                        <Steps.Step title="API Specification" description="Upload the OpenAPI Specification" />
                         <Steps.Step title="TSL files" description="Optionally Upload TSL files to customize your tests" />
                         <Steps.Step title="Timer" description="Choose a timer for the automatic repetition of your tests" />
                         <Steps.Step title="Done!" description="Setup another test, or monitor your configured tests" />

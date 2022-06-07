@@ -144,8 +144,8 @@ export class Home extends Component {
                         <Figure>
                             <Figure.Image
                                 width={171}
-                                height={180}
-                                alt="171x180"
+                                height={171}
+                                alt="171x171"
                                 src={loginIcon}
                             />
                             <Figure.Caption>
@@ -157,8 +157,8 @@ export class Home extends Component {
                         <Figure>
                             <Figure.Image
                                 width={171}
-                                height={180}
-                                alt="171x180"
+                                height={171}
+                                alt="171x171"
                                 src={uploadIcon}
                             />
                             <Figure.Caption>
@@ -170,8 +170,8 @@ export class Home extends Component {
                         <Figure>
                             <Figure.Image
                                 width={171}
-                                height={180}
-                                alt="171x180"
+                                height={171}
+                                alt="171x171"
                                 src={statsIcon}
                             />
                             <Figure.Caption>

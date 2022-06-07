@@ -516,14 +516,17 @@ export class CreateTSL extends Component {
         a.download = 'Created_TSL.yaml';
         a.click();
 
+
         var blobDic = new Blob([dictionaryFile], {
             type: 'text/plain'
         });
         let urlDic = window.URL.createObjectURL(blobDic);
         let aDic = document.createElement('a');
         aDic.href = urlDic;
-        aDic.download = 'dictionary.txt';
-        aDic.click();
+        if (dictionaryFile !== "") {
+            aDic.download = 'dictionary.txt';
+            aDic.click();
+        }
 
         const file = new File([blob], 'sample.txt')
         const fileDic = new File([blobDic], 'dic.txt')

@@ -11,10 +11,10 @@
     --button-primary-color-light: #ffffff !important;
     --button-primary-color-hover: #ff8000 !important;
     --button-primary-border: none !important;
-    --button-secondary-color: #d53434 !important;
-    --button-secondary-color-dark: #b80000 !important;
+    --button-secondary-color: #db3d3d !important;
+    --button-secondary-color-dark: #ac2f2f !important;
     --button-secondary-color-light: #ffffff !important;
-    --button-secondary-color-hover: #bd0000 !important;
+    --button-secondary-color-hover: #ac2f2f !important;
     --button-secondary-border: none !important;
     --button-anchor-color: #f3c8ad !important;
     --button-anchor-color-dark: #734922 !important;

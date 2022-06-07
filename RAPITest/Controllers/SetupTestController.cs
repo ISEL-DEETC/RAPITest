@@ -36,7 +36,14 @@ namespace DataAnnotation.Controllers
 		private readonly RAPITestDBContext _context;
 		private readonly string RabbitMqHostName;
 		private readonly int RabbitMqPort;
+		private static readonly HttpClient _httpClient;
+		private static readonly FormOptions _defaultFormOptions;
 
+		static SetupTestController()
+		{
+			_httpClient = new HttpClient();
+			_defaultFormOptions = new FormOptions();
+		}
 		public SetupTestController(ILogger<SetupTestController> logger, RAPITestDBContext context, IConfiguration config)
 		{
 			_logger = logger;
@@ -193,6 +200,57 @@ namespace DataAnnotation.Controllers
 			}
 
 			return BadRequest(aPISpecificationInfo);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> GetSpecificationDetailsURL(IFormCollection data)
+		{
+			string url = data["apiSpecification"];
+			try
+			{
+				Uri uri = new Uri(url);
+				string finalSegment = uri.Segments[uri.Segments.Length-1];
+				if (Path.GetExtension(finalSegment) != ".json" && Path.GetExtension(finalSegment) != ".yaml")
+				{
+					APISpecificationInfo aux = new APISpecificationInfo();
+					aux.Error = "File not valid";
+					return BadRequest(aux);
+				}
+
+				byte[] byteArray = await _httpClient.GetByteArrayAsync(uri);
+				var stream = new MemoryStream(byteArray);
+				IFormFile file = new FormFile(stream, 0, byteArray.Length, "name", "fileName");
+
+				APISpecificationInfo aPISpecificationInfo = GetAPISpecificationInfo.GetSpecInfo(file);
+
+				if (aPISpecificationInfo.Error == null)
+				{
+					var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+
+					Api newApi = new Api();
+					newApi.ApiTitle = data["title"];
+					newApi.UserId = userId;
+					newApi.ApiSpecification = byteArray;
+					newApi.RunGenerated = false;
+					newApi.Tsl = Encoding.Default.GetBytes("");
+
+					using (_context)
+					{
+						_context.Api.Add(newApi);
+						_context.SaveChanges();
+					}
+
+					return Ok(aPISpecificationInfo);
+				}
+
+				return BadRequest(aPISpecificationInfo);
+			}
+			catch(Exception e)
+			{
+				APISpecificationInfo aux = new APISpecificationInfo();
+				aux.Error = "File not valid";
+				return BadRequest(aux);
+			}
 		}
 
 		[HttpPost]
