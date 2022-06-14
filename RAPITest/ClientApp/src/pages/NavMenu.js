@@ -3,6 +3,7 @@ import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLi
 import { Link } from 'react-router-dom';
 import { LoginMenu } from '../pages/api-authorization/LoginMenu';
 import './NavMenu.css';
+import logoIcon from '../assets/logo.png'
 
 export class NavMenu extends Component {
 
@@ -28,7 +29,7 @@ export class NavMenu extends Component {
       <header>
         <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
           <Container>
-            <NavbarBrand tag={Link} to="/">RAPITest</NavbarBrand>
+                    <NavbarBrand tag={Link} to="/"><img src={logoIcon} width="50px" height="50px" style={{ marginRight: "15px" }} />RapiTest</NavbarBrand>
             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
               <ul className="navbar-nav flex-grow">

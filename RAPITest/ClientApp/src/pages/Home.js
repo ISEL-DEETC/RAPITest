@@ -135,7 +135,7 @@ export class Home extends Component {
         return (
             <div>
                 <Row style={{ textAlign: "center" }}>
-                    <h1>RAPITest Helps You</h1>
+                    <h1>RapiTest Helps You</h1>
                     <h1 style={{ fontWeight: "bold" }}>Validate API's Continuously</h1>
                     <h3>With 3 simple steps</h3>
                 </Row>
