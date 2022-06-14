@@ -7,6 +7,7 @@ import {Row, Col, Figure } from 'react-bootstrap'
 import thinkingIcon from '../../assets/thinking.png'
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
+import continueIcon from '../../assets/continue.png'
 
 export class TestName extends Component {
 
@@ -62,7 +63,7 @@ export class TestName extends Component {
                               </Form.Group>
                         </Form>
                         <div style={{ textAlign: "center" }}>
-                            <AwesomeButton type="primary" onPress={() => this.finalizeCallback()}>Continue</AwesomeButton>
+                            <AwesomeButton type="primary" onPress={() => this.finalizeCallback()}><img style={{ marginRight: "10px" }} width="30" height="30" src={continueIcon} alt="Logo" />Continue</AwesomeButton>
                         </div>
                     </Col>
                     <Col sm={8}>

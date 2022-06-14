@@ -8,6 +8,8 @@ import { warningMessage } from '../../components/AlertComp'
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import loopIcon from '../../assets/loop.png'
+import backIcon from '../../assets/back.png'
+import finishIcon from '../../assets/finish.png'
 
 export class TimeLoop extends Component {
 
@@ -142,7 +144,7 @@ export class TimeLoop extends Component {
                             </div>
                         </Form>
                         <div style={{ textAlign: "center" }}>
-                            <AwesomeButton type="primary" onPress={this.finalizeCallback}>Finalize</AwesomeButton>
+                            <AwesomeButton type="primary" onPress={this.finalizeCallback}><img style={{ marginRight: "10px" }} width="30" height="30" src={finishIcon} alt="Logo" />Finalize</AwesomeButton>
                         </div>
                     </Col>
                     <Col sm={8}>
@@ -158,6 +160,9 @@ export class TimeLoop extends Component {
                         </Figure>
                     </Col>
                 </Row>
+                <div style={{ position: 'absolute', bottom: '0', width: '300px' }}>
+                    <AwesomeButton style={{ marginBottom: '25px' }} type="primary" onPress={this.props.goBack}><img style={{ marginRight: "15px" }} width="50" height="50" src={backIcon} alt="Logo" />Go Back</AwesomeButton>
+                </div>
             </div>
         )
     }

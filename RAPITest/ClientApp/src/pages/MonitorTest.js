@@ -5,9 +5,15 @@ import { Container, Row, Col, InputGroup, FormControl, Tab , Nav} from 'react-bo
 import 'bootstrap';
 import './MonitorTest.css'
 import ModalComp from '../components/ModalComp.js'
+import ModalCompEditTestName from '../components/ModalCompEditTestName.js'
 import Loader from 'react-loader-spinner'
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
+import editIcon from '../assets/pencil.png'
+import deleteIcon from '../assets/bin.png'
+import reportIcon from '../assets/statsSmall.png'
+import downloadIcon from '../assets/cloud.png'
+import runIcon from '../assets/play.png'
 
 export class MonitorTest extends Component {
 
@@ -20,7 +26,9 @@ export class MonitorTest extends Component {
             interval: null,
             onShowDeleteModal: false,
             searchByName: '',
-            idToRemove: -1
+            idToRemove: -1,
+            showEditNameModal: false,
+            apiTitleToEdit: ''
         }
         this.enableDeleteModal = this.enableDeleteModal.bind(this)
         this.disableDeleteModal = this.disableDeleteModal.bind(this)
@@ -29,6 +37,9 @@ export class MonitorTest extends Component {
         this.handleOnChange = this.handleOnChange.bind(this)
         this.checkTestCompletions = this.checkTestCompletions.bind(this)
         this.RunNow = this.RunNow.bind(this)
+        this.editName = this.editName.bind(this)
+        this.disableEditNameModal = this.disableEditNameModal.bind(this)
+        this.newName = this.newName.bind(this)
     }
 
     handleOnChange(e) {
@@ -158,17 +169,22 @@ export class MonitorTest extends Component {
         }
         return (
             <div>
-                <div style={{ display: "inline-block",paddingLeft:"5px", paddingRight: "10px" }}>
-                    <AwesomeButton type="primary" onPress={() => this.visualizeReport(item.ApiId)}>Latest Report</AwesomeButton>
+                <div>
+                    <div style={{ paddingLeft: "5px", paddingRight:'5px', display: "inline-block"}}>
+                        <AwesomeButton className="buttonAdd" type="primary" onPress={() => this.visualizeReport(item.ApiId)}><img style={{ marginRight: "15px" }} width="50" height="50" src={reportIcon} alt="Logo" />Analyse</AwesomeButton>
+                    </div>
+                    <div style={{ paddingRight: '5px',  display: "inline-block" }}>
+                        <AwesomeButton className="buttonAdd" type="primary" onPress={() => this.DownloadReport(item.ApiId, item.APITitle, item.LatestReport)}><img style={{ marginRight: "15px" }} width="50" height="50" src={downloadIcon} alt="Logo" />Download</AwesomeButton>
+                    </div>
+                    <div style={{ display: "inline-block" }}>
+                        <AwesomeButton className="buttonAdd" type="primary" onPress={() => this.RunNow(item.ApiId, item)}><img style={{ marginRight: "15px" }} width="50" height="50" src={runIcon} alt="Logo" />Run</AwesomeButton>
+                    </div>
                 </div>
-                <div style={{ display: "inline-block", paddingRight: "10px" }}>
-                    <AwesomeButton type="primary" onPress={() => this.DownloadReport(item.ApiId, item.APITitle, item.LatestReport)}>Download Latest Report</AwesomeButton>
+                <div style={{ display: "inline-block", paddingLeft: "5px", paddingRight: "10px", paddingTop: "9px" }}>
+                    <AwesomeButton className="buttonEdit" type="primary" onPress={() => this.editName(item.ApiId, item.APITitle)}><img width="50" height="50" src={editIcon} alt="Logo" /></AwesomeButton>
                 </div>
-                <div style={{ display: "inline-block", paddingRight: "10px" }}>
-                    <AwesomeButton type="primary" onPress={() => this.RunNow(item.ApiId,item)}>Run Tests</AwesomeButton>
-                </div>
-                <div style={{ display: "inline-block", paddingLeft: "5px", paddingRight: "10px", paddingTop: "5px" }}>
-                    <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}>Delete Test</AwesomeButton>
+                <div style={{ display: "inline-block", paddingLeft: "5px", paddingRight: "10px", paddingTop: "9px" }}>
+                    <AwesomeButton className="buttonEdit" type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}><img width="50" height="50" src={deleteIcon} alt="Logo" /></AwesomeButton>
                 </div>
             </div>
         )
@@ -198,6 +214,36 @@ export class MonitorTest extends Component {
             </table>
         )
     }
+
+    editName(apiId, apiTitle) {
+        this.setState({ apiTitleToEdit: apiTitle, idToRemove:apiId, showEditNameModal: true })
+    }
+
+    async newName(name) {
+        const token = await authService.getAccessToken();
+        fetch(`MonitorTest/ChangeApiTitle?` + new URLSearchParams({
+            apiId: this.state.idToRemove,
+            newTitle: name
+        }), {
+            method: 'PUT',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        }).then(resp => {
+            if (resp.ok) {
+                let aux = this.state.apis
+                aux.forEach((value, key) => {
+                    console.log(value)
+                    console.log(key)
+                    if (value.ApiId === this.state.idToRemove) {
+                        value.APITitle = name
+                    }
+                })
+                this.setState({ apis:aux, showEditNameModal: false })
+            }
+        })
+        
+    }
+
+    disableEditNameModal() { this.setState({ showEditNameModal: false }) }
 
     render() {
 
@@ -251,6 +297,12 @@ export class MonitorTest extends Component {
                         okButtonFunc={this.Remove}
                         cancelButtonFunc={this.disableDeleteModal}
                         visible={this.state.onShowDeleteModal}
+                    />
+                    <ModalCompEditTestName
+                        okButtonFunc={this.newName}
+                        cancelButtonFunc={this.disableEditNameModal}
+                        visible={this.state.showEditNameModal}
+                        currentName={this.state.apiTitleToEdit}
                     />
                 </Container>
             </div>

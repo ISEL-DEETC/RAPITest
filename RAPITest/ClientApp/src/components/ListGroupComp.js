@@ -2,6 +2,7 @@
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap';
 import { ListGroup, Row, Col } from 'react-bootstrap'
+import './ListGroupComp.css';
 
 export default class ListGroupComp extends Component {
 
@@ -10,6 +11,8 @@ export default class ListGroupComp extends Component {
         let files = this.props.files
         let symbol = this.props.symbol
         let toShow = this.props.toShow
+        let removeSymbol = this.props.removeSymbol
+        let removeFunction = this.props.removeFunction
 
         return (
             <div>
@@ -21,8 +24,13 @@ export default class ListGroupComp extends Component {
                                 <Col sm={2}>
                                     <img style={{ marginRight: "15px" }} width="35" height="35" src={symbol} alt="Logo" />
                                 </Col>
-                                <Col sm={10}>
+                                <Col sm={9}>
                                     {toShow(f)}
+                                </Col>
+                                <Col sm={1}>
+                                    <div className="removeFileIcon" onClick={() => removeFunction(f)}>
+                                        <img width="35" height="35" src={removeSymbol} alt="Logo" />
+                                    </div>
                                 </Col>
                             </Row>
                         </ListGroup.Item>)

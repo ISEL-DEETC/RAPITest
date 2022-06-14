@@ -96,7 +96,21 @@ namespace RAPITest.Controllers
 			string rep = Encoding.Default.GetString(report.ReportFile);
 			return Ok(rep);
 		}
-		
+
+		[HttpPut]
+		public IActionResult ChangeApiTitle([FromQuery] int apiId, [FromQuery] string newTitle)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			using (_context)
+			{
+				ModelsLibrary.Models.EFModels.Api api = _context.Api.Where(a => a.ApiId == apiId).FirstOrDefault();
+				if (api == null) return NotFound();
+				api.ApiTitle = newTitle;
+				_context.SaveChanges();
+			}
+			return Ok();
+		}
+
 		[HttpGet]
 		public IActionResult ReturnReport([FromQuery] int apiId) 
 		{

@@ -8,6 +8,8 @@ import { warningMessage, dangerMessage } from '../../components/AlertComp'
 import authService from '../api-authorization/AuthorizeService';
 import Loader from 'react-loader-spinner'
 import { AwesomeButton, AwesomeButtonProgress } from "react-awesome-button";
+import backIcon from '../../assets/back.png'
+import uploadIcon from '../../assets/uploadSmall.png'
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -134,9 +136,12 @@ export class UploadApiSpecification extends Component {
                             </Form>
                         </Col>
                         <Col sm={2}>
-                            <AwesomeButton style={{marginTop:'25px'}} type="primary" onPress={this.uploadURL}>Upload</AwesomeButton>
+                            <AwesomeButton className="buttonAdd" style={{ marginTop: '20px' }} type="primary" onPress={this.uploadURL}><img style={{ marginRight: "15px" }} width="50" height="50" src={uploadIcon} alt="Logo" />Upload</AwesomeButton>
                         </Col>
                     </Row>
+                    <div style={{ position: 'absolute', bottom: '0', width: '300px' }}>
+                        <AwesomeButton style={{ marginBottom: '25px' }} type="primary" onPress={this.props.goBack}><img style={{ marginRight: "15px" }} width="50" height="50" src={backIcon} alt="Logo" />Go Back</AwesomeButton>
+                    </div>
                 </div>}
                 {!this.state.showInput && <div>
                     <Row>

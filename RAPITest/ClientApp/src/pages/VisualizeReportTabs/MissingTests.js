@@ -6,6 +6,7 @@ import { Row, Col, Table } from 'react-bootstrap'
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import authService from '../api-authorization/AuthorizeService'
+import generatedIcon from '../../assets/gear.png'
 
 const YAML = require('json-to-pretty-yaml');
 
@@ -58,7 +59,7 @@ export default class MissingTests extends Component {
                         <h3 style={{fontWeight: "bold" }}>Missing Tests</h3>
                     </Col>
                     <Col>
-                        <AwesomeButton style={{ width: "200px" }} type="primary" onPress={() => this.generateTSLFile()}>Generate TSL</AwesomeButton>
+                        <AwesomeButton className="buttonAdd" type="primary" onPress={() => this.generateTSLFile()}><img style={{ marginRight: "15px" }} width="50" height="50" src={generatedIcon} alt="Logo" />Generate TSL</AwesomeButton>
                     </Col>
                 </Row>
                 <Row>

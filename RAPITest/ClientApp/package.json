@@ -35,7 +35,8 @@
     "react-xarrows": "2.0.2",
     "react-tabs": "4.2.1",
     "json-to-pretty-yaml": "1.2.2",
-    "react-widgets": "5.8.4"
+    "react-widgets": "5.8.4",
+    "react-read-more-read-less": "1.0.7"
   },
   "devDependencies": {
     "@babel/core": "^7.16.10",

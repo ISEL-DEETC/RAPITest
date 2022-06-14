@@ -12,6 +12,8 @@ import "rc-steps/assets/index.css";
 import './iconfront.css';
 import successIcon from '../assets/tick.png'
 import errorIcon from '../assets/remove.png'
+import checkIcon from '../assets/search.png'
+import anotherIcon from '../assets/repost.png'
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 
@@ -43,6 +45,7 @@ export class SetupTest extends Component {
         this.sendTestSetup = this.sendTestSetup.bind(this)
         this.restartCallback = this.restartCallback.bind(this)
         this.goToMonitorTests = this.goToMonitorTests.bind(this)
+        this.goBack = this.goBack.bind(this)
     }
 
     async componentWillUnmount() {
@@ -86,6 +89,18 @@ export class SetupTest extends Component {
         this.setState({
             timeSpecification: time
         },() => this.sendTestSetup())
+    }
+
+    async goBack() {
+        let currentStep = this.state.step
+        if (currentStep === 3) {
+            const token = await authService.getAccessToken();
+            fetch(`SetupTest/RemoveUnfinishedSetup`, {
+                method: 'POST',
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
+            })
+        }
+        this.setState({step: currentStep-1})
     }
 
     async sendTestSetup() {
@@ -170,6 +185,7 @@ export class SetupTest extends Component {
                 return <UploadApiSpecification
                     handlerAPI={this.handlerAPI}
                     apiTitle={this.state.name}
+                    goBack={this.goBack}
                 />;
             case 3:
                 return <UploadTestSpecification
@@ -178,19 +194,21 @@ export class SetupTest extends Component {
                     servers={this.state.servers}
                     schemas={this.state.schemas}
                     schemasValues={this.state.schemasValues}
+                    goBack={this.goBack}
                 />;
             case 4:
                 return <TimeLoop
                     handlerTime={this.handlerTime}
                     tslFiles={this.state.testSpecification}
+                    goBack={this.goBack}
                 />;
             case 5:
                 title = <div style={{ textAlign: "center", fontSize: "35px", fontWeight: "bold" }}>Success!</div>
-                message = <div style={{ paddingTop: "50px", textAlign: "center", fontSize: "30px" }}><AwesomeButton type="primary" onPress={this.goToMonitorTests}>Check Results</AwesomeButton><br></br>or<br></br><AwesomeButton type="primary" onPress={this.restartCallback}>Setup Another Test</AwesomeButton></div>
+                message = <div style={{ paddingTop: "50px", textAlign: "center", fontSize: "30px" }}><AwesomeButton className="buttonAdd" type="primary" onPress={this.goToMonitorTests}><img style={{ marginRight: "15px" }} width="50" height="50" src={checkIcon} alt="Logo" />Check Results</AwesomeButton><br></br>or<br></br><AwesomeButton className="buttonAdd" type="primary" onPress={this.restartCallback}><img style={{ marginRight: "15px" }} width="50" height="50" src={anotherIcon} alt="Logo" />Setup Another Test</AwesomeButton></div>
                 return this.renderSuccess(title,message,successIcon)
             default:
                 title = <div style={{ textAlign: "center", fontSize: "35px", fontWeight: "bold" }}>Error!</div>
-                message = <div style={{ paddingTop: "50px", textAlign: "center", fontSize: "20px" }}>{this.state.errorMessage}<br></br><AwesomeButton type="primary" onPress={this.restartCallback}>Setup Another Test</AwesomeButton></div>
+                message = <div style={{ paddingTop: "50px", textAlign: "center", fontSize: "20px" }}>{this.state.errorMessage}<br></br><AwesomeButton className="buttonAdd" type="primary" onPress={this.restartCallback}>Setup Another Test</AwesomeButton></div>
                 return this.renderSuccess(title, message, errorIcon)
         }
     }
@@ -213,5 +231,5 @@ export class SetupTest extends Component {
                 </Row>
             </div>
         );
-    }
+    } 
 }

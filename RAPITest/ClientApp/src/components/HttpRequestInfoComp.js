@@ -1,5 +1,7 @@
 ﻿import React, { Component } from 'react'
-import {  Table } from 'react-bootstrap'
+import { Table } from 'react-bootstrap'
+import ReactReadMoreReadLess from "react-read-more-read-less";
+import './HttpRequestInfoComp.css';
 
 export default class HttpRequestInfoComp extends Component {
     render() {
@@ -13,9 +15,6 @@ export default class HttpRequestInfoComp extends Component {
         let responseHeaders = this.props.responseHeaders
         let responseBody = this.props.responseBody
         let responseTime = this.props.responseTime
-
-        console.log(requestHeaders)
-        console.log(responseHeaders)
 
         let headersString = ""
 
@@ -46,7 +45,7 @@ export default class HttpRequestInfoComp extends Component {
                         </tr>
                         <tr>
                             <td>Body</td>
-                            <td>{requestBody}</td>
+                            <td><pre>{requestBody}</pre></td>
                         </tr>
                     </tbody>
                 </Table>
@@ -59,7 +58,19 @@ export default class HttpRequestInfoComp extends Component {
                         </tr>
                         <tr>
                             <td>Body</td>
-                            <td>{responseBody}</td>
+                            <td>
+                                <pre>
+                                    <ReactReadMoreReadLess
+                                        charLimit={400}
+                                        readMoreText={"Read more ▼"}
+                                        readLessText={"Read less ▲"}
+                                        readMoreClassName="read-more-less--more"
+                                        readLessClassName="read-more-less--more"
+                                    >
+                                        {responseBody}
+                                    </ReactReadMoreReadLess>
+                                </pre>
+                            </td>
                         </tr>
                         <tr>
                             <td>Headers</td>

@@ -13,6 +13,8 @@ import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
 import HttpRequestInfoComp from '../components/HttpRequestInfoComp'
 import calendarIcon from '../assets/calendar.png'
+import reportIcon from '../assets/statsSmall.png'
+import ReactReadMoreReadLess from "react-read-more-read-less";
 
 const average = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
 
@@ -349,7 +351,17 @@ export class VisualizeReport extends Component {
                     </tr>
                     <tr>
                         <td>Description</td>
-                        <td>{this.state.sidePanelInfo.verification.Description}</td>
+                        <td>
+                            <ReactReadMoreReadLess
+                                charLimit={800}
+                                readMoreText={"Read more ▼"}
+                                readLessText={"Read less ▲"}
+                                readMoreClassName="read-more-less--more"
+                                readLessClassName="read-more-less--more"
+                            >
+                                {this.state.sidePanelInfo.verification.Description}
+                            </ReactReadMoreReadLess>
+                        </td>
                     </tr>
                 </tbody>
             </Table>
@@ -403,8 +415,8 @@ export class VisualizeReport extends Component {
         return (
             <div>
                 <Row>
-                    <Col>
-                        <h1>{this.state.apiTitle}</h1>
+                    <Col>    
+                        <h1><img style={{ marginRight: "15px" }} width="64" height="64" src={reportIcon} alt="Logo" />{this.state.apiTitle}</h1>
                     </Col>
                     <Col className="d-flex justify-content-end">
                         <Figure style={{paddingRight:"10px"}}>

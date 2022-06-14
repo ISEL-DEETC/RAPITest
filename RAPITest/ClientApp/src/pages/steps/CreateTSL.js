@@ -16,6 +16,8 @@ import editIcon from '../../assets/pencil.png'
 import deleteIcon from '../../assets/bin.png'
 import stressIcon from '../../assets/analysis.png'
 import searchIcon from '../../assets/search.png'
+import backIcon from '../../assets/back.png'
+import continueIcon from '../../assets/continue.png'
 import authService from '../api-authorization/AuthorizeService';
 import './CreateTSL.css';
 
@@ -570,7 +572,7 @@ export class CreateTSL extends Component {
                     <AwesomeButton className="buttonAdd" type="primary" onPress={this.addWorkflow}><img style={{ marginRight: "15px" }} width="50" height="50" src={workflowIcon} alt="Logo" />Add Workflow</AwesomeButton>
                 </div>
                 <div style={{ marginTop: "30px" }}>
-                    <AwesomeButton className="buttonFinalize" disabled={this.showFinalizeButton()} type="primary" onPress={this.finalize}>Download & Finalize</AwesomeButton>
+                    <AwesomeButton className="buttonAdd" disabled={this.showFinalizeButton()} type="primary" onPress={this.finalize}><img style={{ marginRight: "15px" }} width="50" height="50" src={continueIcon} alt="Logo" />Download & Continue</AwesomeButton>
                 </div>
                 <ModalCompWorkflow
                     okButtonFunc={this.createWorkflow}
@@ -628,6 +630,9 @@ export class CreateTSL extends Component {
                     cancelButtonFunc={this.disableShowBodyModal}
                     visible={this.state.showBodyModal}
                 />
+                <div style={{ position: 'absolute', bottom: '0', width: '300px' }}>
+                    <AwesomeButton style={{ marginBottom: '25px' }} type="primary" onPress={this.props.goBackToSelection}><img style={{ marginRight: "15px" }} width="50" height="50" src={backIcon} alt="Logo" />Go Back</AwesomeButton>
+                </div>
             </div>
         )
     }
