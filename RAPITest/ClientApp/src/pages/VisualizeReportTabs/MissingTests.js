@@ -44,7 +44,7 @@ export default class MissingTests extends Component {
                 let url = window.URL.createObjectURL(blob);
                 let a = document.createElement('a');
                 a.href = url;
-                a.download = apiTitle + '_' + 'MissingTests_TSL.yaml';
+                a.download = apiTitle + '_MissingTests_TSL.yaml';
                 a.click();
             })
     }

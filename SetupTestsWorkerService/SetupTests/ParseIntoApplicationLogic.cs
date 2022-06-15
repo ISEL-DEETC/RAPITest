@@ -247,7 +247,10 @@ namespace SetupTestsWorkerService.SetupTests
 					{
 						firstTestSetup.Errors.Add("Dictionary reference in TSL file not found in dictionary file, the id must be exact, case sensitive");
 					}
-					allVerifications.Add(new Schema(value));
+					else
+					{
+						allVerifications.Add(new Schema(value));
+					}
 				}
 				if (verification.Schema.StartsWith("$ref/definitions/"))
 				{
@@ -257,7 +260,10 @@ namespace SetupTestsWorkerService.SetupTests
 					{
 						firstTestSetup.Errors.Add("Definitions reference in TSL file not found in specification file, the id must be exact, case sensitive");
 					}
-					allVerifications.Add(new Schema(jSchema.ToString()));
+					else
+					{
+						allVerifications.Add(new Schema(jSchema.ToString()));
+					}
 				}
 			}
 

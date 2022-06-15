@@ -10,8 +10,8 @@ import Steps from "rc-steps";
 import authService from './api-authorization/AuthorizeService';
 import "rc-steps/assets/index.css";
 import './iconfront.css';
-import successIcon from '../assets/tick.png'
-import errorIcon from '../assets/remove.png'
+import successIcon from '../assets/tick.webp'
+import errorIcon from '../assets/remove.webp'
 import checkIcon from '../assets/search.png'
 import anotherIcon from '../assets/repost.png'
 import { AwesomeButton } from "react-awesome-button";
@@ -76,7 +76,6 @@ export class SetupTest extends Component {
     }
 
     handlerTest(tsl, dictionary, dll) {
-        console.log(tsl,dictionary,dll)
         this.setState({
             testSpecification: tsl,
             dictionary: dictionary,
@@ -117,7 +116,6 @@ export class SetupTest extends Component {
         }
         if (this.state.dllFiles !== null) {
             for (const file of this.state.dllFiles) {
-                console.log(file)
                 data.append(file.name, file)
             }
         }

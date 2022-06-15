@@ -1,9 +1,9 @@
 ﻿import React, { Component } from 'react'
-import analyseFileImage from '../assets/analysefile.png'
-import uploadFileImage from '../assets/uploadfile.png'
-import workspaceImage from '../assets/workspace.png'
 import duarteImage from '../assets/Duarte.jpg'
-import {Row, Col } from 'react-bootstrap'
+import openIcon from '../assets/openapi.png'
+import tslIcon from '../assets/tslogo.png'
+import loopIcon from '../assets/loop.webp'
+import {Row, Col, Figure } from 'react-bootstrap'
 
 export default class About extends Component {
 
@@ -13,72 +13,63 @@ export default class About extends Component {
     render() {
         return (
             <div>
-                <Row style={{ backgroundColor: "#F5F5F5", maxWidth: "1919px" }}>
+                <Row style={{  maxWidth: "1919px" }}>
                     <Col style={{ padding: "100px 100px 100px 100px" }}>
-                        <figure>
-                            <img src={uploadFileImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />
-                        </figure>
+                        <img width="300" height="300" src={openIcon} alt="Logo" />
                     </Col>
-                    <Col style={{ padding: "150px 150px 100px 75px" }}>
-                        
-                            <h3>Upload File</h3>
-                            <p></p>
-                            <p>In order for us to analyse the files, you need to first upload them, that's where this page comes in hand!</p>
-                            <p>In our <strong>Upload File</strong> page you can upload files in two different ways, locally or trough an URL you can supply us.</p>
-                            <p>Simply drag over, browse or supply the link and the file will be uploaded automatically!</p>
-                        
+                    <Col style={{ padding: "100px 150px 100px 75px" }}>
+                        <h3>OpenAPI</h3>
+                        <p></p>
+                        <p>In order to test your desired API, you need to supply it's description.</p>
+                        <p>For this purpose we take advantage of the OpenAPI initiative which defines a standard, language-agnostic interface to RESTful APIs.</p>
+                        <p>This allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection.</p>     
                     </Col>
                 </Row>
                 <Row style={{ maxWidth: "1919px" }}>
-                    <Col style={{ padding: "120px 75px 100px 150px" }}>
-                        
-                            <h3>Workspace</h3>
-                            <p></p>
-                            <p>After uploading your file you can begin the automated analysis!</p>
-                            <p>Just head over to the <strong>My Workspace</strong> page, select the file you want to analyse and press the <strong>Analyse</strong> button to begin the automated analysis.</p>
-                            <p>The analysis may take a while, however, you can start multiple analysis at the same time.</p>
-                            <p>Once the analysis completes, you can download it or check it out and customize it in our visualization.</p>
-                       
+                    <Col style={{ padding: "120px 75px 100px 100px" }}>
+                        <h3>Test Specific Language</h3>
+                        <p></p>
+                        <p>After uploading the OpenAPI Specification you can customize tests with TSL files.</p>
+                        <p>These yaml files define specific tests which would be impossible to generate with just the specification.</p>
+                        <p>They allow for the creation of workflows, stress tests, native and custom verifications and much more!</p>
                     </Col>
-                    <Col style={{ padding: "100px 100px 100px 100px" }}>
-                        <figure>
-                            <img src={workspaceImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />
-                        </figure>
-                    </Col>
-                </Row>
-                <Row style={{ backgroundColor: "#F5F5F5", maxWidth: "1919px" }}>
-                    <Col style={{ padding: "100px 100px 100px 100px" }}>
-                        <figure>
-                            <img src={analyseFileImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />
-                        </figure>
-                    </Col>
-                    <Col style={{ padding: "108px 150px 100px 75px" }}>
-                        
-                            <h3>Analyse File</h3>
-                            <p></p>
-                            <p>Our analysis can have some unwanted errors, that's where you come in.</p>
-                            <p>Simply <strong>Go to Analysis</strong> and begin your customization!</p>
-                            <p>With our simple and interactive drag & drop tecnology you can customize our analysis in any way you want!</p>
-                            <p>You can even save the new changes and download the new and improved analysis, don't worry, if you save or change anything by accident we always keep track of the versions.</p>
-                       
+                    <Col style={{ padding: "80px 100px 100px 100px" }}>
+                        <img width="300" height="300" src={tslIcon} alt="Logo" />
                     </Col>
                 </Row>
                 <Row style={{ maxWidth: "1919px" }}>
-                    <Col style={{ padding: "150px 150px 100px 75px" }}>
-                        
-                            <h3>About us</h3>
-                            <p></p>
-                            <p>This App was developed by three soon to be (we hope) engineers.</p>
-                            <p>It served as our final project to complete our bachelor's degree in Computed Engineering for ISEL.</p>
-                            <p>We learned alot from making this App and we really hope you like it!</p>
-                            <p>You can find the source code for this app in our public <a href="https://github.com/DuarteFelicio/DataAnnotation">github</a>.</p>
-                       
+                    <Col style={{ padding: "100px 100px 100px 100px" }}>
+                        <img width="300" height="300" src={loopIcon} alt="Logo" />
+                    </Col>
+                    <Col style={{ padding: "100px 150px 100px 75px" }}>
+                        <h3>Test Continuously</h3>
+                        <p></p>
+                        <p>Continuous testing is also supported!</p>
+                        <p>After defining a time interval your tests are run at each interval which allows continuous monitoring of the API.</p>
+                        <p>It is also useful for APIs in development to make sure nothing breaks with each update!</p>                    
+                    </Col>
+                </Row>
+                <Row style={{ maxWidth: "1919px" }}>
+                    <Col style={{ padding: "150px 150px 100px 75px" }}>                     
+                        <h3>About me</h3>
+                        <p></p>
+                        <p>This App was developed by one soon to be (I hope) post-graduate engineer.</p>
+                        <p>It served as my thesis for the masters degree in Computed Engineering for ISEL.</p>
+                        <p>I learned alot from making this App and I really hope you like it!</p>
+                        <p>You can find the source code for this app in my public <a href="https://github.com/DuarteFelicio/RAPITest" rel="noopener noreferrer" target="_blank">github</a>.</p>
                     </Col>
                     <Col style={{ padding: "100px 100px 100px 100px" }}>
-                        <figure>
-                            <img src={duarteImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />
-                            <figcaption style={{ textAlign: 'center' }}>Duarte Felicio</figcaption>
-                        </figure>
+                        <Figure>
+                            <Figure.Image
+                                width={300}
+                                height={300}
+                                alt="300x300"
+                                src={duarteImage}
+                            />
+                            <Figure.Caption>
+                                Duarte Felicio
+                            </Figure.Caption>
+                        </Figure>
                     </Col>   
                 </Row>
             </div>

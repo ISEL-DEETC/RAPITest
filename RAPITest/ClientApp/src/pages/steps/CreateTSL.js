@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
-import { Container, Row, Col, Accordion,Table } from 'react-bootstrap'
+import { Row, Col, Accordion,Table } from 'react-bootstrap'
 import './UploadFile.css';
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
@@ -18,7 +18,6 @@ import stressIcon from '../../assets/analysis.png'
 import searchIcon from '../../assets/search.png'
 import backIcon from '../../assets/back.png'
 import continueIcon from '../../assets/continue.png'
-import authService from '../api-authorization/AuthorizeService';
 import './CreateTSL.css';
 
 const YAML = require('json-to-pretty-yaml');
@@ -291,7 +290,6 @@ export class CreateTSL extends Component {
                 }
                 else {
                     item.Tests.forEach((testaux, testindex) => {
-                        console.log(testaux)
                         if (testaux.TestID === this.state.currentTest.TestID) {
                             testaux.TestID = test.TestID
                             testaux.Server = test.Server
@@ -305,7 +303,6 @@ export class CreateTSL extends Component {
                 }
             }
         })
-        console.log(aux)
         this.setState({ defaultTestValues: auxdefault, workflows: aux, showTestModal: false, editTest: false })
     }
 
@@ -549,7 +546,6 @@ export class CreateTSL extends Component {
 
     setupVerifications(verifications) {
         let newVerifications = []
-        console.log(verifications)
         if (verifications.Schema === "") {
             delete verifications.Schema
         }
@@ -630,8 +626,8 @@ export class CreateTSL extends Component {
                     cancelButtonFunc={this.disableShowBodyModal}
                     visible={this.state.showBodyModal}
                 />
-                <div style={{ position: 'absolute', bottom: '0', width: '300px' }}>
-                    <AwesomeButton style={{ marginBottom: '25px' }} type="primary" onPress={this.props.goBackToSelection}><img style={{ marginRight: "15px" }} width="50" height="50" src={backIcon} alt="Logo" />Go Back</AwesomeButton>
+                <div style={{ marginTop: '200px' }}>
+                    <AwesomeButton  type="primary" onPress={this.props.goBackToSelection}><img style={{ marginRight: "15px" }} width="50" height="50" src={backIcon} alt="Logo" />Go Back</AwesomeButton>
                 </div>
             </div>
         )

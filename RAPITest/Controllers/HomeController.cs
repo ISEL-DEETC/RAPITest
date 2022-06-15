@@ -12,6 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 using ModelsLibrary.Models.EFModels;
 using RAPITest.Models;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace RAPITest.Controllers
 {
@@ -53,6 +54,19 @@ namespace RAPITest.Controllers
 				if(latestReport != null)
 				{
 					apiInfo.ReportDate = latestReport.ReportDate;
+
+					string text = Encoding.Default.GetString(latestReport.ReportFile);
+					if (text[0] == '{')
+					{
+						//valid report
+						ModelsLibrary.Models.Report re = JsonConvert.DeserializeObject<ModelsLibrary.Models.Report>(text);
+						apiInfo.Errors = re.Errors;
+						apiInfo.Warnings = re.Warnings;
+					}
+					else
+					{
+						apiInfo.Errors = -1;
+					}
 				}
 				ret.LatestActions.Add(apiInfo);
 			}

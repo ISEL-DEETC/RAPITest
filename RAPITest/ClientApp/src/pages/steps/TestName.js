@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
 import { warningMessage } from '../../components/AlertComp'
 import {Row, Col, Figure } from 'react-bootstrap'
-import thinkingIcon from '../../assets/thinking.png'
+import thinkingIcon from '../../assets/thinking.webp'
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import continueIcon from '../../assets/continue.png'

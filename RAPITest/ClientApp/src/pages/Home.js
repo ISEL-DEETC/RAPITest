@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import authService from './api-authorization/AuthorizeService'
 import CardComp from '../components/CardComp'
-import statsIcon from '../assets/stats.png'
-import uploadIcon from '../assets/upload.png'
-import loginIcon from '../assets/login.png'
-import {Table,  Row, Col, Figure} from 'react-bootstrap'
+import statsIcon from '../assets/stats.webp'
+import uploadIcon from '../assets/upload.webp'
+import loginIcon from '../assets/login.webp'
+import { Table, Row, Col, Figure, Badge, ListGroup } from 'react-bootstrap'
 import './Home.css';
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
+import testIcon from '../assets/test.png'
+import calendarIcon from '../assets/calendar.png'
+import clockIcon from '../assets/clock.png'
 
 export class Home extends Component {
 
@@ -77,10 +80,21 @@ export class Home extends Component {
     }
 
     renderLastReports(latestReports) {
-        return latestReports.map(report => {
-            if (report.ReportDate === "0001-01-01T00:00:00") return null
-            return <button type="button" key={report.ApiId} className="link-button" onClick={() => this.props.history.push('/monitorTests/report/' + report.ApiId)}>The latest test for {report.Title} completed on {report.ReportDate}<br></br></button>
-        })
+        return (
+            <ListGroup>
+                {latestReports.map(report => {
+                    if (report.ReportDate !== "0001-01-01T00:00:00") {
+                        return (
+                            <ListGroup.Item key={report.ApiId}>
+                                {report.Errors === -1 ? <div className="link-button" onClick={() => this.props.history.push('/monitorTests')}><img style={{ marginRight: "10px" }} width="20" height="20" src={testIcon} alt="Logo" />{report.Title} on {report.ReportDate} <div style={{ float: 'right' }}><Badge bg="danger">Validation Error</Badge></div></div> : <div className="link-button" onClick={() => this.props.history.push('/monitorTests/report/' + report.ApiId)}><img style={{ marginRight: "10px" }} width="20" height="20" src={testIcon} alt="Logo" />{report.Title} on {report.ReportDate} <div style={{ float: 'right' }}><Badge bg="danger">{report.Errors} Errors</Badge>{' '}<Badge bg="warning">{report.Warnings} Warnings</Badge></div></div>}
+                                
+                            </ListGroup.Item>
+                        )
+                    }
+                    return <div key={report.ApiId}></div>
+                })}
+            </ListGroup>
+        )
     }
 
     //render page for a logged in user
@@ -96,17 +110,20 @@ export class Home extends Component {
                         <CardComp
                             title='Recently Completed Tests'
                             body={this.renderLastReports(this.state.latestActions)}
+                            icon={clockIcon}
                         />
                     </Col>
                     <Col>                    
                         <CardComp
                             title='Configured Tests'
                             body={this.state.currentSetupTests}
+                            icon={testIcon}
                         />                       
                         <div style={{ paddingTop: "47px" }}></div>
                         <CardComp
                             title='Previous Login'
                             body={this.state.lastLogin}
+                            icon={calendarIcon}
                         />
                     </Col>
                 </Row>

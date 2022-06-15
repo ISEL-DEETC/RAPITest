@@ -11,5 +11,7 @@ namespace RAPITest.Models
 		public string Title { get; set; }
 		public DateTime ReportDate { get; set; }
 		public DateTime NextTest { get; set; }
+		public int Errors { get; set; }
+		public int Warnings { get; set; }
 	}
 }

@@ -1,6 +1,6 @@
 ﻿import React from 'react'
 import { Modal, Form, Row,Col } from 'react-bootstrap'
-import { AwesomeButton, AwesomeButtonProgress } from "react-awesome-button";
+import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import { warningMessage } from './AlertComp'
 import "react-widgets/styles.css";
@@ -238,8 +238,6 @@ export default class ModalCompTest extends React.Component {
     }
 
     showFullSchema() {
-        console.log(this.state.selectedSchema)
-        console.log(this.state.schemas)
         let myindex = -1
         this.state.schemas.forEach((item, index) => {
             if (item === this.state.selectedSchema) {

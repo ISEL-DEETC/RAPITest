@@ -67,7 +67,7 @@ export default class HttpRequestInfoComp extends Component {
                                         readMoreClassName="read-more-less--more"
                                         readLessClassName="read-more-less--more"
                                     >
-                                        {responseBody}
+                                        {responseBody === null ? "" : responseBody}
                                     </ReactReadMoreReadLess>
                                 </pre>
                             </td>

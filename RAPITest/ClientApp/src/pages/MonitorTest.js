@@ -154,7 +154,7 @@ export class MonitorTest extends Component {
 
     renderTestButtons(item) {
         if (item.ErrorMessages !== null) return <AwesomeButton type="secondary" onPress={() => this.enableDeleteModal(item.ApiId)}>Delete Test</AwesomeButton>
-        if (item.LatestReport === "-" && item.NextTest === "-" || item.RunningNow !== undefined) {
+        if ((item.LatestReport === "-" && item.NextTest === "-") || (item.RunningNow !== undefined)) {
             return <div className="row" style={{ marginLeft: 10, marginRight: 10 }}><div style={{ marginRight: 10 }}>Running Tests..</div><Loader type="Grid" color="#00BFFF" height={35} width={35} /></div>
         }
         if (item.LatestReport === "-") {
@@ -231,8 +231,6 @@ export class MonitorTest extends Component {
             if (resp.ok) {
                 let aux = this.state.apis
                 aux.forEach((value, key) => {
-                    console.log(value)
-                    console.log(key)
                     if (value.ApiId === this.state.idToRemove) {
                         value.APITitle = name
                     }

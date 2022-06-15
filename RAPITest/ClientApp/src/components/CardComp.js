@@ -5,15 +5,16 @@ export default class AccordionComp extends Component {
     render() {
         let title = this.props.title
         let body = this.props.body
+        let icon = this.props.icon
 
         if (title === 'Recently Completed Tests') {
             return (
-                <Card border="info" style={{ minHeight: "280px" }}>
+                <Card border="info" style={{ minHeight: "313px" }}>
                     <Card.Header>
-                        <h3>{title}</h3>
+                        <h3><img style={{ marginRight: "15px" }} width="50" height="50" src={icon} alt="Logo" />{title}</h3>
                     </Card.Header>
                     <Card.Body>
-                        <Card.Text>{body}</Card.Text>
+                        {body}
                     </Card.Body>
                 </Card>
             )
@@ -21,7 +22,7 @@ export default class AccordionComp extends Component {
         return (
             <Card border="info">
                 <Card.Header>
-                    <h3>{title}</h3>
+                    <h3><img style={{ marginRight: "15px" }} width="50" height="50" src={icon} alt="Logo" />{title}</h3>
                 </Card.Header>
                 <Card.Body>
                     <Card.Text>{body}</Card.Text>

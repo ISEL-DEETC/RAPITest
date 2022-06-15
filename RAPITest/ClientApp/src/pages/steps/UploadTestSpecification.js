@@ -1,14 +1,11 @@
 ﻿import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
-import Dropzone from '../../components/Dropzone'
-import { Container, Row, Col, Figure} from 'react-bootstrap'
+import {  Row, Col, Figure} from 'react-bootstrap'
 import './UploadFile.css';
-import { warningMessage } from '../../components/AlertComp'
-import ListGroupComp from '../../components/ListGroupComp'
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
-import InfoIcon from '../../assets/info.png'
+import InfoIcon from '../../assets/info.webp'
 import backIcon from '../../assets/back.png'
 import createIcon from '../../assets/optimization.png'
 import uploadIcon from '../../assets/uploadSmall.png'
@@ -97,8 +94,8 @@ export class UploadTestSpecification extends Component {
                         </Row>
                     </Col>
                 </Row>
-                <div style={{ position: 'absolute', bottom: '0', width: '300px' }}>
-                    <AwesomeButton style={{ marginBottom: '25px' }} type="primary" onPress={this.props.goBack}><img style={{ marginRight: "15px" }} width="50" height="50" src={backIcon} alt="Logo" />Go Back</AwesomeButton>
+                <div style={{ marginTop: '150px' }}>
+                    <AwesomeButton  type="primary" onPress={this.props.goBack}><img style={{ marginRight: "15px" }} width="50" height="50" src={backIcon} alt="Logo" />Go Back</AwesomeButton>
                 </div>
             </div>
        )
@@ -126,6 +123,8 @@ export class UploadTestSpecification extends Component {
                     schemasValues={this.props.schemasValues}
                     goBackToSelection={this.goBackToSelection}
                 />
+            default:
+                return <div></div>
         }
     }
 

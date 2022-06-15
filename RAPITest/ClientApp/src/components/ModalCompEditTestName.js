@@ -1,6 +1,6 @@
 ﻿import React from 'react'
 import { Modal, Form } from 'react-bootstrap'
-import { AwesomeButton, AwesomeButtonProgress } from "react-awesome-button";
+import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 import { warningMessage } from './AlertComp'
 

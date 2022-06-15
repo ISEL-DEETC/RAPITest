@@ -7,7 +7,7 @@ import RadioComp from '../../components/RadioComp'
 import { warningMessage } from '../../components/AlertComp'
 import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
-import loopIcon from '../../assets/loop.png'
+import loopIcon from '../../assets/loop.webp'
 import backIcon from '../../assets/back.png'
 import finishIcon from '../../assets/finish.png'
 
@@ -160,8 +160,8 @@ export class TimeLoop extends Component {
                         </Figure>
                     </Col>
                 </Row>
-                <div style={{ position: 'absolute', bottom: '0', width: '300px' }}>
-                    <AwesomeButton style={{ marginBottom: '25px' }} type="primary" onPress={this.props.goBack}><img style={{ marginRight: "15px" }} width="50" height="50" src={backIcon} alt="Logo" />Go Back</AwesomeButton>
+                <div style={{ marginTop: '50px' }}>
+                    <AwesomeButton type="primary" onPress={this.props.goBack}><img style={{ marginRight: "15px" }} width="50" height="50" src={backIcon} alt="Logo" />Go Back</AwesomeButton>
                 </div>
             </div>
         )

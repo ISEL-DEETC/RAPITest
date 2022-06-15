@@ -317,7 +317,7 @@ export class VisualizeReport extends Component {
                         })
 
                         return (
-                            <tr>
+                            <tr key={i}>
                                 <td>{test.TestID}</td>
                                 <td>{nSuccesses}</td>
                                 <td>{nErrors}</td>
@@ -359,7 +359,7 @@ export class VisualizeReport extends Component {
                                 readMoreClassName="read-more-less--more"
                                 readLessClassName="read-more-less--more"
                             >
-                                {this.state.sidePanelInfo.verification.Description}
+                                {this.state.sidePanelInfo.verification.Description === null ? "" : this.state.sidePanelInfo.verification.Description}
                             </ReactReadMoreReadLess>
                         </td>
                     </tr>
