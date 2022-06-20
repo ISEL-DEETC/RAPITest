@@ -49,16 +49,29 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#docker">Docker</a></li>
+        <li><a href="#locally">Locally</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
+    <li>
+      <a href="#test-specific-language">Test Specific Language, _TSL_</a>
+      <ul>
+        <li>
+          <a href="#basic-structure">Basic Structure</a>
+          <ul>
+            <li><a href="#workflow">Workflow</a></li>
+            <li><a href="#stress-test">Stress Test</a></li>
+            <li><a href="#test">Test</a></li>
+            <li><a href="#dictionary-file">Dictionary File</a></li>
+            <li><a href="#verifications">Verifications</a></li>
+            <li><a href="#retain">Retain</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -67,7 +80,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-<img src="images/screenshot.png" alt="Logo" width="200" height="200">
+<img src="images/screenshot.png" alt="Logo">
 
 RapiTest is a web application for automated and semi-automated black-box testing of RESTful web APIs. It follows a model-based approach, where test cases are automatically derived from the OpenAPI Specification (OAS) of the API under test or manually derived from the Test Specification File (_TSL_). No access to the source code is required, which makes it possible to test APIs written in any programming language, running in local or remote servers.
 
