@@ -55,7 +55,7 @@
     </li>
     <li><a href="#usage">Usage</a></li>
     <li>
-      <a href="#test-specific-language">Test Specific Language, _TSL_</a>
+      <a href="#test-specific-language-tsl">Test Specific Language, TSL</a>
       <ul>
         <li>
           <a href="#basic-structure">Basic Structure</a>
