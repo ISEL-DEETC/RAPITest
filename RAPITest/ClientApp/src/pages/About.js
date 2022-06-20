@@ -56,7 +56,7 @@ export default class About extends Component {
                         <p>This App was developed by one soon to be (I hope) post-graduate engineer.</p>
                         <p>It served as my thesis for the masters degree in Computed Engineering for ISEL.</p>
                         <p>I learned alot from making this App and I really hope you like it!</p>
-                        <p>You can find the source code for this app in my public <a href="https://github.com/DuarteFelicio/RAPITest" rel="noopener noreferrer" target="_blank">github</a>.</p>
+                        <p>You can find the source code for this app in my <a href="https://bitbucket.org/cmlcoi/rapite/src/master/" rel="noopener noreferrer" target="_blank">bitbucket</a>.</p>
                     </Col>
                     <Col style={{ padding: "100px 100px 100px 100px" }}>
                         <Figure>

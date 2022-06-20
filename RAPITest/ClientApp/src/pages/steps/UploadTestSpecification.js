@@ -86,7 +86,7 @@ export class UploadTestSpecification extends Component {
                                         What is a TSL File?
                                     </h3>
                                     <div>
-                                        A TSL, or Test Specific Language file, is a yaml file with the purpose of defining specific tests for your API, you can find it's detailed description in my GitHub
+                                        A TSL, or Test Specific Language file, is a yaml file with the purpose of defining specific tests for your API, you can find it's detailed description in my <a href="https://bitbucket.org/cmlcoi/rapite/src/master/" rel="noopener noreferrer" target="_blank">bitbucket</a>.
                                     </div>
                                 </Figure.Caption>
                             </Figure>
