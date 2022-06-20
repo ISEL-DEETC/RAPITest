@@ -27,10 +27,10 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Best-README-Template</h3>
+  <h3 align="center">RapiTest</h3>
 
   <p align="center">
-    An awesome README template to jumpstart your projects!
+    Validate API's Continuously with RapiTest!
   </p>
 </div>
 
@@ -67,18 +67,15 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]]
+<img src="images/screenshot.png" alt="Logo" width="200" height="200">
 
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
+RapiTest is a web application for automated and semi-automated black-box testing of RESTful web APIs. It follows a model-based approach, where test cases are automatically derived from the OpenAPI Specification (OAS) of the API under test or manually derived from the Test Specification File (TSL). No access to the source code is required, which makes it possible to test APIs written in any programming language, running in local or remote servers.
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
-
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
-
-Use the `BLANK_README.md` to get started.
+The test cases derived from the TSL file allow for some greater customization compared to other tools that only use the OAS, such as:
+* Custom HTTP query strings or headers for specific APIs that need an API key
+* Native or Custom verifications to specific HTTP requests
+* Workflow testing of certain endpoints
+* Stress tests to specific workflows
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -86,16 +83,13 @@ Use the `BLANK_README.md` to get started.
 
 ### Built With
 
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
+This app was developed using these frameworks: 
 
-* [Next.js](https://nextjs.org/)
+* [ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0)
 * [React.js](https://reactjs.org/)
-* [Vue.js](https://vuejs.org/)
-* [Angular](https://angular.io/)
-* [Svelte](https://svelte.dev/)
-* [Laravel](https://laravel.com)
 * [Bootstrap](https://getbootstrap.com)
-* [JQuery](https://jquery.com)
+* [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-2019)
+* [RabbitMQ](https://www.rabbitmq.com/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -104,34 +98,59 @@ This section should list any major frameworks/libraries used to bootstrap your p
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+### Docker
 
-### Prerequisites
+The latest versions of the app are available as images in DockerHub, the docker-compose file is available under the folder _dockercompose_, simply copy it and run the command:
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
+* docker-compose
   ```sh
-  npm install npm@latest -g
+  docker-compose up
   ```
 
-### Installation
+### Locally
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+If you want to run it directly without the use of docker here are the steps you need to make.
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+#### Prerequisites
+
+* Install Visual Studio 2019 (Compatibility with other versions is not guaranteed)
+* Install Sql Server 2019 (Compatibility with other versions is not guaranteed)
+* _Optional_ Install Sql Server Management Studio 
+* Install RabbitMQ (Default Installation)
+* Install Node.js and NPM
+
+#### Installation
+
+After having installed are the required software:
+
+1. Clone the repo
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone https://github.com/DuarteFelicio/RAPITest.git
    ```
-3. Install NPM packages
+2. Create a Database
+    ```sh
+    Example name: RapiTestDB
+    ```
+3. Change Connection String values
+   Open the solution with Visual Studio and go to the appsettings.json file of RAPITest, RunTestsWorkerService and SetupTestsWorkerService projects and change the line:
+   ```sh
+   //local
+   \"DefaultConnection\": _type your connection string here_
+   ```
+4. Create Database Tables
+   Open the _package manager console_ (tools -> nuget manager -> package manager console)
+   Make sure the default project is RAPITest
+   Run the command:
+   ```sh
+   EntityFrameWorkCore\\Update-Database -Context ApplicationDbContext
+   ```
+5. Install NPM packages
+   Open a command line in the folder _RAPITest\RAPITest\ClientApp_ and run the command
    ```sh
    npm install
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
+6. Make sure the project is set to _run multiple projects_, _start_ RAPITest, RunTestsWorkerService and SetupTestsWorkerService and _none_ for ModelsLibrary
+7. Run and enjoy!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -140,16 +159,14 @@ _Below is an example of how you can instruct your audience on installing and set
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+Demonstration on youtube coming soon. 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 
 <!-- ROADMAP -->
-## Roadmap
+## Test Specific Language, TSL
 
 - [x] Add Changelog
 - [x] Add back to top links
@@ -183,41 +200,16 @@ Don't forget to give the project a star! Thanks again!
 
 
 
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Duarte Felício  - A42197@alunos.isel.pt
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
+Project Link: [https://github.com/DuarteFelicio/RAPITest](https://github.com/DuarteFelicio/RAPITest)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+
 
 
 

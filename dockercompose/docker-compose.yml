@@ -1,0 +1,48 @@
+version: '3.4'
+
+services:
+  
+  rabbitmq: # login guest:guest
+    image: rabbitmq:3-management
+    hostname: "rabbitmq"
+    labels:
+        NAME: "rabbitmq"
+    ports:
+        - "4369:4369"
+        - "5671:5671"
+        - "5672:5672"
+        - "25672:25672"
+        - "15671:15671"
+        - "15672:15672"
+    restart: always
+
+  db:
+    image: "mcr.microsoft.com/mssql/server"
+    environment:
+        SA_PASSWORD: "Your_password123"
+        ACCEPT_EULA: "Y"
+    restart: always
+
+  rapitest:
+    image: duartefelicio/rapitest:latest
+    depends_on:
+        - db
+        - rabbitmq
+    ports:
+        - "8080:80"
+    restart: always
+
+  runtestsworkerservice:
+    image: duartefelicio/runtestsworkerservice:latest
+    depends_on:
+        - db
+        - rabbitmq
+    restart: always
+
+
+  setuptestsworkerservice:
+    image: duartefelicio/setuptestsworkerservice:latest
+    depends_on:
+        - db
+        - rabbitmq
+    restart: always
