@@ -107,6 +107,8 @@ The latest versions of the app are available as images in DockerHub, the docker-
   docker-compose up
   ```
 
+After all images are up and running you can access the app at: https://localhost:8080
+
 ### Locally
 
 If you want to run it directly without the use of docker here are the steps you need to make
@@ -115,7 +117,7 @@ If you want to run it directly without the use of docker here are the steps you 
 
 * Install Visual Studio 2019 (Compatibility with other versions is not guaranteed)
 * Install Sql Server 2019 (Compatibility with other versions is not guaranteed)
-* _Optional_ Install Sql Server Management Studio 
+* (Optional) Install Sql Server Management Studio 
 * Install RabbitMQ (Default Installation)
 * Install Node.js and NPM
 
@@ -143,7 +145,7 @@ After having installed all the required software:
    npm install
    ```
 5. Configure the solution<br/>
-  Make sure the project is set to _run multiple projects_, _start_ RAPITest, RunTestsWorkerService and SetupTestsWorkerService and _none_ for ModelsLibrary
+  Make sure the solution is set to _run multiple projects_, _start_ RAPITest, RunTestsWorkerService and SetupTestsWorkerService and _none_ for ModelsLibrary
 6. Create Database Tables<br/>
    Open the _package manager console_ (tools -> nuget manager -> package manager console)<br/>
    Make sure the default project is RAPITest<br/>
@@ -172,14 +174,16 @@ Demonstration on youtube coming soon.
 <p>
 As mentioned in the introduction, this app takes advantage of _TSL_ files. 
 </p>
-These are _YAML_ files with the purpose of defining specific tests based on HTTP requests in order to specify tests that couldn't reliably be made automaticly with just the API's specification. <br/>
+
+<p>These are _YAML_ files with the purpose of defining specific tests based on HTTP requests in order to specify tests that couldn't reliably be made automaticly with just the API's specification.</p> 
+
 The app supports the creation of these files trough a simple UI, however not every functionality is supported trough this UI, leaving some functionalities to only a manual creation. 
 
 ### Basic Structure 
 
 You can write _TSL_ files in _YAML_. A sample _TSL_ definition written in _YAML_ looks like:
 ```sh
-   - WorkflowID: crud_pet
+  - WorkflowID: crud_pet
 
     Stress:
       Count: 40
@@ -241,8 +245,8 @@ Every _TSL_ file must include atleast one workflow
 ```sh
   - WorkflowID: crud_pet
 ```
-The workflow needs an ID, which must be unique across all workflows <br/>
-One workflow must be comprised of one or more tests and optionally one stress test. All the tests inside the workflow are guaranteed to be executed sequentially which is usefull for situations where the output of one test influences the input of the other
+The workflow needs an ID, which must be unique across all workflows. <br/>
+One workflow must be comprised of one or more tests and optionally one stress test. All the tests inside the workflow are guaranteed to be executed sequentially which is usefull for situations where the output of one test influences the input of the other.
 
 #### Stress Test
 
@@ -347,9 +351,9 @@ The body data can be defined directly on the _TSL_ file, however they can someti
   Body: "$ref/dictionary/petExample"
 ```
 
-##### Dictionary File
+#### Dictionary File
 
-The dictionary file is as mentioned before a text file containing all the body data and schemas in order to improve clarity on the actual _TSL_ file
+The dictionary file is a text file containing all the body data and schemas in order to improve clarity on the actual _TSL_ file
 ```sh
   dictionaryID:petExample
   {
@@ -361,7 +365,7 @@ The dictionary file is as mentioned before a text file containing all the body d
 ```
 Every entry on the file requires the dictionaryID which must be unique across all entries, followed by the actual data, followed by an empty line to separate them
 
-##### Verifications
+#### Verifications
 
 Each test can have multiple verifications, only the Code verification is mandatory
 ```sh
@@ -386,14 +390,14 @@ Currently 6 different verifications are supported:
 
 \*The schema verification can be supplied directly, or through reference to the dictionary file or to any schema present in the supplied OAS  
 
-##### Retain
+#### Retain
 
 In some requests, the input is based on the output of a previous request, usually in simple workflows, like create read<br/>
 ```sh
     Retain:
       - petId#$.id
 ```
-The keyword Retain allows the user to retain some information from the response body of the request to then be used in other tests of the same workflow<br/>
+The keyword Retain allows the user to retain some information from the response body of the request to then be used in other tests of the same workflow.<br/>
 For instance the value present at the json path _$.id_ will be retained with the identifier _petId_ which can then be used in following tests
 ```sh
     Path: "/pet/{petId}"
