@@ -185,10 +185,10 @@ Demonstration on youtube coming soon.
 ## Test Specific Language, _TSL_
 
 <p>
-As mentioned in the introduction, this app takes advantage of _TSL_ files. 
+As mentioned in the introduction, this app takes advantage of <i>TSL</i> files. 
 </p>
 
-<p>These are _YAML_ files with the purpose of defining specific tests based on HTTP requests in order to specify tests that couldn't reliably be made automaticly with just the API's specification.</p> 
+<p>These are <i>YAML</i> files with the purpose of defining specific tests based on HTTP requests in order to specify tests that couldn't reliably be made automaticly with just the API's specification.</p> 
 
 The app supports the creation of these files trough a simple UI, however not every functionality is supported trough this UI, leaving some functionalities to only a manual creation. 
 
