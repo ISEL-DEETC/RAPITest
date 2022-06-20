@@ -88,6 +88,26 @@ namespace SetupTestsWorkerService.SetupTests
 
 			firstTestSetup.Workflows = workflows;
 			VerifyRetains(firstTestSetup);
+			VerifyTestIDs(firstTestSetup);
+		}
+
+		private static void VerifyTestIDs(CompleteTest firstTestSetup)
+		{
+			List<string> testid = new List<string>();
+			foreach (Workflow work in firstTestSetup.Workflows)
+			{
+				foreach (Test test in work.Tests)
+				{
+					if (testid.Contains(test.TestID))
+					{
+						firstTestSetup.Errors.Add("All TestID fields must be unique");
+					}
+					else
+					{
+						testid.Add(test.TestID);
+					}
+				}
+			}
 		}
 
 		private static Dictionary<string, string> SetupHeaders(List<string> headers, CompleteTest firstTestSetup)
