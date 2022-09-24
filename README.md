@@ -438,7 +438,9 @@ Don't forget to give the project a star! Thanks again!
 
 
 <!-- CONTACT -->
-## Contact
+## Contact and Acknowledgements
+
+This project was developed as part of a partnership between the Lisbon City council (CML) and Lisbon School of Engineering (ISEL) 
 
 Duarte Felício  - A42197@alunos.isel.pt
 
