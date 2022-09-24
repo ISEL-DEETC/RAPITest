@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ModelsLibrary.Models.Language.ALanguage">
+    <Position X="6.75" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAABAABCA=</HashCode>
+      <FileName>Models\Language\ALanguage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModelsLibrary.Models.Language.JsonLanguage">
+    <Position X="8.5" Y="3.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Models\Language\JsonLanguage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModelsLibrary.Models.Language.JsonSchemaSampleGenerator">
+    <Position X="10" Y="1.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAEAAAAA=</HashCode>
+      <FileName>Models\Language\JsonSchemaSampleGenerator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModelsLibrary.Models.Language.XMLLanguage">
+    <Position X="5.5" Y="3.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Models\Language\XMLLanguage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

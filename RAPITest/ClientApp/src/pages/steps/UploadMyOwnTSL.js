@@ -246,7 +246,7 @@ export class UploadMyOwnTSL extends Component {
                         {this.renderFiles()}
                     </Col>
                 </Row>
-                <div style={{ marginTop: '125px' }}>
+                <div style={{ marginTop: '100px' }}>
                     <AwesomeButton  type="primary" onPress={this.props.goBackToSelection}><img style={{ marginRight: "15px" }} width="50" height="50" src={backIcon} alt="Logo" />Go Back</AwesomeButton>
                 </div>
             </Container >

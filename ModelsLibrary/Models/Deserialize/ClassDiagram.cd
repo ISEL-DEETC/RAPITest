@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
   <Class Name="ModelsLibrary.Models.Test_D">
-    <Position X="6.75" Y="1" Width="1.75" />
+    <Position X="5.25" Y="3" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAIAAAAAIAAAAAIAAAAlAAAAECAAAAgAAAAAAgAAAAA=</HashCode>
+      <HashCode>AAAAAAAAIAAAAAIAAAAlAAAACCAAAAgAAAAAAgAAAAA=</HashCode>
       <FileName>Models\Deserialize\Test_D.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
@@ -11,21 +11,31 @@
     </ShowAsCollectionAssociation>
   </Class>
   <Class Name="ModelsLibrary.Models.Verification_D">
-    <Position X="11" Y="1.25" Width="1.75" />
+    <Position X="9.5" Y="2.25" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAgAgAAAAAAAAAAAgAAQEAAAAAAAAAAAAAAAQAAA=</HashCode>
       <FileName>Models\Deserialize\Verification_D.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="ModelsLibrary.Models.Workflow_D">
-    <Position X="3" Y="1.75" Width="2" />
+    <Position X="1.5" Y="2.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>EAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>EAAAIAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\Deserialize\Workflow_D.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Stress" />
+    </ShowAsAssociation>
     <ShowAsCollectionAssociation>
       <Property Name="Tests" />
     </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="ModelsLibrary.Models.Deserialize.Stress_D">
+    <Position X="5.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAAAAAAAQAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Deserialize\Stress_D.cs</FileName>
+    </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

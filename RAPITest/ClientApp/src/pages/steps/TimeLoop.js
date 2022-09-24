@@ -62,13 +62,6 @@ export class TimeLoop extends Component {
             callback: this.changeSelectedRadio,
             callbackValue: "1 week"
         }
-        let button1M = {
-            defaultChecked: false,
-            id: "radio1M",
-            label: "1 month",
-            callback: this.changeSelectedRadio,
-            callbackValue: "1 month"
-        }
         let buttonNever = {
             defaultChecked: false,
             id: "radioNever",
@@ -76,7 +69,7 @@ export class TimeLoop extends Component {
             callback: this.changeSelectedRadio,
             callbackValue: "Never"
         }
-        this.setState({ radioButtons: [button1H, button12H, button24H, button1W, button1M, buttonNever] })
+        this.setState({ radioButtons: [button1H, button12H, button24H, button1W, buttonNever] })
     }
 
     finalizeCallback() {
