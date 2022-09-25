@@ -135,10 +135,6 @@ namespace DataAnnotation.Controllers
 						newApi.NextTest = DateTime.Now.AddDays(7);
 						newApi.TestTimeLoop = 168;
 						break;
-					case "1 month":
-						newApi.NextTest = DateTime.Now.AddMonths(1);
-						newApi.TestTimeLoop = 720;
-						break;
 					default:  //Never
 						break;
 				}

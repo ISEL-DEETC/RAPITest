@@ -153,7 +153,7 @@ export class Home extends Component {
             <div>
                 <Row style={{ textAlign: "center" }}>
                     <h1>RapiTest Helps You</h1>
-                    <h1 style={{ fontWeight: "bold" }}>Validate API's Continuously</h1>
+                    <h1 style={{ fontWeight: "bold" }}>Validate APIs Continuously</h1>
                     <h3>With 3 simple steps</h3>
                 </Row>
                 <Row style={{ textAlign: "center", paddingTop: "100px" }}>

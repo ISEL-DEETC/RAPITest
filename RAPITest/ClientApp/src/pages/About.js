@@ -53,8 +53,7 @@ export default class About extends Component {
                     <Col style={{ padding: "150px 150px 100px 75px" }}>                     
                         <h3>About me</h3>
                         <p></p>
-                        <p>This App was developed by one soon to be (I hope) post-graduate engineer.</p>
-                        <p>It served as my thesis for the masters degree in Computed Engineering for ISEL.</p>
+                        <p>This App was developed over the course of one year and it served as my thesis for the masters degree in Computed Engineering for ISEL.</p>
                         <p>I learned alot from making this App and I really hope you like it!</p>
                         <p>You can find the source code for this app in my <a href="https://bitbucket.org/cmlcoi/rapite/src/master/" rel="noopener noreferrer" target="_blank">bitbucket</a>.</p>
                     </Col>
