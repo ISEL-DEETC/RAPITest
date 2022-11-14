@@ -442,13 +442,13 @@ Don't forget to give the project a star! Thanks again!
 
 This project was developed as part of a partnership between the Lisbon City council (CML) and Lisbon School of Engineering (ISEL) 
 
-Duarte Felício - A42197@alunos.isel.pt
-José Simão - jose.simao@isel.pt
-Nuno Datia - nuno.datia@isel.pt
+Duarte Felício - A42197@alunos.isel.pt</br>
+José Simão - jose.simao@isel.pt</br>
+Nuno Datia - nuno.datia@isel.pt</br>
 
 Project Link: [https://github.com/DuarteFelicio/RAPITest](https://github.com/DuarteFelicio/RAPITest)
 
-To cite the work, please use the following text:</br></br>
+</br>To cite the work, please use the following text:</br>
 Felício, D.; Simão, J. & Datia, N.</br>
 RapiTest: Continuous Black-Box Testing of RESTful Web APIs </br>
 CENTERIS - International Conference on ENTERprise Information Systems, 2022
