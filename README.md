@@ -448,9 +448,9 @@ Nuno Datia - nuno.datia@isel.pt
 
 Project Link: [https://github.com/DuarteFelicio/RAPITest](https://github.com/DuarteFelicio/RAPITest)
 
-To cite the work, please use the following text:</br>
-Felício, D.; Simão, J. & Datia, N.
-RapiTest: Continuous Black-Box Testing of RESTful Web APIs 
+To cite the work, please use the following text:</br></br>
+Felício, D.; Simão, J. & Datia, N.</br>
+RapiTest: Continuous Black-Box Testing of RESTful Web APIs </br>
 CENTERIS - International Conference on ENTERprise Information Systems, 2022
 
 <p align="right">(<a href="#top">back to top</a>)</p>
