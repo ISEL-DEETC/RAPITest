@@ -194,6 +194,7 @@ After having installed all the required software:
     ```sh
     openssl pkcs12 -inkey <key_name>.key -in <certificate_name>.crt -export -out <certificate_name>.pfx
     ```
+    In either case, make sure to check `appsettings.json` to configure the correct certificate password.
 8. Run and enjoy!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
