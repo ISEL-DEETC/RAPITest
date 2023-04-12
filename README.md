@@ -51,6 +51,9 @@
       <ul>
         <li><a href="#docker">Docker</a></li>
         <li><a href="#locally">Locally</a></li>
+        <li><a href="#installing-sql-server-on-macos">Installing SQL Server on macOS</a></li>
+        <li><a href="#installing-entity-framework-on-macos">Installing Entity Framework on macOS</a></li>
+        <li><a href="#additional-help-commands">Additional Help Commands</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
@@ -129,48 +132,148 @@ If you want to run it directly without the use of docker here are the steps you 
 #### Prerequisites
 
 * Install Visual Studio 2019 (Compatibility with other versions is not guaranteed)
-* Install Sql Server 2019 (Compatibility with other versions is not guaranteed)
-* (Optional) Install Sql Server Management Studio 
+* Install Sql Server 2019 (Compatibility with other versions is not guaranteed). If you are using macOS (Intel or ARM CPUs), please refer to <a href="#installing-sql-server-on-macos">Installing SQL Server on macOS</a>.
+* (Optional) Install Sql Server Management Studio (Windows) or Dbeaver (Multiplatform)
 * Install RabbitMQ (Default Installation)
 * Install Node.js and NPM
+* Note: As this project was built using .Net Core 3.1, we might also need to install that .Net SDK version
+* Note: If you don't have already a signed certificate (in PKCS#12 format), you might want to make sure you have OpenSSL installed
 
 #### Installation
 
 After having installed all the required software:
 
 1. Clone the repo
-   ```sh
-   git clone https://github.com/DuarteFelicio/RAPITest.git
-   ```
+  ```sh
+  git clone https://github.com/DuarteFelicio/RAPITest.git
+  ```
 2. Create a Database
-    ```sh
-    Example name: RapiTestDB
-    ```
+  ```sh
+  Example name: RapiTestDB
+  ```
 3. Change Connection String Values<br/>
-   Open the solution with Visual Studio and go to the _appsettings.json_ file of RAPITest, RunTestsWorkerService and SetupTestsWorkerService projects and change the line:
-   ```sh
-   //local
-   "DefaultConnection": type your connection string here
-   ```
+  Open the solution with Visual Studio and go to the _appsettings.json_ file of RAPITest, RunTestsWorkerService and SetupTestsWorkerService projects and change the line:
+  ```sh
+  //local
+  "DefaultConnection": type your connection string here
+  ```
 4. Install NPM packages<br/>
-   Open a command line in the folder _RAPITest\RAPITest\ClientApp_ and run the command
-   ```sh
-   npm install
-   ```
+  Open a command line in the folder `RAPITest/RAPITest/ClientApp` and run the command
+  ```sh
+  npm install
+  ```
 5. Configure the solution<br/>
   Make sure the solution is set to _run multiple projects_, _start_ RAPITest, RunTestsWorkerService and SetupTestsWorkerService and _none_ for ModelsLibrary
 6. Create Database Tables<br/>
-   Open the _package manager console_ (tools -> nuget manager -> package manager console)<br/>
-   Make sure the default project is RAPITest<br/>
-   Run the command:
-   ```sh
-   EntityFrameWorkCore\Update-Database -Context ApplicationDbContext
-   ```
-7. Run and enjoy!
+  - On Windows:<br/>
+    Open the _package manager console_ (tools -> nuget manager -> package manager console).<br/>
+    Please refer to <a href="#additional-help-commands">Additional Help Commands</a> to check .Net SDK version, that should be .Net Core 3.1.xxx.<br/>
+    Make sure the default project is RAPITest.<br/>
+    Run the command to perform Entity Framework database migration:
+    ```sh
+    EntityFrameWorkCore\Update-Database -Context ApplicationDbContext
+    ```
+  - On macOS:<br/>
+    As macOS Visual Studio does not have a nuget package manager console, so we need to use `dotnet` commandline tools to install and execute the Entity Framework command. Please refer to <a href="#additional-help-commands">Additional Help Commands</a> to check .Net SDK version, that should be .Net Core 3.1.xxx and <a href="#installing-entity-framework-on-macos">Installing Entity Framework on macOS</a> for complete Entity Framework Core CLI installation.<br/>
+    Make sure the default project is RAPITest.<br/>
+    On RAPITest project folder open commandline and run the following command to perform Entity Framework database migration:
+    ```sh
+    dotnet ef database update -c ApplicationDbContext
+    ```
+7. Create a self-signed certificate to enable HTTPS<br/>
+  If you have a certificate you want to use (in PKCS#12 format, PFX file extension) just place it in `RAPITest/RAPITest/certs` with name `certificate.pfx`, otherwise for local use follow the next commands.<br/>
+  - Create a private key and Certificate Signing Request (CSR):
+    ```sh
+    openssl req -newkey rsa:2048 -keyout <key_name>.key -out <request_name>.csr
+    ```
+  - Create self-signed certificate
+    ```sh
+    openssl x509 -signkey <key_name>.key -in <request_name>.csr -req -days <number_of_days> -out <certificate_name>.crt
+    ```
+  - Convert PEM to PKCS12
+    ```sh
+    openssl pkcs12 -inkey <key_name>.key -in <certificate_name>.crt -export -out <certificate_name>.pfx
+    ```
+8. Run and enjoy!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+#### Installing SQL Server on macOS
+  SQL Server is not supported directly over macOS. Instead we need to use a different approach to have SQL Server running on this systems. That alternative is to run SQL Server (or T-SQL compatible) as a container (like in Docker), so it is recommended you install `Docker`. The following steps detail the process for having SQL Server running on macOS systems for both existing CPU architectures (x64 and arm64).
+  - x64 Architecture (Intel CPU):
+    - Pull SQL Server docker container image (2019 version to comply with prerequisites):
+      ```sh
+      docker pull mcr.microsoft.com/mssql/server:2019-latest
+      ```
+    - Create and run SQL Server container:
+      ```sh
+      docker run --name SQLServer -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<strong_password>' -e 'MSSQL_PID=Express’ -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest
+      ```
+      where strong\_password should be at least 8 characters long and include uppercase and lowercase letters, numbers and symbols.
+      <br/><br/>
+    You can check the database by creating a new connection using Dbeaver with host as `localhost`, user as `sa` and password the one you specified.
+    <br/><br/>
+  - arm64 Architecture (Apple M1):
+    Here the approach is a little different as the SQL Server docker image does not support `arm64` architecture. Instead we need to use a T-SQL compatible database like `Azure SQL Edge`.
+    - Pull Azure SQL Edge docker container image:
+      ```sh
+      docker pull mcr.microsoft.com/azure-sql-edge
+      ```
+    - Create and run Azure SQL Edge container:
+      ```sh
+      docker run --cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD=<strong_password>' -p 1433:1433 --name AzureSQLEdge -d mcr.microsoft.com/azure-sql-edge
+      ```
+      where strong\_password should be at least 8 characters long and include uppercase and lowercase letters, numbers and symbols.
+      <br/><br/>
+    You can check the database by creating a new connection using Dbeaver with host as `localhost`, user as `sa` and password the one you specified.
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+#### Installing Entity Framework on macOS
+  To install the Entity Framework please run the following commands. We recommend to use version 5.0.17 to replicate the tested setup.
+  - Install `dotnet-ef` package to enable support for Entity Framework in CLI:
+    ```sh
+    dotnet tool install --global dotnet-ef
+    ```
+    Alternatively if you want to install a particular Entity Framework version:
+    ```sh
+    dotnet tool install --global dotnet-ef --version <version_number>
+    ```
+  - Add Entity Framework tools to PATH:
+    ```sh
+    export PATH="$PATH:/Users/<your user folder>/.dotnet/tools"
+    ```
+  - Check if all projects inside solution are up-to-date:
+    ```sh
+    dotnet restore
+    ```
+  - Check if Entity Framework is working on CLI:
+    ```sh
+    dotnet ef
+    ```
+    You should see the Entity Framework informations.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+#### Additional Help Commands
+- Check .Net SDK version
+  ```sh
+  dotnet --version
+  ```
+  ```sh
+  dotnet --info
+  ```
+- Change the default .Net SDK to .Net Core 3.1
+  If you installed the .Net Core 3.1 SDK in its default location you can use the following command direcly:
+  ```sh
+  sudo ln -s /usr/local/share/dotnet/x64/dotnet /usr/local/bin/
+  ```
+  In case you chose another location replace the complete path in the following command:
+  ```sh
+  sudo ln -s <complete_path_including_dotnet_executable> /usr/local/bin/
+  ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
