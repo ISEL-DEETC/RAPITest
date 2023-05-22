@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text.Json;
@@ -18,15 +18,16 @@ using System.Timers;
 using ModelsLibrary.Models.EFModels;
 using RabbitMQ.Client.Exceptions;
 using Microsoft.Data.SqlClient;
+using Serilog;
 
 namespace SetupTestsWorkerService
 {
 	public class Worker : BackgroundService
 	{
-		private readonly ILogger<Worker> _logger;
+		private readonly ILogger _logger;
 		private readonly WorkerOptions options;
 
-		public Worker(ILogger<Worker> logger, WorkerOptions options)
+		public Worker(ILogger logger, WorkerOptions options)
 		{
 			_logger = logger;
 			this.options = options;
@@ -50,7 +51,7 @@ namespace SetupTestsWorkerService
                 {
                     var body = ea.Body;
                     var message = Encoding.UTF8.GetString(body.ToArray());
-                    _logger.LogInformation("Recieved {0}", message);
+                    _logger.Information("Received {0}", message);
                     ThreadPool.QueueUserWorkItem((state) => Work(message));
                 };
                 channel.BasicConsume(queue: "setup",
@@ -71,13 +72,13 @@ namespace SetupTestsWorkerService
             {
                 try
                 {
-                    _logger.LogInformation("Attempting to connect to RabbitMQ....");
+                    _logger.Information("Attempting to connect to RabbitMQ....");
                     IConnection connection = connectionFactory.CreateConnection();
                     return connection;
                 }
-                catch (BrokerUnreachableException e)
+                catch (BrokerUnreachableException)
                 {
-                    _logger.LogInformation("RabbitMQ Connection Unreachable, sleeping 5 seconds....");
+                    _logger.Information("RabbitMQ Connection Unreachable, sleeping 5 seconds....");
                     Thread.Sleep(5000);
                 }
             }
@@ -109,12 +110,12 @@ namespace SetupTestsWorkerService
                     }
 					else
 					{
-                        _logger.LogInformation("Api {0} - Work Complete", apiId);
+                        _logger.Information("Api {0} - Work Complete", apiId);
                     }
                 }
 				else
 				{
-                    _logger.LogInformation("Api {0} - Work Complete", apiId);
+                    _logger.Information("Api {0} - Work Complete", apiId);
                 }
             }
         }
@@ -144,14 +145,14 @@ namespace SetupTestsWorkerService
             {
                 try
                 {
-                    _logger.LogInformation("Attempting to connect to Database....");
+                    _logger.Information("Attempting to connect to Database....");
                     context.Database.CanConnect();
                     List<Api> apis = context.Api.Where(api => api.NextTest != null).ToList();
                     return;
                 }
-                catch (SqlException e)
+                catch (SqlException)
                 {
-                    _logger.LogInformation("Database Unreachable, sleeping 5 seconds....");
+                    _logger.Information("Database Unreachable, sleeping 5 seconds....");
                     Thread.Sleep(5000);
                 }
             }
@@ -189,7 +190,7 @@ namespace SetupTestsWorkerService
                 }
             }
 
-            _logger.LogInformation("Api {0} - Work Complete", apiId);
+            _logger.Information("Api {0} - Work Complete", apiId);
         }
 
         public void SetupNextTest(Api api, RAPITestDBContext _context)
@@ -224,7 +225,7 @@ namespace SetupTestsWorkerService
                                      basicProperties: null,
                                      body: body);
 
-                _logger.LogInformation("[x] Sent {0} ", message);
+                _logger.Information("[x] Sent {0} ", message);
             }
         }
     }

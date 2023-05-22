@@ -7,55 +7,65 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace SetupTestsWorkerService.SetupTests
 {
 	public class SetupDictionary
 	{
+		private static readonly ILogger _logger = Log.Logger;
+
 		public static void Setup(CompleteTest firstTestSetup, Api api)
 		{
 			Dictionary<string, string> dic = new Dictionary<string, string>();
 
-			if (api.Dictionary != null)
+			try
 			{
-				string entireString = Encoding.Default.GetString(api.Dictionary);
-
-				//append newline to ensure last example gets read
-				entireString += Environment.NewLine;
-
-				string id = "";
-				bool foundExample = false;
-				string example = "";
-				var result = Regex.Split(entireString, "\r\n|\r|\n");
-				foreach (var line in result)
+				if (api.Dictionary != null)
 				{
-					if (line == "" && foundExample)
+					string entireString = Encoding.Default.GetString(api.Dictionary);
+
+					//append newline to ensure last example gets read
+					entireString += Environment.NewLine;
+
+					string id = "";
+					bool foundExample = false;
+					string example = "";
+					var result = Regex.Split(entireString, "\r\n|\r|\n");
+					foreach (var line in result)
 					{
-						if (dic.ContainsKey(id))
+						if (line == "" && foundExample)
 						{
-							firstTestSetup.Errors.Add("Error Parsing Dictionary, found duplicate id");
+							if (dic.ContainsKey(id))
+							{
+								firstTestSetup.Errors.Add("Error Parsing Dictionary, found duplicate id");
+							}
+							else
+							{
+								dic.Add(id, example);
+							}
+							foundExample = false;
+							id = "";
+							example = "";
 						}
-						else
+						if (foundExample)
 						{
-							dic.Add(id, example);
+							example += line;
 						}
-						foundExample = false;
-						id = "";
-						example = "";
-					}
-					if (foundExample)
-					{
-						example += line;
-					}
-					if (line.Contains("dictionaryID:"))
-					{
-						id = line.Split("dictionaryID:")[1];
-						foundExample = true;
+						if (line.Contains("dictionaryID:"))
+						{
+							id = line.Split("dictionaryID:")[1];
+							foundExample = true;
+						}
 					}
 				}
 			}
+			catch (Exception ex)
+			{
+                _logger.Error(ex.Message);
+            }
 
-			firstTestSetup.Dictionary = dic;
+            firstTestSetup.Dictionary = dic;
 		}
 	}
 }
