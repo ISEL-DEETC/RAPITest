@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace RunTestsWorkerService.RunModels
 {
@@ -13,7 +14,7 @@ namespace RunTestsWorkerService.RunModels
 		private HttpUtils httpUtils;
 		private int ThreadNumber;
 		private int Count;
-		private int Delay; 
+		private int Delay;
 		
 
 		public StressTests(Workflow workflow, HttpUtils httpUtils,int ThreadNumber, int Count, int Delay)
@@ -27,23 +28,32 @@ namespace RunTestsWorkerService.RunModels
 
 		public async Task<Dictionary<String, List<long>>> Run()
 		{
-			Dictionary<string, List<long>> ret = new Dictionary<string, List<long>>();
-
-			List<Task> tasks = new List<Task>();
-
-			int iterationsPerThread = Count / ThreadNumber;
-
-			for(int i = 0; i < ThreadNumber; i++)
+			try
 			{
-				RunWorkflowMultiple twf = new RunWorkflowMultiple(workflow, httpUtils,iterationsPerThread,Delay);
-				tasks.Add(twf.Run().ContinueWith(dic =>{
-					httpUtils.Merge(ret, dic.Result);
-				}));
+				Dictionary<string, List<long>> ret = new Dictionary<string, List<long>>();
+
+				List<Task> tasks = new List<Task>();
+
+				int iterationsPerThread = Count / ThreadNumber;
+
+				for (int i = 0; i < ThreadNumber; i++)
+				{
+					RunWorkflowMultiple twf = new RunWorkflowMultiple(workflow, httpUtils, iterationsPerThread, Delay);
+					tasks.Add(twf.Run().ContinueWith(dic =>
+					{
+						httpUtils.Merge(ret, dic.Result);
+					}));
+				}
+
+				await Task.WhenAll(tasks);
+
+				return ret;
 			}
-
-			await Task.WhenAll(tasks);
-
-			return ret;
+			catch (Exception ex)
+			{
+				Log.Logger.Error(ex.Message);
+				return new Dictionary<string, List<long>>();
+			}
 		}
 
 	}

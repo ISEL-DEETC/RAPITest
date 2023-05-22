@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ModelsLibrary.Models.AppSpecific;
 using Newtonsoft.Json;
 using NJsonSchema.Infrastructure;
+using Serilog;
 
 namespace RunTestsWorkerService.Utils
 {
@@ -37,6 +38,10 @@ namespace RunTestsWorkerService.Utils
                 writer = new StreamWriter(filePath, append);
                 writer.Write(contentsToWriteToFile);
             }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex.Message);
+            }
             finally
             {
                 if (writer != null)
@@ -59,6 +64,11 @@ namespace RunTestsWorkerService.Utils
                 reader = new StreamReader(filePath);
                 var fileContents = reader.ReadToEnd();
                 return JsonConvert.DeserializeObject<T>(fileContents, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex.Message);
+                return new T();
             }
             finally
             {
@@ -83,6 +93,11 @@ namespace RunTestsWorkerService.Utils
                 JsonSerializerSettings j = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
                 j.ContractResolver = jsonResolver;
                 return JsonConvert.SerializeObject(objectToWrite, j);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex.Message);
+                return "Error Occurred"; 
             }
             finally
             {

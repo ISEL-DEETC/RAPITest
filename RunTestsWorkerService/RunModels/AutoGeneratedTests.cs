@@ -15,6 +15,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Diagnostics;
+using Serilog;
 using ModelsLibrary.Models.Language;
 
 namespace RunTestsWorkerService.RunModels
@@ -32,38 +33,54 @@ namespace RunTestsWorkerService.RunModels
 
 		public async Task Run()
 		{
-			List<Task> tasks = new List<Task>();
-
-			foreach (Test generatedTest in generatedTests)
+			try
 			{
-				ChangeVariablePathGenerated(generatedTest);
-				HttpRequestMessage request = httpUtils.PrepareRequestMessage(generatedTest,generatedTest.Path);
-				Task<HttpResponseMessage> task = httpUtils.Request(request);
-				var sw = Stopwatch.StartNew();
+				List<Task> tasks = new List<Task>();
 
-				tasks.Add(task.ContinueWith(result => {
-					httpUtils.RunVerifications(generatedTest, result.Result);
-					httpUtils.FillRequestMetadata(generatedTest, request, task.Result, sw.ElapsedMilliseconds);
-				}));
+				foreach (Test generatedTest in generatedTests)
+				{
+					ChangeVariablePathGenerated(generatedTest);
+					HttpRequestMessage request = httpUtils.PrepareRequestMessage(generatedTest, generatedTest.Path);
+					Task<HttpResponseMessage> task = httpUtils.Request(request);
+					var sw = Stopwatch.StartNew();
+
+					tasks.Add(task.ContinueWith(result =>
+					{
+						httpUtils.RunVerifications(generatedTest, result.Result);
+						httpUtils.FillRequestMetadata(generatedTest, request, task.Result, sw.ElapsedMilliseconds);
+					}));
+				}
+
+				await Task.WhenAll(tasks);
 			}
-
-			await Task.WhenAll(tasks);
+			catch (Exception ex)
+			{
+				Log.Logger.Error(ex.Message);
+				await Task.FromException(ex);
+			}
 		}
 
 		private void ChangeVariablePathGenerated(Test test)
 		{
-			while (true)
+			try
 			{
-				bool found = false;
-				if (test.Path.Contains("{"))
+				while (true)
 				{
-					int start = test.Path.IndexOf("{");
-					int end = test.Path.IndexOf("}");
-					string var = test.Path.Substring(start + 1, end - start - 1);
-					test.Path = test.Path.Replace("{" + var + "}", new Random().Next(10).ToString());
-					found = true;
+					bool found = false;
+					if (test.Path.Contains("{"))
+					{
+						int start = test.Path.IndexOf("{");
+						int end = test.Path.IndexOf("}");
+						string var = test.Path.Substring(start + 1, end - start - 1);
+						test.Path = test.Path.Replace("{" + var + "}", new Random().Next(10).ToString());
+						found = true;
+					}
+					if (!found) break;
 				}
-				if (!found) break;
+			}
+			catch (Exception ex)
+			{
+				Log.Logger.Error(ex.Message);
 			}
 		}
 	}
