@@ -135,7 +135,7 @@ If you want to run it directly without the use of docker here are the steps you 
 * Install Sql Server 2019 (Compatibility with other versions is not guaranteed). If you are using macOS (Intel or ARM CPUs), please refer to <a href="#installing-sql-server-on-macos">Installing SQL Server on macOS</a>.
 * (Optional) Install Sql Server Management Studio (Windows) or Dbeaver (Multiplatform)
 * Install RabbitMQ (Default Installation)
-* Install Node.js and NPM
+* Install Node.js 16.20.0 and NPM (Compatibility with other versions is not guaranteed)
 * Note: As this project was built using .Net Core 3.1, we might also need to install that .Net SDK version
 * Note: If you don't have already a signed certificate (in PKCS#12 format), you might want to make sure you have OpenSSL installed
 
