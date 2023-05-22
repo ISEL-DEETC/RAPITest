@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
+using Serilog;
 using RAPITest.Models;
 
 namespace RAPITest.Areas.Identity.Pages.Account.Manage
@@ -13,11 +14,11 @@ namespace RAPITest.Areas.Identity.Pages.Account.Manage
     public class Disable2faModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<Disable2faModel> _logger;
+        private readonly ILogger _logger;
 
         public Disable2faModel(
             UserManager<ApplicationUser> userManager,
-            ILogger<Disable2faModel> logger)
+            ILogger logger)
         {
             _userManager = userManager;
             _logger = logger;
@@ -28,37 +29,58 @@ namespace RAPITest.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnGet()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            try
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                }
 
-            if (!await _userManager.GetTwoFactorEnabledAsync(user))
+                if (!await _userManager.GetTwoFactorEnabledAsync(user))
+                {
+                    throw new InvalidOperationException($"Cannot disable 2FA for user with ID '{_userManager.GetUserId(User)}' as it's not currently enabled.");
+                }
+
+                return Page();
+            }
+            catch (InvalidOperationException ex)
             {
-                throw new InvalidOperationException($"Cannot disable 2FA for user with ID '{_userManager.GetUserId(User)}' as it's not currently enabled.");
+                throw ex;
             }
-
-            return Page();
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return NotFound("Due to Error");
+            }
+            
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            try
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                }
 
-            var disable2faResult = await _userManager.SetTwoFactorEnabledAsync(user, false);
-            if (!disable2faResult.Succeeded)
+                var disable2faResult = await _userManager.SetTwoFactorEnabledAsync(user, false);
+                if (!disable2faResult.Succeeded)
+                {
+                    throw new InvalidOperationException($"Unexpected error occurred disabling 2FA for user with ID '{_userManager.GetUserId(User)}'.");
+                }
+
+                _logger.Information("User with ID '{UserId}' has disabled 2fa.", _userManager.GetUserId(User));
+                StatusMessage = "2fa has been disabled. You can reenable 2fa when you setup an authenticator app";
+                return RedirectToPage("./TwoFactorAuthentication");
+            }
+            catch (Exception ex)
             {
-                throw new InvalidOperationException($"Unexpected error occurred disabling 2FA for user with ID '{_userManager.GetUserId(User)}'.");
+                _logger.Error(ex.Message);
+                return NotFound("Due to Error");
             }
-
-            _logger.LogInformation("User with ID '{UserId}' has disabled 2fa.", _userManager.GetUserId(User));
-            StatusMessage = "2fa has been disabled. You can reenable 2fa when you setup an authenticator app";
-            return RedirectToPage("./TwoFactorAuthentication");
         }
     }
 }

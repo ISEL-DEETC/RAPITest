@@ -10,7 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
+using Serilog;
 using RAPITest.Models;
 using ModelsLibrary.Models.EFModels;
 
@@ -21,11 +22,11 @@ namespace RAPITest.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ILogger<LoginModel> _logger;
+        private readonly ILogger _logger;
         private readonly RAPITestDBContext _context;
 
         public LoginModel(SignInManager<ApplicationUser> signInManager, 
-            ILogger<LoginModel> logger,
+            ILogger logger,
             UserManager<ApplicationUser> userManager,
             RAPITestDBContext context)
         {
@@ -61,65 +62,81 @@ namespace RAPITest.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            if (!string.IsNullOrEmpty(ErrorMessage))
+            try
             {
-                ModelState.AddModelError(string.Empty, ErrorMessage);
+                if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    ModelState.AddModelError(string.Empty, ErrorMessage);
+                }
+
+                returnUrl = returnUrl ?? Url.Content("~/");
+
+                // Clear the existing external cookie to ensure a clean login process
+                await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+                ReturnUrl = returnUrl;
             }
-
-            returnUrl = returnUrl ?? Url.Content("~/");
-
-            // Clear the existing external cookie to ensure a clean login process
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-            ReturnUrl = returnUrl;
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+            }
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl = returnUrl ?? Url.Content("~/");
-
-            if (ModelState.IsValid)
+            try
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User logged in.");
-                    //login record
-                    using (_context)
-                    {
-                        var user = _context.AspNetUsers.Where(user => user.Email == Input.Email).First();
-                        var record = new LoginRecord()
-                        {
-                            UserId = user.Id,
-                            LoginTime = DateTime.Now
-                        };
-                        _context.LoginRecord.Add(record);
-                        _context.SaveChanges();
-                    }
-                    return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("User account locked out.");
-                    return RedirectToPage("./Lockout");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return Page();
-                }
-            }
+                returnUrl = returnUrl ?? Url.Content("~/");
 
-            // If we got this far, something failed, redisplay form
-            return Page();
+                if (ModelState.IsValid)
+                {
+                    // This doesn't count login failures towards account lockout
+                    // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                    var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                    if (result.Succeeded)
+                    {
+                        _logger.Information("User logged in.");
+                        //login record
+                        using (_context)
+                        {
+                            var user = _context.AspNetUsers.Where(user => user.Email == Input.Email).First();
+                            var record = new LoginRecord()
+                            {
+                                UserId = user.Id,
+                                LoginTime = DateTime.Now
+                            };
+                            _context.LoginRecord.Add(record);
+                            _context.SaveChanges();
+                        }
+                        return LocalRedirect(returnUrl);
+                    }
+                    if (result.RequiresTwoFactor)
+                    {
+                        return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+                    }
+                    if (result.IsLockedOut)
+                    {
+                        _logger.Warning("User account locked out.");
+                        return RedirectToPage("./Lockout");
+                    }
+                    else
+                    {
+                        _logger.Warning("Invalid login attempt");
+                        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                        return Page();
+                    }
+                }
+
+                // If we got this far, something failed, redisplay form
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return Page();
+            }
         }
     }
 }

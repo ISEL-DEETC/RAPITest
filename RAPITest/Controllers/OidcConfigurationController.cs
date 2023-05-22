@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+﻿using System;
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Serilog;
+//using Microsoft.Extensions.Logging;
 
 namespace RAPITest.Controllers
 {
 	public class OidcConfigurationController : Controller
 	{
-		private readonly ILogger<OidcConfigurationController> _logger;
+		private readonly ILogger _logger;
 
-		public OidcConfigurationController(IClientRequestParametersProvider clientRequestParametersProvider, ILogger<OidcConfigurationController> logger)
+		public OidcConfigurationController(IClientRequestParametersProvider clientRequestParametersProvider, ILogger logger)
 		{
 			ClientRequestParametersProvider = clientRequestParametersProvider;
 			_logger = logger;
@@ -19,8 +21,18 @@ namespace RAPITest.Controllers
 		[HttpGet("_configuration/{clientId}")]
 		public IActionResult GetClientRequestParameters([FromRoute] string clientId)
 		{
-			var parameters = ClientRequestParametersProvider.GetClientParameters(HttpContext, clientId);
-			return Ok(parameters);
+			try
+			{
+                var parameters = ClientRequestParametersProvider.GetClientParameters(HttpContext, clientId);
+                return Ok(parameters);
+            }
+			catch (Exception ex)
+			{
+				_logger.Error("Error in GetClientRequestParameters, printing exception...");
+				_logger.Error(ex.Message);
+				return Problem(ex.Message);
+			}
+			
 		}
 	}
 }

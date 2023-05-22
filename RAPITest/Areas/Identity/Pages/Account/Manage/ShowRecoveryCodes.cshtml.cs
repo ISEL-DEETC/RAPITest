@@ -5,13 +5,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
+using Serilog;
 using RAPITest.Models;
 
 namespace RAPITest.Areas.Identity.Pages.Account.Manage
 {
     public class ShowRecoveryCodesModel : PageModel
     {
+        private readonly ILogger _logger = Log.Logger;
+
         [TempData]
         public string[] RecoveryCodes { get; set; }
 
@@ -20,12 +23,20 @@ namespace RAPITest.Areas.Identity.Pages.Account.Manage
 
         public IActionResult OnGet()
         {
-            if (RecoveryCodes == null || RecoveryCodes.Length == 0)
+            try
             {
-                return RedirectToPage("./TwoFactorAuthentication");
-            }
+                if (RecoveryCodes == null || RecoveryCodes.Length == 0)
+                {
+                    return RedirectToPage("./TwoFactorAuthentication");
+                }
 
-            return Page();
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return NotFound("Due to Error");
+            }
         }
     }
 }

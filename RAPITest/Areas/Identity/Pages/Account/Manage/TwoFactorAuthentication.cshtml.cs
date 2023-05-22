@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
+using Serilog;
 using RAPITest.Models;
 
 namespace RAPITest.Areas.Identity.Pages.Account.Manage
@@ -16,12 +17,12 @@ namespace RAPITest.Areas.Identity.Pages.Account.Manage
 
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ILogger<TwoFactorAuthenticationModel> _logger;
+        private readonly ILogger _logger;
 
         public TwoFactorAuthenticationModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<TwoFactorAuthenticationModel> logger)
+            ILogger logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -42,31 +43,47 @@ namespace RAPITest.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnGet()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            try
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                }
+
+                HasAuthenticator = await _userManager.GetAuthenticatorKeyAsync(user) != null;
+                Is2faEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
+                IsMachineRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user);
+                RecoveryCodesLeft = await _userManager.CountRecoveryCodesAsync(user);
+
+                return Page();
             }
-
-            HasAuthenticator = await _userManager.GetAuthenticatorKeyAsync(user) != null;
-            Is2faEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
-            IsMachineRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user);
-            RecoveryCodesLeft = await _userManager.CountRecoveryCodesAsync(user);
-
-            return Page();
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return NotFound("Due to Error");
+            }
         }
 
         public async Task<IActionResult> OnPost()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            try
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                }
 
-            await _signInManager.ForgetTwoFactorClientAsync();
-            StatusMessage = "The current browser has been forgotten. When you login again from this browser you will be prompted for your 2fa code.";
-            return RedirectToPage();
+                await _signInManager.ForgetTwoFactorClientAsync();
+                StatusMessage = "The current browser has been forgotten. When you login again from this browser you will be prompted for your 2fa code.";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return NotFound("Due to Error");
+            }
         }
     }
 }
