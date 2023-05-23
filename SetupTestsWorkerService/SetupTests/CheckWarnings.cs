@@ -73,6 +73,7 @@ namespace SetupTestsWorkerService.SetupTests
 			}
 			catch (Exception ex)
 			{
+				_logger.Debug(ex.StackTrace);
 				_logger.Error(ex.Message);
 			}
 		}
@@ -122,6 +123,7 @@ namespace SetupTestsWorkerService.SetupTests
 			}
 			catch (Exception ex)
 			{
+				_logger.Error(ex.StackTrace);
 				_logger.Error(ex.Message);
 				return new List<Test>();
 			}

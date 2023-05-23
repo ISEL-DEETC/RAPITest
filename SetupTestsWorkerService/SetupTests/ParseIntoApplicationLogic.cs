@@ -99,6 +99,7 @@ namespace SetupTestsWorkerService.SetupTests
 			}
 			catch (Exception ex)
 			{
+				_logger.Debug(ex.StackTrace);
 				_logger.Error(ex.Message);
 			}
 		}
