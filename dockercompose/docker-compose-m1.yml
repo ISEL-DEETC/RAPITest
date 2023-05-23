@@ -16,7 +16,7 @@ services:
     restart: always
 
   db:
-    image: "mcr.microsoft.com/mssql/server"
+    image: "mcr.microsoft.com/azure-sql-edge:latest"
     hostname: "db"
     labels:
       NAME: "db"
@@ -35,7 +35,7 @@ services:
       rabbitmq:
         condition: service_started
     ports:
-      - "443:443"
+        - "443:443"
     restart: always
 
   runtestsworkerservice:
