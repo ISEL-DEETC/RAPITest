@@ -19,6 +19,11 @@ namespace SetupTestsWorkerService.SetupTests
 	{
 		private static readonly ILogger _logger = Log.Logger;
 
+		private static string CorrectBoolValues(string schemaStr)
+		{
+			return schemaStr.Replace("\"true\"", "true").Replace("\"false\"", "false");
+        }
+
 		public static void Parse(CompleteTest firstTestSetup, Api api)
 		{
 			try
@@ -79,6 +84,7 @@ namespace SetupTestsWorkerService.SetupTests
 							JToken tokRef = obj.SelectToken("$.components");
 							string references = tokRef.Parent.ToString() + ",";
 							string finalSchema = originalSchema.Insert(1, references);
+							finalSchema = CorrectBoolValues(finalSchema);
 							APISchemasAux.Add(schema.Path.Split(".").Last(), JSchema.Parse(finalSchema));
 						}
 					}
