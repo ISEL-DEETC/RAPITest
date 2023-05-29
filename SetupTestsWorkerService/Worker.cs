@@ -27,6 +27,8 @@ namespace SetupTestsWorkerService
 		private readonly ILogger _logger;
 		private readonly WorkerOptions options;
 
+        private static readonly string QUEUE_NAME = "setup";
+
 		public Worker(ILogger logger, WorkerOptions options)
 		{
 			_logger = logger;
@@ -36,33 +38,48 @@ namespace SetupTestsWorkerService
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-            var factory = new ConnectionFactory() { HostName = this.options.RabbitMqHostName, Port = this.options.RabbitMqPort};
-            using (var connection = CreateConnection(factory))
-            using (var channel = connection.CreateModel())
+            try
             {
-                channel.QueueDeclare(queue: "setup",
-                                     durable: false,
-                                     exclusive: false,
-                                     autoDelete: false,
-                                     arguments: null);
 
-                var consumer = new EventingBasicConsumer(channel);
-                consumer.Received += (model, ea) =>
+                var factory = new ConnectionFactory() { HostName = this.options.RabbitMqHostName, Port = this.options.RabbitMqPort };
+                using (var connection = CreateConnection(factory))
+                using (var channel = connection.CreateModel())
                 {
-                    var body = ea.Body;
-                    var message = Encoding.UTF8.GetString(body.ToArray());
-                    _logger.Information("Received {0}", message);
-                    ThreadPool.QueueUserWorkItem((state) => Work(message));
-                };
-                channel.BasicConsume(queue: "setup",
-                                     autoAck: true,
-                                     consumer: consumer);
+                    channel.QueueDeclare(
+                        queue: QUEUE_NAME,
+                        durable: true,
+                        exclusive: false,
+                        autoDelete: false,
+                        arguments: null
+                    );
 
-                while (!stoppingToken.IsCancellationRequested)
-                {
-                    //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                    await Task.Delay(10000, stoppingToken);
+                    channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
+                    var consumer = new EventingBasicConsumer(channel);
+                    consumer.Received += (model, ea) =>
+                    {
+                        var body = ea.Body;
+                        var message = Encoding.UTF8.GetString(body.ToArray());
+                        _logger.Information("Received {0}", message);
+                        ThreadPool.QueueUserWorkItem((state) => Work(channel, ea, message));
+                    };
+                    channel.BasicConsume(
+                        queue: QUEUE_NAME,
+                        autoAck: false,
+                        consumer: consumer
+                    );
+
+                    while (!stoppingToken.IsCancellationRequested)
+                    {
+                        //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                        await Task.Delay(10000, stoppingToken);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                await Task.FromException(ex);
             }
         }
 
@@ -81,42 +98,56 @@ namespace SetupTestsWorkerService
                     _logger.Information("RabbitMQ Connection Unreachable, sleeping 5 seconds....");
                     Thread.Sleep(5000);
                 }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex.Message);
+                }
             }
         }
 
-        private void Work(string message)
+        private void Work(IModel channel, BasicDeliverEventArgs ea, string message)
         {
-            string[] args = message.Split("|");
-
-            int apiId = int.Parse(args[0]);
-            bool runNow = bool.Parse(args[1]);
-
-            RAPITestDBContext _context;
-            var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
-            optionsBuilder.UseSqlServer(options.DefaultConnection);
-
-            using (_context = new RAPITestDBContext(optionsBuilder.Options))
+            try
             {
-                if (SetupTestRun.Run(apiId, _context))
+
+                string[] args = message.Split("|");
+
+                int apiId = int.Parse(args[0]);
+                bool runNow = bool.Parse(args[1]);
+
+                RAPITestDBContext _context;
+                var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
+                optionsBuilder.UseSqlServer(options.DefaultConnection);
+
+                using (_context = new RAPITestDBContext(optionsBuilder.Options))
                 {
-                    if (runNow)
+                    if (SetupTestRun.Run(apiId, _context))
                     {
-                        Sender(apiId);
-                        Api api = _context.Api.Find(apiId);
-                        if (api.TestTimeLoop.HasValue)
+                        if (runNow)
                         {
-                            SetupNextTest(api, _context);
+                            Sender(apiId);
+                            Api api = _context.Api.Find(apiId);
+                            if (api.TestTimeLoop.HasValue)
+                            {
+                                SetupNextTest(api, _context);
+                            }
+                        }
+                        else
+                        {
+                            _logger.Information("Api {0} - Work Complete", apiId);
                         }
                     }
-					else
-					{
+                    else
+                    {
                         _logger.Information("Api {0} - Work Complete", apiId);
                     }
                 }
-				else
-				{
-                    _logger.Information("Api {0} - Work Complete", apiId);
-                }
+                channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                channel.BasicNack(deliveryTag: ea.DeliveryTag, multiple: false, requeue: true);
             }
         }
 
@@ -154,6 +185,10 @@ namespace SetupTestsWorkerService
                 {
                     _logger.Information("Database Unreachable, sleeping 5 seconds....");
                     Thread.Sleep(5000);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex.Message);
                 }
             }
         }
