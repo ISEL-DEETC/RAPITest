@@ -40,6 +40,9 @@ namespace DataAnnotation.Controllers
 		private static readonly HttpClient _httpClient;
 		private static readonly FormOptions _defaultFormOptions;
 
+        private readonly string QUEUE_SETUP = "setup";
+
+
 		static SetupTestController()
 		{
 			_httpClient = new HttpClient();
@@ -314,8 +317,8 @@ namespace DataAnnotation.Controllers
                 using (var connection = CreateConnection(factory))
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare(queue: "setup",
-                                         durable: false,
+                    channel.QueueDeclare(queue: QUEUE_SETUP,
+                                         durable: true,
                                          exclusive: false,
                                          autoDelete: false,
                                          arguments: null);

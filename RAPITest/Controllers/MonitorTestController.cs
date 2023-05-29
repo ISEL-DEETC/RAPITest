@@ -36,7 +36,9 @@ namespace RAPITest.Controllers
 		private readonly string RabbitMqHostName;
 		private readonly int RabbitMqPort;
 
-		public MonitorTestController(ILogger logger, RAPITestDBContext context, IConfiguration config)
+        private readonly string QUEUE_RUN = "run";
+
+        public MonitorTestController(ILogger logger, RAPITestDBContext context, IConfiguration config)
 		{
 			_logger = logger;
 			_context = context;
@@ -283,8 +285,8 @@ namespace RAPITest.Controllers
                 using (var connection = factory.CreateConnection())
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare(queue: "run",
-                                         durable: false,
+                    channel.QueueDeclare(queue: QUEUE_RUN,
+                                         durable: true,
                                          exclusive: false,
                                          autoDelete: false,
                                          arguments: null);
