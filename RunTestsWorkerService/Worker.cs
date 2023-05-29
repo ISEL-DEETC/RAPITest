@@ -25,6 +25,8 @@ namespace RunTestsWorkerService
         private readonly ILogger _logger;
         private readonly WorkerOptions options;
 
+        private static readonly string QUEUE_NAME = "run";
+
         public Worker(ILogger logger, WorkerOptions options)
         {
             _logger = logger;
@@ -40,11 +42,15 @@ namespace RunTestsWorkerService
                 using (var connection = CreateConnection(factory))
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare(queue: "run",
-                                            durable: false,
-                                            exclusive: false,
-                                            autoDelete: false,
-                                            arguments: null);
+                    channel.QueueDeclare(
+                        queue: QUEUE_NAME,
+                        durable: true,
+                        exclusive: false,
+                        autoDelete: false,
+                        arguments: null
+                    );
+
+                    channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
 
                     var consumer = new EventingBasicConsumer(channel);
                     consumer.Received += (model, ea) =>
@@ -52,11 +58,14 @@ namespace RunTestsWorkerService
                         var body = ea.Body;
                         var message = Encoding.UTF8.GetString(body.ToArray());
                         _logger.Information("Recieved {0}", message);
-                        ThreadPool.QueueUserWorkItem((state) => Work(message));
+                        ThreadPool.QueueUserWorkItem((state) => Work(channel, ea, message));
                     };
-                    channel.BasicConsume(queue: "run",
-                                            autoAck: true,
-                                            consumer: consumer);
+
+                    channel.BasicConsume(
+                        queue: QUEUE_NAME,
+                        autoAck: false,
+                        consumer: consumer
+                    );
 
                     while (!stoppingToken.IsCancellationRequested)
                     {
@@ -95,17 +104,19 @@ namespace RunTestsWorkerService
 		}
 
 
-        private async void Work(string message)
+        private async void Work(IModel channel, BasicDeliverEventArgs ea, string message)
         {
             try
             {
                 int apiId = Int32.Parse(message);
                 await RunApiTests.RunAsync(apiId, options.DefaultConnection);
                 _logger.Information("Message {0} - Work Complete", message);
+                channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex.Message);
+                channel.BasicNack(deliveryTag: ea.DeliveryTag, multiple: false, requeue: true);
             }
         }
     }
