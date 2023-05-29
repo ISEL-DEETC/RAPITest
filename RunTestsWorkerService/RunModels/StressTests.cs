@@ -51,8 +51,8 @@ namespace RunTestsWorkerService.RunModels
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
-				return new Dictionary<string, List<long>>();
+				Log.Logger.Error($"[StressTests].[Run] {ex.Message}");
+				throw ex;
 			}
 		}
 

@@ -64,7 +64,7 @@ namespace RunTestsWorkerService.RunModels
 			}
 			catch (Exception ex)
 			{
-				_logger.Error(ex.Message);
+				_logger.Error($"[RunWorkflowMultiple].[Run] {ex.Message}");
 				return new Dictionary<String, List<long>>();
 
             }

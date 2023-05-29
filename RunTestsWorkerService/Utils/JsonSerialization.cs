@@ -40,7 +40,7 @@ namespace RunTestsWorkerService.Utils
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                Log.Logger.Error($"[JsonSerialization].[WriteToJsonFile] {ex.Message}");
             }
             finally
             {
@@ -67,8 +67,8 @@ namespace RunTestsWorkerService.Utils
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
-                return new T();
+                Log.Logger.Error($"[JsonSerialization].[ReadFromJsonFile] {ex.Message}");
+                throw ex;
             }
             finally
             {
@@ -96,8 +96,8 @@ namespace RunTestsWorkerService.Utils
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
-                return "Error Occurred"; 
+                Log.Logger.Error($"[JsonSerialization].[SerializeToJsonModed] {ex.Message}");
+                throw ex; 
             }
             finally
             {

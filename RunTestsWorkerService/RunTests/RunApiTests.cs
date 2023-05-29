@@ -49,8 +49,8 @@ namespace RunTestsWorkerService.RunTests
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
-				await Task.FromException(ex);
+				Log.Logger.Error($"[RunApiTests].[RunAsync] {ex.Message}");
+				throw ex;
 			}
 		}
 	}

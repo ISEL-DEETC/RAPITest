@@ -109,7 +109,7 @@ namespace RunTestsWorkerService.RunTests
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
+				Log.Logger.Error($"[MakeRequests].[WriteReport] {ex.Message}");
 			}
 		}
 
@@ -139,10 +139,9 @@ namespace RunTestsWorkerService.RunTests
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
-				return -1;
+				Log.Logger.Error($"[MakeRequests].[GetAllErrors] {ex.Message}");
+				throw ex;
 			}
 		}
-		
 	}
 }

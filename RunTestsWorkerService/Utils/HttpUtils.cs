@@ -122,8 +122,8 @@ namespace RunTestsWorkerService.Utils
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
-				return new HttpResponseMessage();
+				Log.Logger.Error($"[HttpUtils].[Request] {ex.Message}");
+				throw ex;
 			}
 		}
 
@@ -148,7 +148,7 @@ namespace RunTestsWorkerService.Utils
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
+				Log.Logger.Error($"[HttpUtils].[FillRequestMetadata] {ex.Message}");
 			}
 		}
 
@@ -170,7 +170,8 @@ namespace RunTestsWorkerService.Utils
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
+				Log.Logger.Error($"[HttpUtils].[Merge] {ex.Message}");
+				throw ex;
 			}
 		}
 	}

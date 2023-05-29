@@ -53,7 +53,7 @@ namespace RunTestsWorkerService.RunModels
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
+				Log.Logger.Error($"[RunWorkflow].[Run] {ex.Message}");
 			}
 		}
 
@@ -71,7 +71,7 @@ namespace RunTestsWorkerService.RunModels
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
+				Log.Logger.Error($"[RunWorkflow].[ChangeVariablePath] {ex.Message}");
 				return "Error occurred";
 			}
 		}
@@ -92,7 +92,7 @@ namespace RunTestsWorkerService.RunModels
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
+				Log.Logger.Error($"[RunWorkflow].[Retain] {ex.Message}");
 			}
 		}
 
