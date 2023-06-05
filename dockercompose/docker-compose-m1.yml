@@ -1,5 +1,12 @@
 version: '3.4'
 
+networks:
+  internal-net:
+    driver: bridge
+    internal: true
+  external-net:
+    driver: bridge
+
 services:
   rabbitmq: # login guest:guest
     image: rabbitmq:3-management
@@ -13,6 +20,8 @@ services:
       - "25672:25672"
       - "15671:15671"
       - "15672:15672"
+    networks:
+      - internal-net
     restart: always
 
   db:
@@ -25,6 +34,9 @@ services:
       ACCEPT_EULA: "${ACCEPT_EULA}"
     ports:
       - "1433:1433"
+    networks:
+      - internal-net
+      - external-net # Apenas para testes, depois remover
     restart: always
 
   rapitest:
@@ -36,10 +48,15 @@ services:
         condition: service_started
     ports:
         - "443:443"
+    networks:
+      - internal-net
+      - external-net
     restart: always
 
   runtestsworkerservice:
     image: jarbounds/runtestsworkerservice:latest
+    networks:
+      - internal-net
     depends_on:
       db:
         condition: service_started
@@ -50,6 +67,8 @@ services:
 
   setuptestsworkerservice:
     image: jarbounds/setuptestsworkerservice:latest
+    networks:
+      - internal-net
     depends_on:
       db:
         condition: service_started
