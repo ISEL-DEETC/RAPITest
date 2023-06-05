@@ -247,7 +247,7 @@ namespace SetupTestsWorkerService
             using (var channel = connection.CreateModel())
             {
                 channel.QueueDeclare(queue: "run",
-                                     durable: false,
+                                     durable: true,
                                      exclusive: false,
                                      autoDelete: false,
                                      arguments: null);

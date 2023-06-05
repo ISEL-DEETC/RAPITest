@@ -60,7 +60,8 @@ namespace RunTestsWorkerService.RunTests
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex.Message);
+				Log.Logger.Error($"[MakeRequests].[Make] {ex.Message}");
+				throw ex;
 			}
 		}
 
