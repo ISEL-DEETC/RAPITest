@@ -13,10 +13,13 @@ using Microsoft.Extensions.Hosting;
 using ModelsLibrary.Models.EFModels;
 using RAPITest.Data;
 using RAPITest.Models;
+using RAPITest.Utils;
 using Microsoft.AspNetCore.Http.Features;
 using System;
 using Microsoft.VisualBasic;
 using Serilog;
+using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
 
 namespace RAPITest
 {
@@ -36,13 +39,13 @@ namespace RAPITest
 		{
 			try
 			{
+                var connectionString = MasterSettings.RetrieveConnectionString(Configuration);
+
                 services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
 
                 services.AddDbContext<RAPITestDBContext>(options =>
-                    options.UseSqlServer(
-                        Configuration.GetConnectionString("DefaultConnection")));
+                    options.UseSqlServer(connectionString));
 
                 services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
                     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -62,16 +65,17 @@ namespace RAPITest
                 services.AddAuthentication()
                     .AddGoogle(options =>
                     {
-                        IConfigurationSection googleAuthNSection =
-                            Configuration.GetSection("Authentication:Google");
+                        Dictionary<string, string> googleAuth = MasterSettings.RetrieveGoogleAuthentication(Configuration);
 
-                        options.ClientId = Configuration["Authentication:Google:ClientId"];
-                        options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+                        options.ClientId = googleAuth["id"];
+                        options.ClientSecret = googleAuth["secret"];
                     })
                     .AddFacebook(options =>
                     {
-                        options.AppId = Configuration["Authentication:Facebook:AppId"];
-                        options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+                        Dictionary<string, string> facebookAuth = MasterSettings.RetrieveFacebookAuthentication(Configuration);
+
+                        options.AppId = facebookAuth["id"];
+                        options.AppSecret = facebookAuth["secret"];
                         options.AccessDeniedPath = "/AccessDeniedPathInfo";
                     });
 
