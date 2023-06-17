@@ -2,10 +2,10 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
-namespace RunTestsWorkerService.Utils
+namespace SetupTestsWorkerService.Utils
 {
-    public class MasterSettings
-    {
+	public class MasterSettings
+	{
         private static string masterConnectionString = null;
         private static WorkerOptions masterWorkerOptions = null;
 

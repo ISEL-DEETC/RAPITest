@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 //using Microsoft.Extensions.Logging;
 using System.Threading;
+using RunTestsWorkerService.Utils;
 
 namespace RunTestsWorkerService
 {
@@ -42,7 +43,7 @@ namespace RunTestsWorkerService
 					{
                         IConfiguration configuration = hostContext.Configuration;
 
-						WorkerOptions options = configuration.GetSection("WCF").Get<WorkerOptions>();
+						WorkerOptions options = MasterSettings.RetrieveWorkerOptions(configuration);
 
 						services.AddSingleton(options);
 

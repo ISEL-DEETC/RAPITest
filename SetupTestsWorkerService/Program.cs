@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Serilog;
+using SetupTestsWorkerService.Utils;
 
 namespace SetupTestsWorkerService
 {
@@ -35,7 +36,7 @@ namespace SetupTestsWorkerService
                 {
                     IConfiguration configuration = hostContext.Configuration;
 
-                    WorkerOptions options = configuration.GetSection("WCF").Get<WorkerOptions>();
+                    WorkerOptions options = MasterSettings.RetrieveWorkerOptions(configuration);
 
                     services.AddSingleton(options);
 

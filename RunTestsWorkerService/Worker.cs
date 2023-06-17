@@ -57,7 +57,7 @@ namespace RunTestsWorkerService
                     {
                         var body = ea.Body;
                         var message = Encoding.UTF8.GetString(body.ToArray());
-                        _logger.Information("Recieved {0}", message);
+                        _logger.Information("Received {0}", message);
                         ThreadPool.QueueUserWorkItem((state) => Work(channel, ea, message));
                     };
 
