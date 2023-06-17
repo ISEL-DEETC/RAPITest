@@ -28,7 +28,7 @@ namespace RAPITest.Controllers
 		public HomeController(ILogger logger, RAPITestDBContext context, IConfiguration config)
 		{
 			_context = context;
-			//_logger = logger;
+			_logger = logger;
 		}
 
 		[HttpGet]
