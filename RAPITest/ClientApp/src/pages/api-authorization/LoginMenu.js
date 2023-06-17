@@ -55,14 +55,23 @@ export class LoginMenu extends Component {
         </Fragment>);
 
     }
+    // Original for REGISTER_ALTER
+    //anonymousView(registerPath, loginPath) {
+    //    return (<Fragment>
+    //        <NavItem>
+    //            <NavLink tag={Link} className="text-dark" to={registerPath}>Register</NavLink>
+    //        </NavItem>
+    //        <NavItem>
+    //            <NavLink tag={Link} className="text-dark" to={loginPath}>Login</NavLink>
+    //        </NavItem>
+    //    </Fragment>);
+    //}
 
+    // REGISTER_ALTER
     anonymousView(registerPath, loginPath) {
         return (<Fragment>
             <NavItem>
-                <NavLink tag={Link} className="text-dark" to={registerPath}>Register</NavLink>
-            </NavItem>
-            <NavItem>
-                <NavLink tag={Link} className="text-dark" to={loginPath}>Login</NavLink>
+               <NavLink tag={Link} className="text-dark" to={loginPath}>Login</NavLink>
             </NavItem>
         </Fragment>);
     }

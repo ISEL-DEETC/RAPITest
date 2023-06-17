@@ -66,6 +66,10 @@ namespace RAPITest.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            // REGISTER_ALTER
+            [DataType(DataType.Password)]
+            public string Validator { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -87,6 +91,12 @@ namespace RAPITest.Areas.Identity.Pages.Account
             {
                 returnUrl = returnUrl ?? Url.Content("~/");
                 ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+                // REGISTER_ALTER
+                if (!Input.Validator.Equals("ISEL2023RAPITest"))
+                {
+                    _logger.Warning($"Unauthorized register attempt with Validator={Input.Validator}");
+                    return BadRequest("Invalid Register request");
+                }
                 if (ModelState.IsValid)
                 {
                     var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
