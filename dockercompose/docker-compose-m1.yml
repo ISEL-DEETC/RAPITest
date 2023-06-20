@@ -30,13 +30,12 @@ services:
     labels:
       NAME: "db"
     environment:
-      SA_PASSWORD: "${SA_PASSWORD}"
+      SA_PASSWORD: "${DBPASS}"
       ACCEPT_EULA: "${ACCEPT_EULA}"
     ports:
-      - "1433:1433"
+      - "${DBPORT}:1433"
     networks:
       - internal-net
-      - external-net # Apenas para testes, depois remover
     restart: always
 
   rapitest:
@@ -46,6 +45,11 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_started
+    environment:
+      DBHOST: "${DBHOST}"
+      DBPORT: "${DBPORT}"
+      DBUSER: "${DBUSER}"
+      DBPASS: "${DBPASS}"
     ports:
         - "443:443"
     networks:
@@ -55,23 +59,38 @@ services:
 
   runtestsworkerservice:
     image: jarbounds/runtestsworkerservice:latest
-    networks:
-      - internal-net
     depends_on:
       db:
         condition: service_started
       rabbitmq:
         condition: service_started
+    environment:
+      DBHOST: "${DBHOST}"
+      DBPORT: "${DBPORT}"
+      DBUSER: "${DBUSER}"
+      DBPASS: "${DBPASS}"
+      MQHOST: "${MQHOST}"
+      MQPORT: "${MQPORT}"
+    networks:
+      - internal-net
+      - external-net
     restart: always
 
 
   setuptestsworkerservice:
     image: jarbounds/setuptestsworkerservice:latest
-    networks:
-      - internal-net
     depends_on:
       db:
         condition: service_started
       rabbitmq:
         condition: service_started
+    environment:
+      DBHOST: "${DBHOST}"
+      DBPORT: "${DBPORT}"
+      DBUSER: "${DBUSER}"
+      DBPASS: "${DBPASS}"
+      MQHOST: "${MQHOST}"
+      MQPORT: "${MQPORT}"
+    networks:
+      - internal-net
     restart: always
