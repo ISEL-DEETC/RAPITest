@@ -92,7 +92,7 @@ namespace RAPITest.Areas.Identity.Pages.Account
                 returnUrl = returnUrl ?? Url.Content("~/");
                 ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
                 // REGISTER_ALTER
-                if (!Input.Validator.Equals("ISEL2023RAPITest"))
+                if (!Input.Validator.Equals(Environment.GetEnvironmentVariable("REGISTER_SECRET")))
                 {
                     _logger.Warning($"Unauthorized register attempt with Validator={Input.Validator}");
                     return BadRequest("Invalid Register request");

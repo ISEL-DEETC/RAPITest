@@ -50,6 +50,7 @@ services:
       DBPORT: "${DBPORT}"
       DBUSER: "${DBUSER}"
       DBPASS: "${DBPASS}"
+      REGISTER_SECRET: "${REGISTER_SECRET}"
     ports:
         - "443:443"
     networks:
