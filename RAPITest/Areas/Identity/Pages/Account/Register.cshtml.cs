@@ -91,8 +91,10 @@ namespace RAPITest.Areas.Identity.Pages.Account
             {
                 returnUrl = returnUrl ?? Url.Content("~/");
                 ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-                // REGISTER_ALTER
-                if (!Input.Validator.Equals(Environment.GetEnvironmentVariable("REGISTER_SECRET")))
+
+                string registerSecret = Environment.GetEnvironmentVariable("REGISTER_SECRET");
+
+                if (!Input.Validator.Equals(registerSecret))
                 {
                     _logger.Warning($"Unauthorized register attempt with Validator={Input.Validator}");
                     return BadRequest("Invalid Register request");
