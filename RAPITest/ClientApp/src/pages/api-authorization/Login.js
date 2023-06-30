@@ -34,9 +34,10 @@ export class Login extends Component {
             case LoginActions.Profile:
                 this.redirectToProfile();
                 break;
-            case LoginActions.Register:
-                this.redirectToRegister();
-                break;
+            // REGISTER_ALTER
+            //case LoginActions.Register:
+            //    this.redirectToRegister();
+            //    break;
             default:
                 throw new Error(`Invalid action '${action}'`);
         }
@@ -109,9 +110,11 @@ export class Login extends Component {
         return (state && state.returnUrl) || fromQuery || `${window.location.origin}/`;
     }
 
-    redirectToRegister() {
-        this.redirectToApiAuthorizationPath(`${ApplicationPaths.IdentityRegisterPath}?${QueryParameterNames.ReturnUrl}=${encodeURI(ApplicationPaths.Login)}`);
-    }
+    // REGISTER_ALTER
+    //redirectToRegister() {
+    //    this.redirectToApiAuthorizationPath(`${ApplicationPaths.IdentityRegisterPath}?${QueryParameterNames.ReturnUrl}=${encodeURI(ApplicationPaths.Login)}`);
+    //}
+    
 
     redirectToProfile() {
         this.redirectToApiAuthorizationPath(ApplicationPaths.IdentityManagePath);

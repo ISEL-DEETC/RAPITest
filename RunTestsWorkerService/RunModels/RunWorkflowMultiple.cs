@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace RunTestsWorkerService.RunModels
 {
@@ -15,6 +16,7 @@ namespace RunTestsWorkerService.RunModels
 		private int Count;
 		private int Delay;
 		private Dictionary<string, List<long>> elapsedTimes;
+		private readonly ILogger _logger = Log.Logger;
 
 		public RunWorkflowMultiple(Workflow workflow, HttpUtils httpUtils, int count, int delay) : base(workflow, httpUtils)
 		{
@@ -30,33 +32,42 @@ namespace RunTestsWorkerService.RunModels
 
 		public new async Task<Dictionary<String, List<long>>> Run()
 		{
-			for(int i = 0; i < Count; i++)
+			try
 			{
-				foreach (Test test in workflow.Tests)
+				for (int i = 0; i < Count; i++)
 				{
-					string ChangedPath = ChangeVariablePath(workflow, test);
-
-					HttpRequestMessage request = httpUtils.PrepareRequestMessage(test,ChangedPath);
-					Task<HttpResponseMessage> task = httpUtils.Request(request);
-
-					var sw = Stopwatch.StartNew();
-					await task;
-					/*if (!task.Result.IsSuccessStatusCode)
+					foreach (Test test in workflow.Tests)
 					{
-						Console.WriteLine(task.Result.StatusCode);
-					}*/
-					long time = sw.ElapsedMilliseconds;
+						string ChangedPath = ChangeVariablePath(workflow, test);
 
-					elapsedTimes.GetValueOrDefault(test.TestID).Add(time);
+						HttpRequestMessage request = httpUtils.PrepareRequestMessage(test, ChangedPath);
+						Task<HttpResponseMessage> task = httpUtils.Request(request);
 
-					Retain(workflow, test, task.Result);
+						var sw = Stopwatch.StartNew();
+						await task;
+						/*if (!task.Result.IsSuccessStatusCode)
+						{
+							Console.WriteLine(task.Result.StatusCode);
+						}*/
+						long time = sw.ElapsedMilliseconds;
+
+						elapsedTimes.GetValueOrDefault(test.TestID).Add(time);
+
+						Retain(workflow, test, task.Result);
+					}
+
+					Thread.Sleep(Delay);
+
 				}
 
-				Thread.Sleep(Delay);
-
+				return elapsedTimes;
 			}
+			catch (Exception ex)
+			{
+				_logger.Error($"[RunWorkflowMultiple].[Run] {ex.Message}");
+				return new Dictionary<String, List<long>>();
 
-			return elapsedTimes;
+            }
 		}
 	}
 }

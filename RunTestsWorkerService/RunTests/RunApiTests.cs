@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace RunTestsWorkerService.RunTests
 {
@@ -18,30 +19,38 @@ namespace RunTestsWorkerService.RunTests
 	{
 		public static async Task RunAsync(int ApiId, string connectionString)
 		{
-			RAPITestDBContext _context;
-			var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
-			optionsBuilder.UseSqlServer(connectionString);
-
-			using (_context = new RAPITestDBContext(optionsBuilder.Options))
+			try
 			{
-				Api api = _context.Api.Include(api => api.ExternalDll).Include(api => api.Report).Where(a => a.ApiId == ApiId).FirstOrDefault();
-				if (api == null) return;
+				RAPITestDBContext _context;
+				var optionsBuilder = new DbContextOptionsBuilder<RAPITestDBContext>();
+				optionsBuilder.UseSqlServer(connectionString);
 
-				//step 1 - Reload Assemblies
-				foreach (ExternalDll external in api.ExternalDll)
+				using (_context = new RAPITestDBContext(optionsBuilder.Options))
 				{
-					Assembly.Load(external.Dll);
+					Api api = _context.Api.Include(api => api.ExternalDll).Include(api => api.Report).Where(a => a.ApiId == ApiId).FirstOrDefault();
+					if (api == null) return;
+
+					//step 1 - Reload Assemblies
+					foreach (ExternalDll external in api.ExternalDll)
+					{
+						Assembly.Load(external.Dll);
+					}
+					string serializedTests = Encoding.Default.GetString(api.SerializedTests);
+					serializedTests = serializedTests.Replace("SetupTestsWorkerService", "RunTestsWorkerService");
+
+					//step 2 - Parse AplicationModel serialized objects
+					CompleteTest firstTestSetup = JsonConvert.DeserializeObject<CompleteTest>(serializedTests, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+
+					//step 3 - Run
+					await MakeRequests.Make(firstTestSetup, api);
+
+					_context.SaveChanges();
 				}
-				string serializedTests = Encoding.Default.GetString(api.SerializedTests);
-				serializedTests = serializedTests.Replace("SetupTestsWorkerService", "RunTestsWorkerService");
-
-				//step 2 - Parse AplicationModel serialized objects
-				CompleteTest firstTestSetup = JsonConvert.DeserializeObject<CompleteTest>(serializedTests, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-
-				//step 3 - Run
-				await MakeRequests.Make(firstTestSetup, api);
-
-				_context.SaveChanges();
+			}
+			catch (Exception ex)
+			{
+				Log.Logger.Error($"[RunApiTests].[RunAsync] {ex.Message}");
+				throw ex;
 			}
 		}
 	}

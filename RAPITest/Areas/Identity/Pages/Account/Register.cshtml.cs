@@ -12,7 +12,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
+using Serilog;
 using ModelsLibrary.Models.EFModels;
 using RAPITest.Models;
 
@@ -23,14 +24,14 @@ namespace RAPITest.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<RegisterModel> _logger;
+        private readonly ILogger _logger;
         private readonly IEmailSender _emailSender;
         private readonly RAPITestDBContext _context;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<RegisterModel> logger,
+            ILogger logger,
             IEmailSender emailSender,
             RAPITestDBContext context)
         {
@@ -65,68 +66,95 @@ namespace RAPITest.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            // REGISTER_ALTER
+            [DataType(DataType.Password)]
+            public string Validator { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            ReturnUrl = returnUrl;
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            try
+            {
+                ReturnUrl = returnUrl;
+                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+            }
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl = returnUrl ?? Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            if (ModelState.IsValid)
+            try
             {
-                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
-                var result = await _userManager.CreateAsync(user, Input.Password);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User created a new account with password.");
+                returnUrl = returnUrl ?? Url.Content("~/");
+                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-                    //login record
-                    using (_context)
+                string registerSecret = Environment.GetEnvironmentVariable("REGISTER_SECRET");
+
+                if (!Input.Validator.Equals(registerSecret))
+                {
+                    _logger.Warning($"Unauthorized register attempt with Validator={Input.Validator}");
+                    return BadRequest("Invalid Register request");
+                }
+                if (ModelState.IsValid)
+                {
+                    var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
+                    var result = await _userManager.CreateAsync(user, Input.Password);
+                    if (result.Succeeded)
                     {
-                        var user2 = _context.AspNetUsers.Where(user => user.Email == Input.Email).First();
-                        var record = new LoginRecord()
+                        _logger.Information("User created a new account with password.");
+
+                        //login record
+                        using (_context)
                         {
-                            UserId = user2.Id,
-                            LoginTime = DateTime.Now
-                        };
-                        _context.LoginRecord.Add(record);
-                        _context.SaveChanges();
+                            var user2 = _context.AspNetUsers.Where(user => user.Email == Input.Email).First();
+                            var record = new LoginRecord()
+                            {
+                                UserId = user2.Id,
+                                LoginTime = DateTime.Now
+                            };
+                            _context.LoginRecord.Add(record);
+                            _context.SaveChanges();
+                        }
+
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                        var callbackUrl = Url.Page(
+                            "/Account/ConfirmEmail",
+                            pageHandler: null,
+                            values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
+                            protocol: Request.Scheme);
+
+                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                        if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                        {
+                            return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                        }
+                        else
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            return LocalRedirect(returnUrl);
+                        }
                     }
-
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
-
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    foreach (var error in result.Errors)
                     {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        ModelState.AddModelError(string.Empty, error.Description);
                     }
                 }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+
+                // If we got this far, something failed, redisplay form
+                return Page();
             }
-
-            // If we got this far, something failed, redisplay form
-            return Page();
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return Page();
+            }
         }
     }
 }

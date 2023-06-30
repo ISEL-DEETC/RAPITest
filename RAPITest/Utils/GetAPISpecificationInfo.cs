@@ -6,6 +6,7 @@ using ModelsLibrary.Models.AppSpecific;
 using ModelsLibrary.Models.EFModels;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -70,10 +71,12 @@ namespace RAPITest.Utils
 
 				return ret;
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
+				Log.Logger.Error("Occurred in GetAPISpecificationInfo, printing exception");
+				Log.Logger.Error(ex.Message);
 				APISpecificationInfo ret = new APISpecificationInfo();
-				ret.Error = e.Message;
+				ret.Error = ex.Message;
 
 				return ret;
 			}

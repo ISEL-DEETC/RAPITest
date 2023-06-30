@@ -25,7 +25,7 @@ services:
     restart: always
 
   db:
-    image: "mcr.microsoft.com/mssql/server"
+    image: "mcr.microsoft.com/azure-sql-edge:latest"
     hostname: "db"
     labels:
       NAME: "db"

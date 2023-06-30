@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
+using Serilog;
 using RAPITest.Models;
 
 namespace RAPITest.Areas.Identity.Pages.Account.Manage
@@ -10,11 +11,11 @@ namespace RAPITest.Areas.Identity.Pages.Account.Manage
     public class PersonalDataModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<PersonalDataModel> _logger;
+        private readonly ILogger _logger;
 
         public PersonalDataModel(
             UserManager<ApplicationUser> userManager,
-            ILogger<PersonalDataModel> logger)
+            ILogger logger)
         {
             _userManager = userManager;
             _logger = logger;
@@ -22,13 +23,21 @@ namespace RAPITest.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnGet()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            try
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                }
 
-            return Page();
+                return Page();
+            }
+            catch (System.Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return NotFound("Due to Error");
+            }
         }
     }
 }

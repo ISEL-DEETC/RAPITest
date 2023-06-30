@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text.Json;
@@ -16,15 +16,18 @@ using System.IO;
 using RunTestsWorkerService.RunTests;
 using ModelsLibrary.Models.EFModels;
 using RabbitMQ.Client.Exceptions;
+using Serilog;
 
 namespace RunTestsWorkerService
 {
     public class Worker : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger _logger;
         private readonly WorkerOptions options;
 
-        public Worker(ILogger<Worker> logger, WorkerOptions options)
+        private static readonly string QUEUE_NAME = "run";
+
+        public Worker(ILogger logger, WorkerOptions options)
         {
             _logger = logger;
             this.options = options;
@@ -32,34 +35,49 @@ namespace RunTestsWorkerService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var factory = new ConnectionFactory() { HostName = this.options.RabbitMqHostName, Port = this.options.RabbitMqPort };  
-
-            using (var connection = CreateConnection(factory))
-            using (var channel = connection.CreateModel())
+            try
             {
-                channel.QueueDeclare(queue: "run",
-                                        durable: false,
-                                        exclusive: false,
-                                        autoDelete: false,
-                                        arguments: null);
+                var factory = new ConnectionFactory() { HostName = this.options.RabbitMqHostName, Port = this.options.RabbitMqPort };
 
-                var consumer = new EventingBasicConsumer(channel);
-                consumer.Received += (model, ea) =>
+                using (var connection = CreateConnection(factory))
+                using (var channel = connection.CreateModel())
                 {
-                    var body = ea.Body;
-                    var message = Encoding.UTF8.GetString(body.ToArray());
-                    _logger.LogInformation("Recieved {0}", message);
-                    ThreadPool.QueueUserWorkItem((state) => Work(message));
-                };
-                channel.BasicConsume(queue: "run",
-                                        autoAck: true,
-                                        consumer: consumer);
+                    channel.QueueDeclare(
+                        queue: QUEUE_NAME,
+                        durable: true,
+                        exclusive: false,
+                        autoDelete: false,
+                        arguments: null
+                    );
 
-                while (!stoppingToken.IsCancellationRequested)
-                {
-                    //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                    await Task.Delay(10000, stoppingToken);
+                    channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
+                    var consumer = new EventingBasicConsumer(channel);
+                    consumer.Received += (model, ea) =>
+                    {
+                        var body = ea.Body;
+                        var message = Encoding.UTF8.GetString(body.ToArray());
+                        _logger.Information("Received {0}", message);
+                        ThreadPool.QueueUserWorkItem((state) => Work(channel, ea, message));
+                    };
+
+                    channel.BasicConsume(
+                        queue: QUEUE_NAME,
+                        autoAck: false,
+                        consumer: consumer
+                    );
+
+                    while (!stoppingToken.IsCancellationRequested)
+                    {
+                        //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                        await Task.Delay(10000, stoppingToken);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                await Task.FromException(ex);
             }
         }
 
@@ -69,23 +87,37 @@ namespace RunTestsWorkerService
 			{
 				try
 				{
-                    _logger.LogInformation("Attempting to connect to RabbitMQ....");
+                    _logger.Information("Attempting to connect to RabbitMQ....");
                     IConnection connection = connectionFactory.CreateConnection();
                     return connection;
-                }catch(BrokerUnreachableException e)
+                }
+                catch(BrokerUnreachableException)
 				{
-                    _logger.LogInformation("RabbitMQ Connection Unreachable, sleeping 5 seconds....");
+                    _logger.Warning("RabbitMQ Connection Unreachable, sleeping 5 seconds....");
                     Thread.Sleep(5000);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex.Message);
                 }
 			}
 		}
 
 
-        private async void Work(string message)
-        { 
-            int apiId = Int32.Parse(message);
-            await RunApiTests.RunAsync(apiId, options.DefaultConnection);
-            _logger.LogInformation("Message {0} - Work Complete", message);
+        private async void Work(IModel channel, BasicDeliverEventArgs ea, string message)
+        {
+            try
+            {
+                int apiId = Int32.Parse(message);
+                await RunApiTests.RunAsync(apiId, options.DefaultConnection);
+                _logger.Information("Message {0} - Work Complete", message);
+                channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                channel.BasicNack(deliveryTag: ea.DeliveryTag, multiple: false, requeue: true);
+            }
         }
     }
 }

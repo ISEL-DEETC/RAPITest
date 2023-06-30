@@ -8,14 +8,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace SetupTestsWorkerService.SetupTests
 {
 	public class SetupTestRun
 	{
+		private static readonly ILogger _logger = Log.Logger;
+
 		public static bool Run(int ApiId, RAPITestDBContext _context)
 		{
-			
 			Api api = _context.Api.Include(api => api.ExternalDll).Where(a => a.ApiId == ApiId).FirstOrDefault();
 			if (api == null) return false;
 
@@ -64,13 +66,20 @@ namespace SetupTestsWorkerService.SetupTests
 
 		private static void WriteErrorFile(CompleteTest firstTestSetup, RAPITestDBContext _context)
 		{
-			firstTestSetup.Errors = firstTestSetup.Errors.Distinct().ToList();
-			ModelsLibrary.Models.EFModels.Report report = new ModelsLibrary.Models.EFModels.Report();
-			report.ApiId = firstTestSetup.ApiId;
-			report.ReportDate = DateTime.Now;
-			report.ReportFile = firstTestSetup.Errors.SelectMany(s => System.Text.Encoding.Default.GetBytes(s + Environment.NewLine)).ToArray();
-			_context.Report.Add(report);
-		}
+			try
+			{
+				firstTestSetup.Errors = firstTestSetup.Errors.Distinct().ToList();
+				ModelsLibrary.Models.EFModels.Report report = new ModelsLibrary.Models.EFModels.Report();
+				report.ApiId = firstTestSetup.ApiId;
+				report.ReportDate = DateTime.Now;
+				report.ReportFile = firstTestSetup.Errors.SelectMany(s => System.Text.Encoding.Default.GetBytes(s + Environment.NewLine)).ToArray();
+				_context.Report.Add(report);
+			}
+			catch (Exception ex)
+			{
+                _logger.Error(ex.Message);
+            }
+        }
 
 	}
 }

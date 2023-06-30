@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
+using Serilog;
 using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace DataAnnotation.Controllers
 	[Route("[controller]/[action]")]
 	public class SetupTestController : Controller
 	{
-		private readonly ILogger<SetupTestController> _logger;
+		private readonly ILogger _logger;
 		private readonly long _fileSizeLimit;
 		private readonly string[] _permittedExtensions;
 		private readonly RAPITestDBContext _context;
@@ -39,19 +40,30 @@ namespace DataAnnotation.Controllers
 		private static readonly HttpClient _httpClient;
 		private static readonly FormOptions _defaultFormOptions;
 
+        private readonly string QUEUE_SETUP = "setup";
+
+
 		static SetupTestController()
 		{
 			_httpClient = new HttpClient();
 			_defaultFormOptions = new FormOptions();
 		}
-		public SetupTestController(ILogger<SetupTestController> logger, RAPITestDBContext context, IConfiguration config)
+		public SetupTestController(ILogger logger, RAPITestDBContext context, IConfiguration config)
 		{
-			_logger = logger;
-			_context = context;
-			_fileSizeLimit = config.GetValue<long>("FileSizeLimit");
-			_permittedExtensions = config.GetSection("PermittedExtensionsApiSpecification").GetChildren().ToArray().Select(v => v.Value).ToArray();
-			RabbitMqHostName = config.GetValue<string>("RabbitMqHostName");
-			RabbitMqPort = config.GetValue<int>("RabbitMqPort");
+			try
+			{
+                _logger = logger;
+                _context = context;
+                _fileSizeLimit = config.GetValue<long>("FileSizeLimit");
+                _permittedExtensions = config.GetSection("PermittedExtensionsApiSpecification").GetChildren().ToArray().Select(v => v.Value).ToArray();
+                RabbitMqHostName = config.GetValue<string>("RabbitMqHostName");
+                RabbitMqPort = config.GetValue<int>("RabbitMqPort");
+            }
+			catch (Exception ex)
+			{
+				_logger.Error("Error in constructor, printing exception...");
+				_logger.Error(ex.Message);
+			}
 		}
 
 		[HttpPost]
@@ -59,103 +71,114 @@ namespace DataAnnotation.Controllers
 		[DisableFormValueModelBinding]
 		public IActionResult UploadFile(IFormCollection data)
 		{
-			List<IFormFile> files = data.Files.ToList();
-
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			using (_context)
+			try
 			{
-				Api newApi = _context.Api.OrderByDescending(x => x.ApiId).FirstOrDefault();
+                List<IFormFile> files = data.Files.ToList();
 
-				newApi.RunGenerated = data["rungenerated"] == "true";
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+                using (_context)
+                {
+                    Api newApi = _context.Api.OrderByDescending(x => x.ApiId).FirstOrDefault();
 
-				List<IFormFile> tsls = new List<IFormFile>();
-				List<IFormFile> externalDlls = new List<IFormFile>();
+                    newApi.RunGenerated = data["rungenerated"] == "true";
 
-				foreach (var formFile in files)
-				{
-					if (formFile.Length > 0)
-					{
-						if (formFile.Name.Contains("tsl_"))
-						{
-							tsls.Add(formFile);
-						}
-						else if (formFile.Name.Contains("apiSpecification"))
-						{
-							using (var ms = new MemoryStream())
-							{
-								formFile.CopyTo(ms);
-								newApi.ApiSpecification = ms.ToArray();
-							}
-						}
-						else if (formFile.Name.Contains("dictionary"))
-						{
-							using (var ms = new MemoryStream())
-							{
-								formFile.CopyTo(ms);
-								newApi.Dictionary = ms.ToArray();
-							}
-						}
-						else
-						{
-							externalDlls.Add(formFile);
-						}
-					}
-				}
+                    List<IFormFile> tsls = new List<IFormFile>();
+                    List<IFormFile> externalDlls = new List<IFormFile>();
 
-				string filesConcatenated = "";
-				using (var ms = new MemoryStream())
-				{
-					foreach (IFormFile tsl in tsls)
-					{
-						using (var reader = new StreamReader(tsl.OpenReadStream()))
-						{
-							filesConcatenated += reader.ReadToEnd();
-						}
-					}
-				}
+                    foreach (var formFile in files)
+                    {
+                        if (formFile.Length > 0)
+                        {
+                            if (formFile.Name.Contains("tsl_"))
+                            {
+                                tsls.Add(formFile);
+                            }
+                            else if (formFile.Name.Contains("apiSpecification"))
+                            {
+                                using (var ms = new MemoryStream())
+                                {
+                                    formFile.CopyTo(ms);
+                                    newApi.ApiSpecification = ms.ToArray();
+                                }
+                            }
+                            else if (formFile.Name.Contains("dictionary"))
+                            {
+                                using (var ms = new MemoryStream())
+                                {
+                                    formFile.CopyTo(ms);
+                                    newApi.Dictionary = ms.ToArray();
+                                }
+                            }
+                            else
+                            {
+                                externalDlls.Add(formFile);
+                            }
+                        }
+                    }
 
-				newApi.Tsl = Encoding.Default.GetBytes(filesConcatenated);
+                    string filesConcatenated = "";
+                    using (var ms = new MemoryStream())
+                    {
+                        foreach (IFormFile tsl in tsls)
+                        {
+                            using (var reader = new StreamReader(tsl.OpenReadStream()))
+                            {
+                                filesConcatenated += reader.ReadToEnd();
+                            }
+                        }
+                    }
 
-				//radioButtons: [button1H, button12H, button24H, button1W, button1M, buttonNever] 
-				switch (data["interval"])
-				{
-					case "1 hour":
-						newApi.NextTest = DateTime.Now.AddHours(1);
-						newApi.TestTimeLoop = 1;
-						break;
-					case "12 hours":
-						newApi.NextTest = DateTime.Now.AddHours(12);
-						newApi.TestTimeLoop = 12;
-						break;
-					case "24 hours":
-						newApi.NextTest = DateTime.Now.AddDays(1);
-						newApi.TestTimeLoop = 24;
-						break;
-					case "1 week":
-						newApi.NextTest = DateTime.Now.AddDays(7);
-						newApi.TestTimeLoop = 168;
-						break;
-					default:  //Never
-						break;
-				}
-				int identityId = newApi.ApiId;
+                    newApi.Tsl = Encoding.Default.GetBytes(filesConcatenated);
 
-				foreach (IFormFile external in externalDlls)
-				{
-					ExternalDll externalDll = new ExternalDll();
-					externalDll.ApiId = identityId;
-					using var ms = new MemoryStream();
-					external.CopyTo(ms);
-					externalDll.Dll = ms.ToArray();
-					externalDll.FileName = external.FileName;
+                    //radioButtons: [button1H, button12H, button24H, button1W, button1M, buttonNever] 
+                    switch (data["interval"])
+                    {
+                        case "1 hour":
+                            newApi.NextTest = DateTime.Now.AddHours(1);
+                            newApi.TestTimeLoop = 1;
+                            break;
+                        case "12 hours":
+                            newApi.NextTest = DateTime.Now.AddHours(12);
+                            newApi.TestTimeLoop = 12;
+                            break;
+                        case "24 hours":
+                            newApi.NextTest = DateTime.Now.AddDays(1);
+                            newApi.TestTimeLoop = 24;
+                            break;
+                        case "1 week":
+                            newApi.NextTest = DateTime.Now.AddDays(7);
+                            newApi.TestTimeLoop = 168;
+                            break;
+                        default: //Never
+							_logger.Warning("Should never go here, value is {0}", data["interval"]);
+                            break;
+                    }
+                    int identityId = newApi.ApiId;
 
-					_context.ExternalDll.Add(externalDll);
-				}
-				_context.SaveChanges();
+                    foreach (IFormFile external in externalDlls)
+                    {
+                        ExternalDll externalDll = new ExternalDll();
+                        externalDll.ApiId = identityId;
+                        using var ms = new MemoryStream();
+                        external.CopyTo(ms);
+                        externalDll.Dll = ms.ToArray();
+                        externalDll.FileName = external.FileName;
 
-				Sender(identityId, data["runimmediately"] == "true");
+                        _context.ExternalDll.Add(externalDll);
+                    }
+                    _context.SaveChanges();
+
+                    Sender(identityId, data["runimmediately"] == "true");
+                }
+                return Created(nameof(SetupTestController), null);
+            }
+			catch (Exception ex)
+			{
+				//_logger.Error("Occurred during UploadFile, printing exception...");
+				_logger.Error(ex.Message);
+				return Problem(ex.Message);
 			}
-			return Created(nameof(SetupTestController), null);
+			
 		}
 
 		[HttpPost]
@@ -163,48 +186,57 @@ namespace DataAnnotation.Controllers
 		[DisableFormValueModelBinding]
 		public IActionResult GetSpecificationDetails(IFormCollection data)
 		{
-			List<IFormFile> files = data.Files.ToList();
-
-			IFormFile apispec = files.Single();
-
-			APISpecificationInfo aPISpecificationInfo = GetAPISpecificationInfo.GetSpecInfo(apispec);
-
-			if(aPISpecificationInfo.Error == null)
+			try
 			{
-				var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+                List<IFormFile> files = data.Files.ToList();
 
-				Api newApi = new Api();
-				newApi.ApiTitle = data["title"];
-				newApi.UserId = userId;
+                IFormFile apispec = files.Single();
 
-				using (var ms = new MemoryStream())
-				{
-					apispec.CopyTo(ms);
-					newApi.ApiSpecification = ms.ToArray();
-				}
+                APISpecificationInfo aPISpecificationInfo = GetAPISpecificationInfo.GetSpecInfo(apispec);
 
-				newApi.RunGenerated = false;
-				newApi.Tsl = Encoding.Default.GetBytes("");
+                if (aPISpecificationInfo.Error == null)
+                {
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 
-				using (_context)
-				{
-					_context.Api.Add(newApi);
-					_context.SaveChanges();
-				}
+                    Api newApi = new Api();
+                    newApi.ApiTitle = data["title"];
+                    newApi.UserId = userId;
 
-				return Ok(aPISpecificationInfo);
+                    using (var ms = new MemoryStream())
+                    {
+                        apispec.CopyTo(ms);
+                        newApi.ApiSpecification = ms.ToArray();
+                    }
+
+                    newApi.RunGenerated = false;
+                    newApi.Tsl = Encoding.Default.GetBytes("");
+
+                    using (_context)
+                    {
+                        _context.Api.Add(newApi);
+                        _context.SaveChanges();
+                    }
+
+                    return Ok(aPISpecificationInfo);
+                }
+
+                return BadRequest(aPISpecificationInfo);
+            }
+			catch (Exception ex)
+			{
+				//_logger.Error("Occurred during GetSpecificationDetails, printing exception...");
+				_logger.Error(ex.Message);
+				return Problem(ex.Message);
 			}
-
-			return BadRequest(aPISpecificationInfo);
 		}
 
 		[HttpPost]
 		public async Task<IActionResult> GetSpecificationDetailsURL(IFormCollection data)
 		{
-			string url = data["apiSpecification"];
 			try
 			{
-				Uri uri = new Uri(url);
+                string url = data["apiSpecification"];
+                Uri uri = new Uri(url);
 				string finalSegment = uri.Segments[uri.Segments.Length-1];
 				if (Path.GetExtension(finalSegment) != ".json" && Path.GetExtension(finalSegment) != ".yaml")
 				{
@@ -241,8 +273,10 @@ namespace DataAnnotation.Controllers
 
 				return BadRequest(aPISpecificationInfo);
 			}
-			catch(Exception e)
+			catch(Exception ex)
 			{
+				//_logger.Error("Occurred during GetSpecificationDetailsURL, printing exception...");
+				_logger.Error(ex.Message);
 				APISpecificationInfo aux = new APISpecificationInfo();
 				aux.Error = "File not valid";
 				return BadRequest(aux);
@@ -252,40 +286,58 @@ namespace DataAnnotation.Controllers
 		[HttpPost]
 		public IActionResult RemoveUnfinishedSetup()
 		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			using (_context)
+			try
 			{
-				Api newApi = _context.Api.OrderByDescending(x => x.ApiId).FirstOrDefault();
+				var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+				using (_context)
+				{
+					Api newApi = _context.Api.OrderByDescending(x => x.ApiId).FirstOrDefault();
 
-				if (newApi == null) return NotFound();
+					if (newApi == null) return NotFound();
 
-				_context.Api.Remove(newApi);
-				_context.SaveChanges();
+					_context.Api.Remove(newApi);
+					_context.SaveChanges();
+				}
+				return Ok();
 			}
-			return Ok();
+			catch (Exception ex)
+			{
+				//_logger.Error("Occurred during RemoveUnfinishedSetup. printing exception...");
+				_logger.Error(ex.Message);
+				return Problem(ex.Message);
+			}
+			
 		}
 
 		public void Sender(int apiId, bool runImmediately)
 		{
-			var factory = new ConnectionFactory() { HostName = RabbitMqHostName, Port = RabbitMqPort };   //as longs as it is running in the same machine
-			using (var connection = CreateConnection(factory))
-			using (var channel = connection.CreateModel())
+			try
 			{
-				channel.QueueDeclare(queue: "setup",
-									 durable: false,
-									 exclusive: false,
-									 autoDelete: false,
-									 arguments: null);
+                var factory = new ConnectionFactory() { HostName = RabbitMqHostName, Port = RabbitMqPort };   //as longs as it is running in the same machine
+                using (var connection = CreateConnection(factory))
+                using (var channel = connection.CreateModel())
+                {
+                    channel.QueueDeclare(queue: QUEUE_SETUP,
+                                         durable: true,
+                                         exclusive: false,
+                                         autoDelete: false,
+                                         arguments: null);
 
-				string message = apiId+"|"+runImmediately;
-				var body = Encoding.UTF8.GetBytes(message);
+                    string message = apiId + "|" + runImmediately;
+                    var body = Encoding.UTF8.GetBytes(message);
 
-				channel.BasicPublish(exchange: "",
-									 routingKey: "setup",
-									 basicProperties: null,
-									 body: body);
+                    channel.BasicPublish(exchange: "",
+                                         routingKey: "setup",
+                                         basicProperties: null,
+                                         body: body);
 
-				_logger.LogInformation("[x] Sent {0} ", message);
+                    _logger.Information("[x] Sent {0} ", message);
+                }
+            }
+			catch (Exception ex)
+			{
+				//_logger.Error("Occurred during Sender, printing exception...");
+				_logger.Error(ex.Message);
 			}
 		}
 
@@ -295,14 +347,19 @@ namespace DataAnnotation.Controllers
 			{
 				try
 				{
-					_logger.LogInformation("Attempting to connect to RabbitMQ....");
+					_logger.Information("Attempting to connect to RabbitMQ....");
 					IConnection connection = connectionFactory.CreateConnection();
 					return connection;
 				}
-				catch (BrokerUnreachableException e)
-				{
-					_logger.LogInformation("RabbitMQ Connection Unreachable, sleeping 5 seconds....");
+				catch (BrokerUnreachableException)
+                {
+					_logger.Information("RabbitMQ Connection Unreachable, sleeping 5 seconds....");
 					Thread.Sleep(5000);
+				}
+				catch (Exception ex)
+				{
+					//_logger.Error("Occurred during RabbitMQ create connection, printing exception...");
+					_logger.Error(ex.Message);
 				}
 			}
 		}

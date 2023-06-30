@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Serilog;
 using RAPITest.Models;
 
 namespace RAPITest.Areas.Identity.Pages.Account
@@ -17,6 +18,7 @@ namespace RAPITest.Areas.Identity.Pages.Account
     public class ResetPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger _logger = Log.Logger;
 
         public ResetPasswordModel(UserManager<ApplicationUser> userManager)
         {
@@ -47,45 +49,63 @@ namespace RAPITest.Areas.Identity.Pages.Account
 
         public IActionResult OnGet(string code = null)
         {
-            if (code == null)
+            try
             {
-                return BadRequest("A code must be supplied for password reset.");
-            }
-            else
-            {
-                Input = new InputModel
+                if (code == null)
                 {
-                    Code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code))
-                };
+                    return BadRequest("A code must be supplied for password reset.");
+                }
+                else
+                {
+                    Input = new InputModel
+                    {
+                        Code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code))
+                    };
+                    return Page();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
                 return Page();
             }
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            try
             {
+                if (!ModelState.IsValid)
+                {
+                    _logger.Warning("Model state is invalid");
+                    return Page();
+                }
+
+                var user = await _userManager.FindByEmailAsync(Input.Email);
+                if (user == null)
+                {
+                    _logger.Warning("User does not exist");
+                    // Don't reveal that the user does not exist
+                    return RedirectToPage("./ResetPasswordConfirmation");
+                }
+
+                var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
+                if (result.Succeeded)
+                {
+                    return RedirectToPage("./ResetPasswordConfirmation");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
                 return Page();
             }
-
-            var user = await _userManager.FindByEmailAsync(Input.Email);
-            if (user == null)
+            catch (Exception ex)
             {
-                // Don't reveal that the user does not exist
-                return RedirectToPage("./ResetPasswordConfirmation");
+                _logger.Error(ex.Message);
+                return Page();
             }
-
-            var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
-            if (result.Succeeded)
-            {
-                return RedirectToPage("./ResetPasswordConfirmation");
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
-            return Page();
         }
     }
 }

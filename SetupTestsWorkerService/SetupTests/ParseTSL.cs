@@ -7,15 +7,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
+using Serilog;
 
 namespace SetupTestsWorkerService.SetupTests
 {
 	public class ParseTSL
 	{
+		private static readonly ILogger _logger = Log.Logger;
+
 		public static void Parse(CompleteTest firstTestSetup, Api api)
 		{
-
-			var deserializer = new DeserializerBuilder().Build();
+			IDeserializer deserializer = null;
+			try
+			{
+				deserializer = new DeserializerBuilder().Build();
+			}
+			catch (Exception ex)
+			{
+				_logger.Error("Error building Deserializer");
+				_logger.Error(ex.Message);
+			}
 
 			try
 			{
@@ -23,6 +34,8 @@ namespace SetupTestsWorkerService.SetupTests
 			}
 			catch (Exception e)
 			{
+				_logger.Error("Error deserializing TSL");
+				_logger.Error(e.Message);
 				firstTestSetup.Errors.Add(e.Message);
 			}
 		}
